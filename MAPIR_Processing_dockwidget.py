@@ -360,7 +360,6 @@ class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
         QtWidgets.QApplication.processEvents()
         self.close()
 
-
 # class KernelDelete(QtWidgets.QDialog, DEL_CLASS):
 #     parent = None
 #
@@ -382,8 +381,6 @@ class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
 #
 #     def on_ModalCancelButton_released(self):
 #         self.close()
-
-
 
 class KernelModal(QtWidgets.QDialog, MODAL_CLASS):
     """
@@ -444,7 +441,6 @@ class KernelModal(QtWidgets.QDialog, MODAL_CLASS):
 
     def on_ModalCancelButton_released(self):
         self.close()
-
 
 class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
     """
@@ -523,8 +519,6 @@ class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
 
     def on_ModalCancelButton_released(self):
         self.close()
-
-
 
 class KernelTime(QtWidgets.QDialog, TIME_CLASS):
     """
@@ -704,6 +698,7 @@ class KernelTime(QtWidgets.QDialog, TIME_CLASS):
             self.KernelReferenceTime.setDateTime(QtCore.QDateTime.currentDateTimeUtc())
         else:
             self.KernelReferenceTime.setDateTime(QtCore.QDateTime.currentDateTime())
+
 class tPoll:
     """ class tPoll sets variables request, code, len equal to zero, it sets values equal to an empty list"""
     def __init__(self):
@@ -711,6 +706,7 @@ class tPoll:
         code = 0
         len = 0 #Len can also store the value depending on the code given
         values = []
+
 class tEventInfo:
     """class tEventInfor sets variables mode, process, focusing, inversion, and nr_faces equal to 0"""
     def __init__(self):
