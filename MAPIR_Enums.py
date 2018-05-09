@@ -1,6 +1,11 @@
+""" MAPIR_Enums.py contains several classes, each of which contains enumerated constants that are relevant to
+    the respective class
+"""
+
 from enum import IntEnum
 
 class eRequest(IntEnum):
+    """ class eRequest(IntNum) contains enums for Request"""
 
     RQ_RECEIVE_EVENT = 0
     RQ_SET_COMMAND = 1
@@ -10,6 +15,8 @@ class eRequest(IntEnum):
     RQ_READ_BLOCK = 5
     RQ_SELECT_CAMERA = 6
 class eStatus(IntEnum):
+    """ class eStatus(IntNum) contains enums for Status"""
+
     ST_OK = 0
     ST_CODE_NOT_SUPPORTED = 1
     ST_CODE_FOR_BLOCK_REG = 2
@@ -24,6 +31,8 @@ class eStatus(IntEnum):
     ST_CAMERA_NOT_FUNCTIONAL = 11
     ST_EVENT_NOT_IN_QUEUE = 12
 class eMode(IntEnum):
+    """ class eMode(IntNum) contains enums for Mode"""
+
     MD_REBOOT = 0
     MD_TRANSFER = 1
     MD_PLAY = 2
@@ -33,6 +42,8 @@ class eMode(IntEnum):
     MD_VIEW = 6
     NR_OF_MODES = 7
 class eTrigger_Mode(IntEnum):
+    """ class eTrigger_Mode(IntNum) contains enums for TriggerMode"""
+
     TMD_RECORD_VIDEO = 0
     TMD_RECORD_VIDEO_LOOPING = 1
     TMD_CAPTURE = 2
@@ -41,6 +52,8 @@ class eTrigger_Mode(IntEnum):
     TMD_TIME_LAPSE = 5
     TMD_NR_OF_MODES = 6
 class eProcess(IntEnum):
+    """ class eProcess(IntNum) contains enums for Process"""
+
     # MD_REBOOT
     PR_REBOOT = 0
     # MD_TRANSFER
@@ -62,7 +75,10 @@ class eProcess(IntEnum):
     PR_IDLE_ON_COMPLETION = 11
     PR_IDLE_ON_MEM_ALMOST_FULL = 12
     NR_OF_PROCESSES = 13
+
 class eEvent(IntEnum):
+    """ class eEvent(IntNum) contains enums for Event"""
+
     EV_CAMERA_DEVICE_READY  = 1
 #  EV_MODE_CHANGED = ()
     EV_PROCESS_CHANGED = 2
@@ -70,7 +86,10 @@ class eEvent(IntEnum):
     EV_INVERSION_COMPLETE = 4
     EV_ZOOM_POS_CHANGED = 5
     EV_DETECTED_FACES_CHANGED = 6
+
 class eCommand(IntEnum):
+    """ class eCommand(IntNum) contains enums for the Command"""
+
     CM_TRANSFER_MODE        = 1
     CM_PLAY_MODE = 2
     CM_RESET_CAMERA = 3
@@ -88,6 +107,8 @@ class eCommand(IntEnum):
     CM_SAVE_SETTINGS        = 41
     CM_SET_CAN_PARAMS = 42
 class eRegister(IntEnum):
+    """ class eRegister(IntNum) contains enums for the Register"""
+
     # PASSIVE
     RG_VIDEO_RESOLUTION     = 1
     RG_LOOPING_INTERVAL = 2
@@ -184,20 +205,27 @@ class eRegister(IntEnum):
     # SIZE
 
 class e_MANUAL_FOCUS(IntEnum):
+    """ class e_MANUAL_FOCUS(IntNum) contains enums for manual focus"""
     MF_MACRO = 0
     MF_TO_MACRO = 1
     MF_INFINITY = 2
     MF_TO_INFINITY = 3
+
 class e_PHOTO_VIDEO(IntEnum):
+    """ class e_PHOTO_VIDEO(IntNum) contains enums for photo video"""
     PV_PHOTO = 0
     PV_VIDEO = 1
     PV_BURST = 2
     PV_TIME_LAPSE = 3
     PV_CONTINUOUS = 4
+
 class e_BROWSE(IntEnum):
+    """ class e_BROWSE(IntNum) contains enums for browse"""
     BR_PREVIOUS = 0
     BR_NEXT = 1
-class eColors(IntEnum):
+
+class e_Colors(IntEnum):
+    """ class e_Colors(IntNum) contains enums for colors"""
     COL_GREEN = 0
     COL_BLUE = 1
     COL_RED = 2
@@ -213,48 +241,68 @@ class eColors(IntEnum):
     COL_LIME = 13
     COL_CYAN = 14
     COL_NAVY = 15
+
 class e_LHM(IntEnum):
+    """ class eLHM(IntNum) contains enums for LHM"""
     LHM_LOW = 0
     LHM_MEDIUM_LOW = 1
     LHM_MEDIUM = 2
     LHM_MEDIUM_HIGH = 3
     LHM_HIGH = 4
+
 class e_PICTURE_INVERSION(IntEnum):
+    """ class e_PICTURE_INVERSION(IntNum) contains enums for picture inversion"""
     PI_NO = 0
     PI_MIRROR = 1
     PI_FLIP = 2
     PI_BOTH = 3
+
 class e_COMPRESSION(IntEnum):
+    """ class e_COMPRESSION(IntNum) contains enums for compressiom"""
     CMP_NO = 0
     CMP_LOW = 1
     CMP_MEDIUM = 2
     CMP_HIGH = 3
     CMP_MAXIMAL = 4
+
 class e_VIDEO_FORMAT(IntEnum):
+    """ class e_VIDEO_FORMAT(IntNum) contains enums for video formatting"""
     VF_H264 = 0
     VF_MJPEG = 1
+    
 class e_PHOTO_FORMAT(IntEnum):
+    """ class e_PHOTO_FORMAT(IntNum) contains enums for photo formatting"""
     PF_TIFF = 0
     PF_RAW = 1
+    
 class e_CVBS_FORMAT(IntEnum):
+    """ class e_CVBS_FORMAT(IntNum) contains enums for composite video baseband (CVBS) format"""
     CF_PAL = 0
     CF_NTSC = 1
+    
 class e_WHITE_BALANCE(IntEnum):
+    """ class e_WHITE_BALANCE(IntNum) contains enums for white balancing"""
     WB_AUTO = 0
     WB_WARM = 1
     WB_COOL = 2
     WB_NATIVE = 3
+    
 class e_PHOTO_COLOR(IntEnum):
+    """ class e_PHOTO_COLOR(IntNum) contains enums for photo color"""
     PC_BEST = 0
     PC_GRAY = 1
     PC_POOR = 2
     PC_RICH = 3
+    
 class e_VIDEO_RESOLUTION(IntEnum):
+    """ class e_VIDEO_RESOLUTION(IntNum) contains enums for video resolution"""
     VR_WVGA = 0
     VR_FULLHD = 1
     VR_2K = 2
     VR_4K = 3
+    
 class e_SENSOR(IntEnum):
+    """ class e_SENSOR(IntNum) contains enums for the sensor"""
     SE_R2D2 = 0
     SE_C3PO = 1
     SE_AR0134 = 2

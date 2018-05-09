@@ -73,7 +73,7 @@ import glob
 
 all_cameras = []
 
-'''
+"""
 One big issue is that every time you call any .exe in Windows a command window is pulled up each time
 
 In order to address this we will create a variable: 'si' which stands for system information
@@ -83,19 +83,21 @@ suppress the popping up of a window each time an exe is called
 
 Now that si exists with the suppressed pop ups it can be passed to other functions as a substitute for the default 
 system information to avoid having to write this code everytime
-'''
+"""
+
+
 if sys.platform == "win32":
 
     si = subprocess.STARTUPINFO()
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
 
-'''exiftool is crossplatform, needs to be cosnumed in 3 differeent wased based on which OS is being used
+"""exiftool is crossplatform, needs to be cosnumed in 3 differeent wased based on which OS is being used
 on mac use homebrew
-'''
+"""
 
 
-'''
+"""
 The following code is meant to define various classes:
 
 FORM_CLASS represents the main UI class
@@ -106,8 +108,10 @@ TIME_CLASS represents the time settings modal window
 TRANSFER_CLASS is a modal window for the transfer
 ADVANCED_CLASS is a modal window for advanced settings on the camera
 MATRIX_CLASS is a modal window for the CT (Color Transform) Matrix
+"""
 
-'''
+
+
 
 # if sys.platform == "win32":
 #       import exiftool
@@ -130,16 +134,17 @@ MATRIX_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_matrix.ui'))
 
 
-'''
-DebayerMatrix (Debayer ~ De ) 
-No such thing as Red Blue Green Channels, need to take the image and interpolate through it to get separate RBG channel
-1/4 Red data is actually there, other 75% must be interpolated 
-1/4 Blue data is actually there, other 75% must be interpolated
-1/2 Green is actually there, other 50% must be interpolated
 
-'''
 
 class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
+    """DebayerMatrix (Debayer ~ De )
+
+        No such thing as Red Blue Green Channels, need to take the image and interpolate through it to get separate RBG channel
+        1/4 Red data is actually there, other 75% must be interpolated
+        1/4 Blue data is actually there, other 75% must be interpolated
+        1/2 Green is actually there, other 50% must be interpolated
+
+    """
     parent = None
 
     GAMMA_LIST = [{"CCM": [1,0,0,0,1,0,0,0,1], "RGB_OFFSET": [0,0,0], "GAMMA": [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]},
@@ -156,16 +161,20 @@ class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
         self.setupUi(self)
 
     def on_ModalSaveButton_released(self):
-
-
-
+    """ on_ModalSaveButton_released closes self when the save button is released (clicked)
+    """
         self.close()
 
     def on_ModalCancelButton_released(self):
+        """ on_ModalCancelButton_released closes self when the cancel button is released (clicked)
+        """
         self.close()
 
 
 class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
+    """class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS)
+        takes in inputs QtWidgets.QDialog and ADVANCED_CLASS
+    """
     parent = None
 
     def __init__(self, parent=None):
@@ -232,6 +241,9 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
     #         instring.write(self.ModalOutputFolder.text())
     #         self.ModalSaveButton.setEnabled(True)
     def on_SaveButton_released(self):
+        """
+
+        """
         # self.parent.transferoutfolder  = self.ModalOutputFolder.text()
         # self.parent.yestransfer = self.TransferBox.isChecked()
         # self.parent.yesdelete = self.DeleteBox.isChecked()
@@ -374,22 +386,23 @@ class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
 #     def on_ModalCancelButton_released(self):
 #         self.close()
 
-'''
-class KernalModal(QtWidgets.QDialog, MODAL_CLASS)
 
-
-first the submethod calls setupUI to pop up the widgets
-
-next when the save button is released it records the inputs given by the user for the seconds, minutes, hours, days, and 
-weeks
-
-Finally seconds are converted to minutes, minutes to hours, hours to days, and days to weeks in order to generate a 
-string that may be passed to writeToIntervalLine()
-
-this string represents the time interval that the MAPIR camera will take between taking images as specified by the user
-'''
 
 class KernelModal(QtWidgets.QDialog, MODAL_CLASS):
+    '''
+    class KernalModal(QtWidgets.QDialog, MODAL_CLASS)
+
+
+    first the submethod calls setupUI to pop up the widgets
+
+    next when the save button is released it records the inputs given by the user for the seconds, minutes, hours, days, and
+    weeks
+
+    Finally seconds are converted to minutes, minutes to hours, hours to days, and days to weeks in order to generate a
+    string that may be passed to writeToIntervalLine()
+
+    this string represents the time interval that the MAPIR camera will take between taking images as specified by the user
+    '''
     parent = None
 
     def __init__(self, parent=None):
@@ -438,6 +451,12 @@ class KernelModal(QtWidgets.QDialog, MODAL_CLASS):
 
 
 class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
+    '''
+    class KernalCan
+
+    ....add description
+
+    '''
     parent = None
 
     def __init__(self, parent=None):
@@ -447,7 +466,7 @@ class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
 
         self.setupUi(self)
         buf = [0] * 512
-        buf[0] = self.parent.SET_REGISTER_READ_REPORT
+        buf[0] = self.parent.SET_REGIST ER_READ_REPORT
         buf[1] = eRegister.RG_CAN_NODE_ID.value
         nodeid = self.parent.writeToKernel(buf)[2]
         # buf[2] = nodeid
@@ -509,18 +528,19 @@ class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
     def on_ModalCancelButton_released(self):
         self.close()
 
-'''
 
-class KernelTime(QtWidgets.QDialog, TIME_CLASS)
-
-takes in actual UTC (Coordinated Universal Time), GPS, or Computer Time
-reads the time from the kernal's internal clock
-
-Syncs the internal clock to whichever of the three times was selected
-
-'''
 
 class KernelTime(QtWidgets.QDialog, TIME_CLASS):
+    '''
+
+    class KernelTime(QtWidgets.QDialog, TIME_CLASS)
+
+    takes in actual UTC (Coordinated Universal Time), GPS, or Computer Time
+    reads the time from the kernal's internal clock
+
+    Syncs the internal clock to whichever of the three times was selected
+
+    '''
     parent = None
     timer = QtCore.QTimer()
     BUFF_LEN = 512 #length of the buffer
