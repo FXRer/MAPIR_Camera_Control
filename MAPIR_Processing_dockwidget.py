@@ -97,6 +97,9 @@ if sys.platform == "win32":
 on mac use homebrew
 """
 
+# if sys.platform == "win32":
+#       import exiftool
+#       exiftool.executable = modpath + os.sep + "exiftool.exe"
 
 """
 The following code is meant to define various classes:
@@ -110,13 +113,6 @@ TRANSFER_CLASS is a modal window for the transfer
 ADVANCED_CLASS is a modal window for advanced settings on the camera
 MATRIX_CLASS is a modal window for the CT (Color Transform) Matrix
 """
-
-
-
-
-# if sys.platform == "win32":
-#       import exiftool
-#       exiftool.executable = modpath + os.sep + "exiftool.exe"
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_base.ui'))
 MODAL_CLASS, _ = uic.loadUiType(os.path.join(

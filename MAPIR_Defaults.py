@@ -3,7 +3,7 @@
 These defaults serve as substitutes for values that would be derived from the calibration targets
 """
 
-UINT16MAX_FLOAT = 65535.0
+UINT16MAX_FLOAT = 65535.0 #max number a uint16 can hold is 65535
 UINT16MAX_INT = 65535
 
 # the following constants are default values for the camera if the target is not used
