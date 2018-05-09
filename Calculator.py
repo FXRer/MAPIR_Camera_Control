@@ -85,25 +85,50 @@ class Calculator(QtWidgets.QDialog, RASTER_CLASS):
             h, w = self.parent.display_image_original.shape[:2] #get image height and width
             bands = [self.parent.display_image_original[:, :, 0], self.parent.display_image_original[:, :, 1], self.parent.display_image_original[:, :, 2]]
             self.ndvi = self.parent.calculateIndex(bands[self.RasterX.currentIndex()], bands[self.RasterY.currentIndex()])
-            self.parent.LUT_Min = copy.deepcopy(np.percentile(self.ndvi, 2))
-            self.parent.LUT_Max = copy.deepcopy(np.percentile(self.ndvi, 98))
-            midpoint = (self.parent.LUT_Max - self.parent.LUT_Min) / 2
-            steps = midpoint * 1 / 3
+            self.parent.LUT_Min = copy.deepcopy(np.percentile(self.ndvi, 2)) #LUT_min = 2nd percentile
+            self.parent.LUT_Max = copy.deepcopy(np.percentile(self.ndvi, 98)) #LUT_max = 98th percentile
+            midpoint = (self.parent.LUT_Max - self.parent.LUT_Min) / 2 #midpoint = (min + max)/2
+
+            steps = midpoint * 1 / 3 #each step is a third of the midpoint
+
+            # legend max is a string representing LUT_Max
             self.parent.legend_max.setText(str(round(self.parent.LUT_Max, 2)))
+
+            #two thirds point occurs at the max minus 1 step
             self.parent.legend_2thirds.setText(str(round(self.parent.LUT_Max - (steps), 2)))
+
+            #one third point occurs at the max minus 2 steps
             self.parent.legend_1third.setText(str(round(self.parent.LUT_Max - (steps * 2), 2)))
+
+            #zero point occurs at 3 steps minus the max
             self.parent.legend_zero.setText(str(round(self.parent.LUT_Max - (steps * 3), 2)))
+
+            #legend min is a string representing LUT_min
             self.parent.legend_min.setText(str(round(self.parent.LUT_Min, 2)))
+
+            #negative two thirds occurs at the max minus 5 steps
             self.parent.legend_neg2thirds.setText(str(round(self.parent.LUT_Max - (steps * 5), 2)))
+
+            #negative one third point occurs at the max minus 4 steps
             self.parent.legend_neg1third.setText(str(round(self.parent.LUT_Max - (steps * 4), 2)))
+
+            #process the events in the widget
             QtWidgets.QApplication.processEvents()
-            self.ndvi -= self.ndvi.min()
-            self.ndvi /= (self.ndvi.max())
-            self.ndvi *= 255.0
+
+            self.ndvi -= self.ndvi.min() # ndvi = ndvi - min
+            self.ndvi /= (self.ndvi.max())# ndvi = ndvi/max
+
+            #at this point our ndvi value is called between 0 and 1, we are going to store it in a uint8 though thus
+            #it must be formatted appropriately
+
+            self.ndvi *= 255.0 #scaling ndvi for max value in a uint8 bit variable
             # self.ndvi += 128.0
-            self.ndvi = np.around(self.ndvi)
-            self.ndvi = self.ndvi.astype("uint8")
-            self.ndvi = cv2.equalizeHist(self.ndvi)
+            self.ndvi = np.around(self.ndvi) #round to zero decimals
+            self.ndvi = self.ndvi.astype("uint8") #typecast into uint8
+            self.ndvi = cv2.equalizeHist(self.ndvi)  #stretch histogram to improve constrast of image
+
+            #at this point ndvi is now finished being calculated and the Q object has been modified accordingly
+            
             # self.ndvi = cv2.cvtColor(self.ndvi, cv2.COLOR_GRAY2RGB)
         except Exception as e:
             print(e)
