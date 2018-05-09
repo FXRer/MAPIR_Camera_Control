@@ -49,6 +49,7 @@ import hid
 import time
 
 from MAPIR_Enums import *
+from MAPIR_Defaults import *
 from Calculator import *
 from LUT_Dialog import *
 from Vignette import *
@@ -728,44 +729,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     class MAPIR_ProcessingDockWidget is the largest class within the widget program and contains the hard-coded constants,
     the code to generate the widget, and the code for most of the tabs within the widget
     """
-    BASE_COEFF_SURVEY2_RED_JPG = [-2.55421832, 16.01240929, 0.0, 0.0, 0.0, 0.0]
-    BASE_COEFF_SURVEY2_GREEN_JPG = [0.0, 0.0, -0.60437250, 4.82869470, 0.0, 0.0]
-    BASE_COEFF_SURVEY2_BLUE_JPG = [0.0, 0.0, 0.0, 0.0, -0.39268985, 2.67916884]
-    BASE_COEFF_SURVEY2_NDVI_JPG = [-0.29870245, 6.51199915, 0.0, 0.0, -0.65112026, 10.30416005]
-    BASE_COEFF_SURVEY2_NIR_JPG = [-0.46967653, 7.13619139, 0.0, 0.0, 0.0, 0.0]
-    BASE_COEFF_SURVEY1_NDVI_JPG = [-6.33770486888, 331.759383023, 0.0, 0.0, -0.6931339436, 51.3264675118]
-    BASE_COEFF_SURVEY2_RED_TIF = [-5.09645820, 0.24177528, 0.0, 0.0, 0.0, 0.0]
-    BASE_COEFF_SURVEY2_GREEN_TIF = [0.0, 0.0, -1.39528479, 0.07640011, 0.0, 0.0]
-    BASE_COEFF_SURVEY2_BLUE_TIF = [0.0, 0.0, 0.0, 0.0, -0.67299134, 0.03943339]
-    BASE_COEFF_SURVEY2_NDVI_TIF = [3.21946584661, 1.06087488594, 0.0, 0.0, -43.6505776052, 1.46482226805]
-    BASE_COEFF_SURVEY2_NIR_TIF = [-2.24216724, 0.12962333, 0.0, 0.0, 0.0, 0.0]
-    BASE_COEFF_SURVEY3_W_NGB_TIF = [13.2610911247, 3.97721174076, 5.73811506234]
-    BASE_COEFF_SURVEY3_N_NGB_TIF = [13.2610911247, 3.97721174076, 5.73811506234]
-    BASE_COEFF_SURVEY3_W_RGN_TIF = [5.09994742157, 3.85344547793, 9.49432813587]
-    BASE_COEFF_SURVEY3_N_RGN_TIF = [5.09994742157, 3.85344547793, 9.49432813587]
-    BASE_COEFF_SURVEY3_N_NIR_TIF = [13.2610911247, 0.0, 0.0]
-    BASE_COEFF_DJIX3_NDVI_JPG = [-0.34430543, 4.63184993, 0.0, 0.0, -0.49413940, 16.36429964]
-    BASE_COEFF_DJIX3_NDVI_TIF = [-0.74925346, 0.01350319, 0.0, 0.0, -0.77810008, 0.03478272]
-    BASE_COEFF_DJIPHANTOM4_NDVI_JPG = [-1.17016961, 0.03333209, 0.0, 0.0, -0.99455214, 0.05373502]
-    BASE_COEFF_DJIPHANTOM4_NDVI_TIF = [-1.17016961, 0.03333209, 0.0, 0.0, -0.99455214, 0.05373502]
-    BASE_COEFF_DJIPHANTOM3_NDVI_JPG = [-1.54494979, 3.44708472, 0.0, 0.0, -1.40606832, 6.35407929]
-    BASE_COEFF_DJIPHANTOM3_NDVI_TIF = [-1.37495554, 0.01752340, 0.0, 0.0, -1.41073753, 0.03700812]
-    BASE_COEFF_KERNEL_F644 = [0.0, 0.0]
-    BASE_COEFF_KERNEL_F405 = [0.0, 0.0]
-    BASE_COEFF_KERNEL_F450 = [0.0, 0.0]
-    BASE_COEFF_KERNEL_F520 = [0.0, 0.0]
-    BASE_COEFF_KERNEL_F550 = [0.0, 0.0]
-    BASE_COEFF_KERNEL_F632 = [0.0, 0.0]
-    BASE_COEFF_KERNEL_F650 = [0.0, 0.0]
-    BASE_COEFF_KERNEL_F725 = [0.0, 0.0]
-    BASE_COEFF_KERNEL_F808 = [0.0, 0.0]
-    BASE_COEFF_KERNEL_F850 = [0.0, 0.0]
-    BASE_COEFF_KERNEL_F395_870 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    BASE_COEFF_KERNEL_F475_850 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    BASE_COEFF_KERNEL_F550_850 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    BASE_COEFF_KERNEL_F660_850 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    BASE_COEFF_KERNEL_F475_550_850 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    BASE_COEFF_KERNEL_F550_660_850 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     # eFilter = mousewheelFilter()
     camera = 0
@@ -3459,106 +3422,106 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
 
                             if ind[0] == 5:  # Survey1_NDVI
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * self.BASE_COEFF_SURVEY1_NDVI_JPG[1]) \
-                                                              + self.BASE_COEFF_SURVEY1_NDVI_JPG[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * self.BASE_COEFF_SURVEY1_NDVI_JPG[1]) \
-                                                              + self.BASE_COEFF_SURVEY1_NDVI_JPG[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_SURVEY1_NDVI_JPG[3]) \
-                                                               + self.BASE_COEFF_SURVEY1_NDVI_JPG[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_SURVEY1_NDVI_JPG[3]) \
-                                                               + self.BASE_COEFF_SURVEY1_NDVI_JPG[2]
+                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[1]) \
+                                                              + MAPIR_Defaults.py_SURVEY1_NDVI_JPG[0]
+                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.py_SURVEY1_NDVI_JPG[1]) \
+                                                              + MAPIR_Defaults.py_SURVEY1_NDVI_JPG[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.py_SURVEY1_NDVI_JPG[3]) \
+                                                               + MAPIR_Defaults.py_SURVEY1_NDVI_JPG[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.py_SURVEY1_NDVI_JPG[3]) \
+                                                               + MAPIR_Defaults.py_SURVEY1_NDVI_JPG[2]
                             elif (ind[0] == 4) and ind[1] == 0:
                                 if "tif" or "TIF" in calpixel:
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * self.BASE_COEFF_SURVEY2_NDVI_TIF[1]) \
-                                                              + self.BASE_COEFF_SURVEY2_NDVI_TIF[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * self.BASE_COEFF_SURVEY2_NDVI_TIF[1]) \
-                                                              + self.BASE_COEFF_SURVEY2_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_SURVEY2_NDVI_TIF[3]) \
-                                                               + self.BASE_COEFF_SURVEY2_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_SURVEY2_NDVI_TIF[3]) \
-                                                               + self.BASE_COEFF_SURVEY2_NDVI_TIF[2]
+                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.py_SURVEY2_NDVI_TIF[1]) \
+                                                              + MAPIR_Defaults.py_SURVEY2_NDVI_TIF[0]
+                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.py_SURVEY2_NDVI_TIF[1]) \
+                                                              + MAPIR_Defaults.py_SURVEY2_NDVI_TIF[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.py_SURVEY2_NDVI_TIF[3]) \
+                                                               + MAPIR_Defaults.py_SURVEY2_NDVI_TIF[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.py_SURVEY2_NDVI_TIF[3]) \
+                                                               + MAPIR_Defaults.py_SURVEY2_NDVI_TIF[2]
                                 elif "jpg" or "JPG" in calpixel:
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * self.BASE_COEFF_SURVEY2_NDVI_JPG[1]) \
-                                                              + self.BASE_COEFF_SURVEY2_NDVI_JPG[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * self.BASE_COEFF_SURVEY2_NDVI_JPG[1]) \
-                                                              + self.BASE_COEFF_SURVEY2_NDVI_JPG[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_SURVEY2_NDVI_JPG[3]) \
-                                                               + self.BASE_COEFF_SURVEY2_NDVI_JPG[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_SURVEY2_NDVI_JPG[3]) \
-                                                               + self.BASE_COEFF_SURVEY2_NDVI_JPG[2]
+                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.py_SURVEY2_NDVI_JPG[1]) \
+                                                              + MAPIR_Defaults.py_SURVEY2_NDVI_JPG[0]
+                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.py_SURVEY2_NDVI_JPG[1]) \
+                                                              + MAPIR_Defaults.py_SURVEY2_NDVI_JPG[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.py_SURVEY2_NDVI_JPG[3]) \
+                                                               + MAPIR_Defaults.py_SURVEY2_NDVI_JPG[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.py_SURVEY2_NDVI_JPG[3]) \
+                                                               + MAPIR_Defaults.py_SURVEY2_NDVI_JPG[2]
                             elif ind[0] == 8:
                                 if "tif" or "TIF" in calpixel:
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * self.BASE_COEFF_DJIX3_NDVI_TIF[1]) \
-                                                              + self.BASE_COEFF_DJIX3_NDVI_TIF[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * self.BASE_COEFF_DJIX3_NDVI_TIF[1]) \
-                                                              + self.BASE_COEFF_DJIX3_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_DJIX3_NDVI_TIF[3]) \
-                                                               + self.BASE_COEFF_DJIX3_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_DJIX3_NDVI_TIF[3]) \
-                                                               + self.BASE_COEFF_DJIX3_NDVI_TIF[2]
+                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.py_DJIX3_NDVI_TIF[1]) \
+                                                              + MAPIR_Defaults.py_DJIX3_NDVI_TIF[0]
+                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.py_DJIX3_NDVI_TIF[1]) \
+                                                              + MAPIR_Defaults.py_DJIX3_NDVI_TIF[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.py_DJIX3_NDVI_TIF[3]) \
+                                                               + MAPIR_Defaults.py_DJIX3_NDVI_TIF[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.py_DJIX3_NDVI_TIF[3]) \
+                                                               + MAPIR_Defaults.py_DJIX3_NDVI_TIF[2]
                                 elif "jpg" or "JPG" in calpixel:
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * self.BASE_COEFF_DJIX3_NDVI_JPG[1]) \
-                                                              + self.BASE_COEFF_DJIX3_NDVI_JPG[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * self.BASE_COEFF_DJIX3_NDVI_JPG[1]) \
-                                                              + self.BASE_COEFF_DJIX3_NDVI_JPG[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_DJIX3_NDVI_JPG[3]) \
-                                                               + self.BASE_COEFF_DJIX3_NDVI_JPG[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_DJIX3_NDVI_JPG[3]) \
-                                                               + self.BASE_COEFF_DJIX3_NDVI_JPG[2]
+                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.py_DJIX3_NDVI_JPG[1]) \
+                                                              + MAPIR_Defaults.py_DJIX3_NDVI_JPG[0]
+                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.py_DJIX3_NDVI_JPG[1]) \
+                                                              + MAPIR_Defaults.py_DJIX3_NDVI_JPG[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.py_DJIX3_NDVI_JPG[3]) \
+                                                               + MAPIR_Defaults.py_DJIX3_NDVI_JPG[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.py_DJIX3_NDVI_JPG[3]) \
+                                                               + MAPIR_Defaults.py_DJIX3_NDVI_JPG[2]
                             elif ind[0] == 5:
                                 if "tif" or "TIF" in calpixel:
                                     self.pixel_min_max["redmax"] = (
-                                                              self.pixel_min_max["redmax"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[1]) \
-                                                              + self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[0]
+                                                              self.pixel_min_max["redmax"] * MAPIR_Defaults.py_DJIPHANTOM4_NDVI_TIF[1]) \
+                                                              + MAPIR_Defaults.py_DJIPHANTOM4_NDVI_TIF[0]
                                     self.pixel_min_max["redmin"] = (
-                                                              self.pixel_min_max["redmin"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[1]) \
-                                                              + self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[
+                                                              self.pixel_min_max["redmin"] * MAPIR_Defaults.py_DJIPHANTOM4_NDVI_TIF[1]) \
+                                                              + MAPIR_Defaults.py_DJIPHANTOM4_NDVI_TIF[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.py_DJIPHANTOM4_NDVI_TIF[
                                         3]) \
-                                                               + self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[
+                                                               + MAPIR_Defaults.py_DJIPHANTOM4_NDVI_TIF[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.py_DJIPHANTOM4_NDVI_TIF[
                                         3]) \
-                                                               + self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[2]
+                                                               + MAPIR_Defaults.py_DJIPHANTOM4_NDVI_TIF[2]
                                 elif "jpg" or "JPG" in calpixel:
                                     self.pixel_min_max["redmax"] = (
-                                                              self.pixel_min_max["redmax"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[1]) \
-                                                              + self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[0]
+                                                              self.pixel_min_max["redmax"] * MAPIR_Defaults.py_DJIPHANTOM4_NDVI_JPG[1]) \
+                                                              + MAPIR_Defaults.py_DJIPHANTOM4_NDVI_JPG[0]
                                     self.pixel_min_max["redmin"] = (
-                                                              self.pixel_min_max["redmin"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[1]) \
-                                                              + self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[
+                                                              self.pixel_min_max["redmin"] * MAPIR_Defaults.py_DJIPHANTOM4_NDVI_JPG[1]) \
+                                                              + MAPIR_Defaults.py_DJIPHANTOM4_NDVI_JPG[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.py_DJIPHANTOM4_NDVI_JPG[
                                         3]) \
-                                                               + self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[
+                                                               + MAPIR_Defaults.py_DJIPHANTOM4_NDVI_JPG[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.py_DJIPHANTOM4_NDVI_JPG[
                                         3]) \
-                                                               + self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[2]
+                                                               + MAPIR_Defaults.py_DJIPHANTOM4_NDVI_JPG[2]
                             elif ind[0] == 6 or ind[0] > 7:
                                 if "tif" or "TIF" in calpixel:
                                     self.pixel_min_max["redmax"] = (
-                                                              self.pixel_min_max["redmax"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
-                                                              + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
+                                                              self.pixel_min_max["redmax"] * MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[1]) \
+                                                              + MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[0]
                                     self.pixel_min_max["redmin"] = (
-                                                              self.pixel_min_max["redmin"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
-                                                              + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
+                                                              self.pixel_min_max["redmin"] * MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[1]) \
+                                                              + MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[
                                         3]) \
-                                                               + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
+                                                               + MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[
                                         3]) \
-                                                               + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
+                                                               + MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[2]
                                 elif "jpg" or "JPG" in calpixel:
                                     self.pixel_min_max["redmax"] = (
-                                                              self.pixel_min_max["redmax"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
-                                                              + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
+                                                              self.pixel_min_max["redmax"] * MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[1]) \
+                                                              + MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[0]
                                     self.pixel_min_max["redmin"] = (
-                                                              self.pixel_min_max["redmin"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
-                                                              + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
+                                                              self.pixel_min_max["redmin"] * MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[1]) \
+                                                              + MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[
                                         3]) \
-                                                               + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
+                                                               + MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[
                                         3]) \
-                                                               + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
+                                                               + MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF[2]
                         self.seed_pass = False
                         if self.useqr == True:
                             self.pixel_min_max["redmax"] = int(
@@ -3591,61 +3554,61 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 # self.CalibrationLog.append("NOT Using QR")
                                 if (cameramodel[0] == 4) and (self.CalibrationFilter.currentIndex() == 0):  # Survey2 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_NDVI_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.py_SURVEY2_NDVI_TIF, self.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_NDVI_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.py_SURVEY2_NDVI_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 4 and self.CalibrationFilter.currentIndex() == 1:  # Survey2 NIR
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_NIR_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.py_SURVEY2_NIR_TIF, self.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_NIR_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.py_SURVEY2_NIR_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 4 and self.CalibrationFilter.currentIndex() == 2:  # Survey2 RED
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_RED_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.py_SURVEY2_RED_TIF, self.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_RED_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_RED_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 4 and self.CalibrationFilter.currentIndex() == 3:  # Survey2 GREEN
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_GREEN_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.py_SURVEY2_GREEN_TIF, self.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_GREEN_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_GREEN_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 4 and self.CalibrationFilter.currentIndex() == 4:  # Survey2 BLUE
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_BLUE_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.py_SURVEY2_BLUE_TIF, self.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_BLUE_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_BLUE_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 5:  # Survey1 NDVI
                                     if "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY1_NDVI_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 9:  # DJI X3 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_DJIX3_NDVI_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF, self.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_DJIX3_NDVI_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 6:  # DJI Phantom4 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF, self.pixel_min_max,
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF, self.pixel_min_max,
                                                              outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG, self.pixel_min_max,
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG, self.pixel_min_max,
                                                              outdir, ind)
                                 elif cameramodel[0] == 7 or cameramodel[0] == 8:  # DJI PHANTOM3 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF, self.pixel_min_max,
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.py_DJIPHANTOM3_NDVI_TIF, self.pixel_min_max,
                                                              outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, self.BASE_COEFF_DJIPHANTOM3_NDVI_JPG, self.pixel_min_max,
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.py_DJIPHANTOM3_NDVI_JPG, self.pixel_min_max,
                                                              outdir, ind)
                                 elif self.CalibrationCameraModel.currentIndex() == 3 and self.CalibrationFilter.currentIndex() == 1:  # Survey2 NIR
 
-                                    self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY3_W_RGN_TIF, self.pixel_min_max, outdir, ind)
+                                    self.CalibratePhotos(calfile, MAPIR_Defaults.py_SURVEY3_W_RGN_TIF, self.pixel_min_max, outdir, ind)
                                 elif self.CalibrationCameraModel.currentIndex() == 3 and self.CalibrationFilter.currentIndex() == 2:  # Survey2 NIR
 
-                                    self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY3_W_NGB_TIF, self.pixel_min_max,
+                                    self.CalibratePhotos(calfile, MAPIR_Defaults.py_SURVEY3_W_NGB_TIF, self.pixel_min_max,
                                                          outdir, ind)
                                 elif self.CalibrationCameraModel.currentIndex() == 3 and self.CalibrationFilter.currentIndex() == 3:  # Survey2 NIR
 
-                                    self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY3_W_NGB_TIF, self.pixel_min_max,
+                                    self.CalibratePhotos(calfile, MAPIR_Defaults.py_SURVEY3_W_NGB_TIF, self.pixel_min_max,
                                                          outdir, ind)
                                 else:
                                     self.CalibrationLog.append(
@@ -3820,11 +3783,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         self.CalibrateMono(calfile, self.qrcoeffs, outdir, ind)
                                     else:
                                         if self.CalibrationFilter.currentIndex() == 0:
-                                            self.CalibrateMono(calfile, self.BASE_COEFF_KERNEL_F590, outdir, ind)
+                                            self.CalibrateMono(calfile, MAPIR_Defaults.py_KERNEL_F590, outdir, ind)
                                         elif self.CalibrationFilter.currentIndex() == 1:
-                                            self.CalibrateMono(calfile, self.BASE_COEFF_KERNEL_F650, outdir, ind)
+                                            self.CalibrateMono(calfile, MAPIR_Defaults.py_KERNEL_F650, outdir, ind)
                                         elif self.CalibrationFilter.currentIndex() == 2:
-                                            self.CalibrateMono(calfile, self.BASE_COEFF_KERNEL_F850, outdir, ind)
+                                            self.CalibrateMono(calfile, MAPIR_Defaults.py_KERNEL_F850, outdir, ind)
                         if os.path.exists(calfolder2):
                             # print("Cal2")
                             # files_to_calibrate2 = []
@@ -3855,11 +3818,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         self.CalibrateMono(calfile2, self.qrcoeffs2, outdir2, ind)
                                     else:
                                         if self.CalibrationFilter.currentIndex() == 0:
-                                            self.CalibrateMono(calfile2, self.BASE_COEFF_KERNEL_F590, outdir2)
+                                            self.CalibrateMono(calfile2, MAPIR_Defaults.py_KERNEL_F590, outdir2)
                                         elif self.CalibrationFilter.currentIndex() == 1:
-                                            self.CalibrateMono(calfile2, self.BASE_COEFF_KERNEL_F650, outdir2)
+                                            self.CalibrateMono(calfile2, MAPIR_Defaults.py_KERNEL_F650, outdir2)
                                         elif self.CalibrationFilter.currentIndex() == 2:
-                                            self.CalibrateMono(calfile2, self.BASE_COEFF_KERNEL_F850, outdir2)
+                                            self.CalibrateMono(calfile2, MAPIR_Defaults.py_KERNEL_F850, outdir2)
                         if os.path.exists(calfolder3):
         #                     # print("Cal3")
         #                     files_to_calibrate3 = []
@@ -3890,11 +3853,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         self.CalibrateMono(calfile3, self.qrcoeffs3, outdir3, ind)
                                     else:
                                         if self.CalibrationFilter.currentIndex() == 0:
-                                            self.CalibrateMono(calfile3, self.BASE_COEFF_KERNEL_F590, outdir3)
+                                            self.CalibrateMono(calfile3, MAPIR_Defaults.py_KERNEL_F590, outdir3)
                                         elif self.CalibrationFilter.currentIndex() == 1:
-                                            self.CalibrateMono(calfile3, self.BASE_COEFF_KERNEL_F650, outdir3)
+                                            self.CalibrateMono(calfile3, MAPIR_Defaults.py_KERNEL_F650, outdir3)
                                         elif self.CalibrationFilter.currentIndex() == 2:
-                                            self.CalibrateMono(calfile3, self.BASE_COEFF_KERNEL_F850, outdir3)
+                                            self.CalibrateMono(calfile3, MAPIR_Defaults.py_KERNEL_F850, outdir3)
                         if os.path.exists(calfolder4):
                             # print("Cal4")
                             # files_to_calibrate4 = []
@@ -3925,11 +3888,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         self.CalibrateMono(calfile4, self.qrcoeffs4, outdir4, ind)
                                     else:
                                         if self.CalibrationFilter.currentIndex() == 0:
-                                            self.CalibrateMono(calfile4, self.BASE_COEFF_KERNEL_F590, outdir4)
+                                            self.CalibrateMono(calfile4, MAPIR_Defaults.py_KERNEL_F590, outdir4)
                                         elif self.CalibrationFilter.currentIndex() == 1:
-                                            self.CalibrateMono(calfile4, self.BASE_COEFF_KERNEL_F650, outdir4)
+                                            self.CalibrateMono(calfile4, MAPIR_Defaults.py_KERNEL_F650, outdir4)
                                         elif self.CalibrationFilter.currentIndex() == 2:
-                                            self.CalibrateMono(calfile4, self.BASE_COEFF_KERNEL_F850, outdir4)
+                                            self.CalibrateMono(calfile4, MAPIR_Defaults.py_KERNEL_F850, outdir4)
                         if os.path.exists(calfolder5):
                             # print("Cal5")
                             # files_to_calibrate5 = []
@@ -3960,11 +3923,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         self.CalibrateMono(calfile5, self.qrcoeffs5, outdir5, ind)
                                     else:
                                         if self.CalibrationFilter.currentIndex() == 0:
-                                            self.CalibrateMono(calfile5, self.BASE_COEFF_KERNEL_F590, outdir5)
+                                            self.CalibrateMono(calfile5, MAPIR_Defaults.py_KERNEL_F590, outdir5)
                                         elif self.CalibrationFilter.currentIndex() == 1:
-                                            self.CalibrateMono(calfile5, self.BASE_COEFF_KERNEL_F650, outdir5)
+                                            self.CalibrateMono(calfile5, MAPIR_Defaults.py_KERNEL_F650, outdir5)
                                         elif self.CalibrationFilter.currentIndex() == 2:
-                                            self.CalibrateMono(calfile5, self.BASE_COEFF_KERNEL_F850, outdir5)
+                                            self.CalibrateMono(calfile5, MAPIR_Defaults.py_KERNEL_F850, outdir5)
                         if os.path.exists(calfolder6):
                             # print("Cal6")
                             # files_to_calibrate6 = []
@@ -3997,11 +3960,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         self.CalibrateMono(calfile6, self.qrcoeffs6, outdir6, ind)
                                     else:
                                         if self.CalibrationFilter.currentIndex() == 0:
-                                            self.CalibrateMono(calfile6, self.BASE_COEFF_KERNEL_F590, outdir6)
+                                            self.CalibrateMono(calfile6, MAPIR_Defaults.py_KERNEL_F590, outdir6)
                                         elif self.CalibrationFilter.currentIndex() == 1:
-                                            self.CalibrateMono(calfile6, self.BASE_COEFF_KERNEL_F650, outdir6)
+                                            self.CalibrateMono(calfile6, MAPIR_Defaults.py_KERNEL_F650, outdir6)
                                         elif self.CalibrationFilter.currentIndex() == 2:
-                                            self.CalibrateMono(calfile6, self.BASE_COEFF_KERNEL_F850, outdir6)
+                                            self.CalibrateMono(calfile6, MAPIR_Defaults.py_KERNEL_F850, outdir6)
 
 
                 self.CalibrationLog.append("Finished Calibrating " + str(len(files_to_calibrate) + len(files_to_calibrate2) + len(files_to_calibrate3) + len(files_to_calibrate4) + len(files_to_calibrate5) + len(files_to_calibrate6)) + " images\n")
