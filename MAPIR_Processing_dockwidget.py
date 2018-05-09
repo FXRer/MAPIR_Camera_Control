@@ -72,9 +72,42 @@ from osgeo import gdal
 import glob
 
 all_cameras = []
+
+'''
+One big issue is that every time you call any .exe in Windows a command window is pulled up each time
+
+In order to address this we will create a variable: 'si' which stands for system information
+
+When si is declared it pulls up the generic startup info from the system, then one of the flags in si can be set to 
+suppress the popping up of a window each time an exe is called
+
+Now that si exists with the suppressed pop ups it can be passed to other functions as a substitute for the default 
+system information to avoid having to write this code everytime
+'''
 if sys.platform == "win32":
+
     si = subprocess.STARTUPINFO()
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+
+'''exiftool is crossplatform, needs to be cosnumed in 3 differeent wased based on which OS is being used
+on mac use homebrew
+'''
+
+
+'''
+The following code is meant to define various classes:
+
+FORM_CLASS represents the main UI class
+MODAL_CLASS is the window that forces you to save changes before closing
+
+CAN_CLASS is for the can settings modal window
+TIME_CLASS represents the time settings modal window
+TRANSFER_CLASS is a modal window for the transfer
+ADVANCED_CLASS is a modal window for advanced settings on the camera
+MATRIX_CLASS is a modal window for the CT (Color Transform) Matrix
+
+'''
 
 # if sys.platform == "win32":
 #       import exiftool
@@ -95,6 +128,16 @@ ADVANCED_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_Advanced.ui'))
 MATRIX_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_matrix.ui'))
+
+
+'''
+DebayerMatrix (Debayer ~ De ) 
+No such thing as Red Blue Green Channels, need to take the image and interpolate through it to get separate RBG channel
+1/4 Red data is actually there, other 75% must be interpolated 
+1/4 Blue data is actually there, other 75% must be interpolated
+1/2 Green is actually there, other 50% must be interpolated
+
+'''
 
 class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
     parent = None
@@ -331,6 +374,20 @@ class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
 #     def on_ModalCancelButton_released(self):
 #         self.close()
 
+'''
+class KernalModal(QtWidgets.QDialog, MODAL_CLASS)
+
+
+first the submethod calls setupUI to pop up the widgets
+
+next when the save button is released it records the inputs given by the user for the seconds, minutes, hours, days, and 
+weeks
+
+Finally seconds are converted to minutes, minutes to hours, hours to days, and days to weeks in order to generate a 
+string that may be passed to writeToIntervalLine()
+
+this string represents the time interval that the MAPIR camera will take between taking images as specified by the user
+'''
 
 class KernelModal(QtWidgets.QDialog, MODAL_CLASS):
     parent = None
@@ -452,11 +509,32 @@ class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
     def on_ModalCancelButton_released(self):
         self.close()
 
+'''
+
+class KernelTime(QtWidgets.QDialog, TIME_CLASS)
+
+takes in actual UTC (Coordinated Universal Time), GPS, or Computer Time
+reads the time from the kernal's internal clock
+
+Syncs the internal clock to whichever of the three times was selected
+
+'''
 
 class KernelTime(QtWidgets.QDialog, TIME_CLASS):
     parent = None
     timer = QtCore.QTimer()
-    BUFF_LEN = 512
+    BUFF_LEN = 512 #length of the buffer
+
+    '''
+
+       The following SET commands represent odd integers that correspond to the buffer values which tell the kernel
+       camera which operation to take 
+
+       e.g. SET_EVENT_REPORT tells the kernel camera to conduct operation 1
+
+       the reason that these integers are odd is because they are flipping the next bit on 
+       '''
+
     SET_EVENT_REPORT = 1
     SET_COMMAND_REPORT = 3
     SET_REGISTER_WRITE_REPORT = 5
@@ -484,6 +562,11 @@ class KernelTime(QtWidgets.QDialog, TIME_CLASS):
         # else:
         self.adjustRTC()
 
+    '''
+        to create the time string you have to follow boolean logic
+
+        take the first 8 bits, then the next 8 bits, etc
+    '''
     def adjustRTC(self):
         buf = [0] * 512
 
