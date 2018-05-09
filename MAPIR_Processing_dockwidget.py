@@ -389,9 +389,8 @@ class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
 
 
 class KernelModal(QtWidgets.QDialog, MODAL_CLASS):
-    '''
+    """
     class KernalModal(QtWidgets.QDialog, MODAL_CLASS)
-
 
     first the submethod calls setupUI to pop up the widgets
 
@@ -402,7 +401,7 @@ class KernelModal(QtWidgets.QDialog, MODAL_CLASS):
     string that may be passed to writeToIntervalLine()
 
     this string represents the time interval that the MAPIR camera will take between taking images as specified by the user
-    '''
+    """
     parent = None
 
     def __init__(self, parent=None):
@@ -451,12 +450,12 @@ class KernelModal(QtWidgets.QDialog, MODAL_CLASS):
 
 
 class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
-    '''
+    """
     class KernalCan
 
     ....add description
 
-    '''
+    """
     parent = None
 
     def __init__(self, parent=None):
@@ -531,8 +530,7 @@ class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
 
 
 class KernelTime(QtWidgets.QDialog, TIME_CLASS):
-    '''
-
+    """
     class KernelTime(QtWidgets.QDialog, TIME_CLASS)
 
     takes in actual UTC (Coordinated Universal Time), GPS, or Computer Time
@@ -540,10 +538,11 @@ class KernelTime(QtWidgets.QDialog, TIME_CLASS):
 
     Syncs the internal clock to whichever of the three times was selected
 
-    '''
+    """
     parent = None
     timer = QtCore.QTimer()
     BUFF_LEN = 512 #length of the buffer
+
 
     '''
 
@@ -553,7 +552,7 @@ class KernelTime(QtWidgets.QDialog, TIME_CLASS):
        e.g. SET_EVENT_REPORT tells the kernel camera to conduct operation 1
 
        the reason that these integers are odd is because they are flipping the next bit on 
-       '''
+    '''
 
     SET_EVENT_REPORT = 1
     SET_COMMAND_REPORT = 3
@@ -582,11 +581,9 @@ class KernelTime(QtWidgets.QDialog, TIME_CLASS):
         # else:
         self.adjustRTC()
 
-    '''
-        to create the time string you have to follow boolean logic
 
-        take the first 8 bits, then the next 8 bits, etc
-    '''
+    #to create the time string you have to follow boolean logic take the first 8 bits, then the next 8 bits, etc
+
     def adjustRTC(self):
         buf = [0] * 512
 
@@ -711,12 +708,14 @@ class KernelTime(QtWidgets.QDialog, TIME_CLASS):
         else:
             self.KernelReferenceTime.setDateTime(QtCore.QDateTime.currentDateTime())
 class tPoll:
+    """ class tPoll sets variables request, code, len equal to zero, it sets values equal to an empty list"""
     def __init__(self):
         request = 0
         code = 0
         len = 0 #Len can also store the value depending on the code given
         values = []
 class tEventInfo:
+    """class tEventInfor sets variables mode, process, focusing, inversion, and nr_faces equal to 0"""
     def __init__(self):
         mode = 0
         process = 0
@@ -724,17 +723,11 @@ class tEventInfo:
         inversion = 0
         nr_faces = 0
 
-
-
-
-
-'''
-
-class MAPIR_ProcessingDockWidget is the largest class within the widget program and contains the hard-coded constants,
-the code to generate the widget, and the code for most of the tabs within the widget
-
-'''
 class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
+    """
+    class MAPIR_ProcessingDockWidget is the largest class within the widget program and contains the hard-coded constants,
+    the code to generate the widget, and the code for most of the tabs within the widget
+    """
     BASE_COEFF_SURVEY2_RED_JPG = [-2.55421832, 16.01240929, 0.0, 0.0, 0.0, 0.0]
     BASE_COEFF_SURVEY2_GREEN_JPG = [0.0, 0.0, -0.60437250, 4.82869470, 0.0, 0.0]
     BASE_COEFF_SURVEY2_BLUE_JPG = [0.0, 0.0, 0.0, 0.0, -0.39268985, 2.67916884]
