@@ -34,7 +34,6 @@ import platform
 import itertools
 import ctypes
 import string
-import win32api
 import PIL
 import bitstring
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -45,7 +44,7 @@ import numpy as np
 import subprocess
 import cv2
 import copy
-import hid
+import pyhidapi
 import time
 
 from MAPIR_Enums import *
@@ -60,6 +59,12 @@ from MAPIR_Converter import *
 from Exposure import *
 # import KernelBrowserViewer
 
+if sys.platform == "win32":
+    import win32api
+    si = subprocess.STARTUPINFO()
+    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+
 modpath = os.path.dirname(os.path.realpath(__file__))
 
 # print(str(modpath))
@@ -67,18 +72,18 @@ if not os.path.exists(modpath + os.sep + "instring.txt"):
     istr = open(modpath + os.sep + "instring.txt", "w")
     istr.close()
 
-from osgeo import gdal
+#from osgeo import gdal
 
 import glob
 
 all_cameras = []
-if sys.platform == "win32":
-    si = subprocess.STARTUPINFO()
-    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
 
 # if sys.platform == "win32":
 #       import exiftool
 #       exiftool.executable = modpath + os.sep + "exiftool.exe"
+
+
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_base.ui'))
 MODAL_CLASS, _ = uic.loadUiType(os.path.join(
@@ -113,9 +118,6 @@ class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
         self.setupUi(self)
 
     def on_ModalSaveButton_released(self):
-
-
-
         self.close()
 
     def on_ModalCancelButton_released(self):
@@ -783,7 +785,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     days = 0
     hours = 0
     minutes = 0
-    seconds = 1
+    seconds = 1 #why is seconds set to 1????
     conv = None
     kcr = None
     analyze_bands = []
@@ -936,7 +938,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         self.ConnectKernels()
     def ConnectKernels(self):
         self.KernelLog.append(' ')
-        all_cameras = hid.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
+        all_cameras = pyhidapi.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
 
         if all_cameras == []:
 
@@ -2245,7 +2247,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             #
             #     return r
             # else:
-            dev = hid.device()
+            dev = pyhidapi.device()
             dev.open_path(self.camera)
             q = dev.write(buffer)
             if buffer[0] == 3 and buffer[1] == 1:
@@ -3184,7 +3186,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
     def on_CalibrateButton_released(self):
         try:
-            self.CalibrateButton.setEnabled(False)
             if self.CalibrationCameraModel.currentIndex() == -1\
                     and self.CalibrationCameraModel_2.currentIndex() == -1 \
                     and self.CalibrationCameraModel_3.currentIndex() == -1 \
@@ -3904,7 +3905,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
 
                 self.CalibrationLog.append("Finished Calibrating " + str(len(files_to_calibrate) + len(files_to_calibrate2) + len(files_to_calibrate3) + len(files_to_calibrate4) + len(files_to_calibrate5) + len(files_to_calibrate6)) + " images\n")
-                self.CalibrateButton.setEnabled(True)
                 self.seed_pass = False
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
@@ -3964,11 +3964,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         else:
             cv2.imencode(".tif", refimg)
             cv2.imwrite(newimg, refimg)
-            srin = gdal.Open(photo)
+            #srin = gdal.Open(photo)
             inproj = srin.GetProjection()
             transform = srin.GetGeoTransform()
             gcpcount = srin.GetGCPs()
-            srout = gdal.Open(newimg, gdal.GA_Update)
+            #srout = gdal.Open(newimg, gdal.GA_Update)
             srout.SetProjection(inproj)
             srout.SetGeoTransform(transform)
             srout.SetGCPs(gcpcount, srin.GetGCPProjection())
@@ -4257,11 +4257,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             if 'tif' in photo.split('.')[2].lower():
                 cv2.imencode(".tif", refimg)
                 cv2.imwrite(newimg, refimg)
-                srin = gdal.Open(photo)
+                #srin = gdal.Open(photo)
                 inproj = srin.GetProjection()
                 transform = srin.GetGeoTransform()
                 gcpcount = srin.GetGCPs()
-                srout = gdal.Open(newimg, gdal.GA_Update)
+                #srout = gdal.Open(newimg, gdal.GA_Update)
                 srout.SetProjection(inproj)
                 srout.SetGeoTransform(transform)
                 srout.SetGCPs(gcpcount, srin.GetGCPProjection())
@@ -4782,12 +4782,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
     # Helper functions
     def debayer(self, m):
-        b = m[0:: 2, 1:: 2]
+        r = m[0:: 2, 1:: 2]
         g = np.clip(m[0::2, 0::2] // 2 + m[1::2, 1::2] // 2, 0, 2**14 - 1)
-        r = m[1:: 2, 0:: 2]
-        # b = (((b - b.min()) / (b.max() - b.min())) * 65536.0).astype("uint16")
-        # r = (((r - r.min()) / (r.max() - r.min())) * 65536.0).astype("uint16")
-        # g = (((g - g.min()) / (g.max() - g.min())) * 65536.0).astype("uint16")
+        b = m[1:: 2, 0:: 2]
         return np.dstack([b, g, r])
 
     def preProcessHelper(self, infolder, outfolder, customerdata=True):
@@ -4861,7 +4858,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
                                 images = np.zeros((4000 * 3000),dtype=np.uint16)
                                 for i in range(0, 12):
-                                    images += 2 ** (11 - i) * data[:,  i]
+                                    images += 2 ** (15 - i) * data[:,  i]
                                 # red = (65535.0/31.0 * np.bitwise_and(np.right_shift(data, 11), 0x1f)).astype("uint16")
                                 # green = (65535.0/63.0 * np.bitwise_and(np.right_shift(data, 5), 0x3f)).astype("uint16")
                                 # blue = (65535.0/31.0 * np.bitwise_and(data, 0x1f)).astype("uint16")
@@ -4872,19 +4869,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 #
                                 img = np.reshape(images, (3000, 4000))
                                 tim = self.debayer(img)
-                                color = copy.deepcopy(tim)
-                                # color[tim[:, :, 0] >= 65535] = 65535
-                                # color[tim[:, :, 1] >= 65535] = 65535
-                                # color[tim[:, :, 2] >= 65535] = 65535
-                                # cv2.imwrite(outfolder + "test.tif", img)
-                                # cv2.imwrite(outfolder + "testDB.tif", tim)
+                                cv2.imwrite(outfolder + "test.tif", img)
+                                cv2.imwrite(outfolder + "testDB.tif", tim)
                             except Exception as e:
                                 print(e)
                                 oldfirmware = True
                         else:
                             img = np.fromfile(rawimage, np.dtype('u2'), self.imsize).reshape(
                                 (self.imrows, self.imcols))
-                            color = cv2.cvtColor(img, cv2.COLOR_BAYER_RG2RGB).astype("uint16")
                         if oldfirmware == True:
                             with open(input, "rb") as rawimage:
 
@@ -4912,21 +4904,21 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
 
 
-
+                        color = cv2.cvtColor(img, cv2.COLOR_BAYER_RG2RGB).astype("uint16")
                         if self.PreProcessCameraModel.currentIndex() == 3 and self.PreProcessFilter.currentIndex() == 3:
                             color = color[:,:,0]
-                        # maxcol = color.max()
-                        # mincol = color.min()
+                        maxcol = color.max()
+                        mincol = color.min()
                         if self.PreProcessJPGBox.isChecked():
-                            # color = (color - mincol) / (maxcol  - mincol)
-                            # color = color * 255.0
+                            color = (color - mincol) / (maxcol  - mincol)
+                            color = color * 255.0
                             color = color.astype("uint8")
                             filename = input.split('.')
                             outputfilename = filename[1] + '.jpg'
                             cv2.imencode(".jpg", color)
                         else:
-                            # color = (color - mincol) / (maxcol  - mincol)
-                            # color = color * 65535.0
+                            color = (color - mincol) / (maxcol  - mincol)
+                            color = color * 65535.0
                             color = color.astype("uint16")
                             filename = input.split('.')
                             outputfilename = filename[1] + '.tif'
@@ -5241,14 +5233,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     stdin=subprocess.PIPE, startupinfo=si).stdout.decode("utf-8")
                 data = [line.strip().split(':') for line in data.split('\r\n') if line.strip()]
                 # ypr = data[0][1].split()
-                #
                 ypr = [0.0] * 3
                 # ypr[0] = abs(float(self.conv.META_PAYLOAD["ATT_Q0"][1]))
                 # ypr[1] = -float(self.conv.META_PAYLOAD["ATT_Q1"][1])
                 # ypr[2] = ((float(self.conv.META_PAYLOAD["ATT_Q2"][1]) + 180.0) % 360.0)
-                ypr[0] = abs(float(self.conv.META_PAYLOAD["ATT_Q0"][1]))
-                ypr[1] = float(self.conv.META_PAYLOAD["ATT_Q1"][1])
-                ypr[2] = ((float(self.conv.META_PAYLOAD["ATT_Q2"][1])))
                 w = int(data[0][1])
                 h = int(data[1][1])
                 model = self.findCameraModel(w * h)
