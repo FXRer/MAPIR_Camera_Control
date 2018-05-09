@@ -128,7 +128,7 @@ class Calculator(QtWidgets.QDialog, RASTER_CLASS):
             self.ndvi = cv2.equalizeHist(self.ndvi)  #stretch histogram to improve constrast of image
 
             #at this point ndvi is now finished being calculated and the Q object has been modified accordingly
-            
+
             # self.ndvi = cv2.cvtColor(self.ndvi, cv2.COLOR_GRAY2RGB)
         except Exception as e:
             print(e)
