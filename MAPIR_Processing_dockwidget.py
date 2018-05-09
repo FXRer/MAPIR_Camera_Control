@@ -828,14 +828,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         #                 [85.217001, 27.952459, 2.516666]]
 
     }}
-    pixel_min_max = {"redmax": 0.0, "redmin": 65535.0,
-                     "greenmax": 0.0, "greenmin": 65535.0,
-                     "bluemax": 0.0, "bluemin": 65535.0}
-    multiplication_values = {"Red": [0.00],
-                             "Green": [0.00],
-                             "Blue": [0.00],
-                             "Mono": [0.00]}
-    monominmax = {"min": 65535.0,"max": 0.0}
+
     imkeys = np.array(list(range(0, 65536)))
     weeks = 0
     days = 0
@@ -855,31 +848,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     rdr = []
     ManualExposurewindow = None
     AutoExposurewindow = None
-    BandNames = {
-        "RGB": [644, 0, 0],
-        "405": [405, 0, 0],
-        "450": [450, 0, 0],
-        "490": [490, 0, 0],
-        "518": [518, 0, 0],
-        "550": [550, 0, 0],
-        "590": [590, 0, 0],
-        "615": [615, 0, 0],
-        "632": [632, 0, 0],
-        "650": [650, 0, 0],
-        "685": [685, 0, 0],
-        "725": [725, 0, 0],
-        "780": [780, 0, 0],
-        "808": [808, 0, 0],
-        "850": [850, 0, 0],
-        "880": [880, 0, 0],
-        "940": [940, 0, 0],
-        "945": [945, 0, 0],
-        "UVR": [870, 0, 395],
-        "NGB": [850, 550, 475],
-        "RGN": [660, 550, 850],
-        "OCN": [615, 490, 808],
 
-    }
     VigWindow = None
     ndvipsuedo = None
     savewindow = None
@@ -3166,7 +3135,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
             elif len(self.CalibrationQRFile.text()) > 0:
                 self.findQR(self.CalibrationQRFile.text(), [self.CalibrationCameraModel.currentIndex(), self.CalibrationFilter.currentIndex(), self.CalibrationLens.currentIndex()])
-                self.qrcoeffs = copy.deepcopy(self.multiplication_values["Mono"])
+                self.qrcoeffs = copy.deepcopy(MAPIR_Defaults.multiplication_values["Mono"])
                 self.useqr = True
             else:
                 self.CalibrationLog.append("Attention! Please select a target image.\n")
@@ -3180,7 +3149,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             elif len(self.CalibrationQRFile_2.text()) > 0:
 
                 self.findQR(self.CalibrationQRFile_2.text(), [self.CalibrationCameraModel_2.currentIndex(), self.CalibrationFilter_2.currentIndex(), self.CalibrationLens_2.currentIndex()])
-                self.qrcoeffs2 = copy.deepcopy(self.multiplication_values["Mono"])
+                self.qrcoeffs2 = copy.deepcopy(MAPIR_Defaults.multiplication_values["Mono"])
                 self.useqr = True
             else:
                 self.CalibrationLog.append("Attention! Please select a target image.\n")
@@ -3193,7 +3162,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
             elif len(self.CalibrationQRFile_3.text()) > 0:
                 self.findQR(self.CalibrationQRFile_3.text(), [self.CalibrationCameraModel_3.currentIndex(), self.CalibrationFilter_3.currentIndex(), self.CalibrationLens_3.currentIndex()])
-                self.qrcoeffs3 = copy.deepcopy(self.multiplication_values["Mono"])
+                self.qrcoeffs3 = copy.deepcopy(MAPIR_Defaults.multiplication_values["Mono"])
                 self.useqr = True
             else:
                 self.CalibrationLog.append("Attention! Please select a target image.\n")
@@ -3206,7 +3175,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
             elif len(self.CalibrationQRFile_4.text()) > 0:
                 self.qrcoeffs4 = self.findQR(self.CalibrationQRFile_4.text(), [self.CalibrationCameraModel_4.currentIndex(), self.CalibrationFilter_4.currentIndex(), self.CalibrationLens_4.currentIndex()])
-                self.qrcoeffs4 = copy.deepcopy(self.multiplication_values["Mono"])
+                self.qrcoeffs4 = copy.deepcopy(MAPIR_Defaults.multiplication_values["Mono"])
                 self.useqr = True
             else:
                 self.CalibrationLog.append("Attention! Please select a target image.\n")
@@ -3219,7 +3188,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
             elif len(self.CalibrationQRFile_5.text()) > 0:
                 self.qrcoeffs5 = self.findQR(self.CalibrationQRFile_5.text(), [self.CalibrationCameraModel_5.currentIndex(), self.CalibrationFilter_5.currentIndex(), self.CalibrationLens_5.currentIndex()])
-                self.qrcoeffs5 = copy.deepcopy(self.multiplication_values["Mono"])
+                self.qrcoeffs5 = copy.deepcopy(MAPIR_Defaults.multiplication_values["Mono"])
                 self.useqr = True
             else:
                 self.CalibrationLog.append("Attention! Please select a target image.\n")
@@ -3232,7 +3201,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
             elif len(self.CalibrationQRFile_6.text()) > 0:
                 self.qrcoeffs6 = self.findQR(self.CalibrationQRFile_6.text(), [self.CalibrationCameraModel_6.currentIndex(), self.CalibrationFilter_6.currentIndex(), self.CalibrationLens_6.currentIndex()])
-                self.qrcoeffs6 = copy.deepcopy(self.multiplication_values["Mono"])
+                self.qrcoeffs6 = copy.deepcopy(MAPIR_Defaults.multiplication_values["Mono"])
                 self.useqr = True
             else:
                 self.CalibrationLog.append("Attention! Please select a target image.\n")
@@ -3259,7 +3228,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 self.CalibrationLog.append("Attention! Please select a calibration folder.\n")
             else:
                 self.firstpass = True
-                # self.CalibrationLog.append("CSV Input: \n" + str(self.refvalues))
+                # self.CalibrationLog.append("CSV Input: \n" + str(MAPIR_Defaults.refvalues))
                 # self.CalibrationLog.append("Calibration button pressed.\n")
                 calfolder = self.CalibrationInFolder.text()
                 calfolder2 = self.CalibrationInFolder_2.text()
@@ -3267,7 +3236,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 calfolder4 = self.CalibrationInFolder_4.text()
                 calfolder5 = self.CalibrationInFolder_5.text()
                 calfolder6 = self.CalibrationInFolder_6.text()
-                self.pixel_min_max = {"redmax": 0.0, "redmin": 65535.0,
+                MAPIR_Defaults.pixel_min_max = {"redmax": 0.0, "redmin": 65535.0,
                                  "greenmax": 0.0, "greenmin": 65535.0,
                                  "bluemax": 0.0, "bluemin": 65535.0}
                 # self.CalibrationLog.append("Calibration target folder is: " + calfolder + "\n")
@@ -3294,7 +3263,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                            [self.CalibrationCameraModel_6.currentIndex(), self.CalibrationFilter_6.currentIndex(),
                             self.CalibrationLens_6.currentIndex()],
                            ]
-                # self.multiplication_values[self.qrcoeffs,
+                # MAPIR_Defaults.multiplication_values[self.qrcoeffs,
                 #               self.qrcoeffs2,
                 #               self.qrcoeffs3,
                 #               self.qrcoeffs4,
@@ -3339,9 +3308,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 #     os.chdir(folderind[j])
                                 #     temp1 = cv2.imread(calpixel, -1)
                                 #     # self.imkeys = np.array(list(range(0, 65536)))
-                                #     self.monominmax["min"] = min(temp1.min(), self.monominmax["min"])
-                                #     self.monominmax["max"] = max(int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp1))],
-                                #                                               temp1)[0], self.monominmax["max"])
+                                #     MAPIR_Defaults.monominmax["min"] = min(temp1.min(), MAPIR_Defaults.monominmax["min"])
+                                #     MAPIR_Defaults.monominmax["max"] = max(int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp1))],
+                                #                                               temp1)[0], MAPIR_Defaults.monominmax["max"])
 
 
 
@@ -3362,25 +3331,25 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             if self.seed_pass == False:
 
 
-                                self.pixel_min_max["redmax"] = int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(red))], red)[0])
+                                MAPIR_Defaults.pixel_min_max["redmax"] = int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(red))], red)[0])
 
                                 # pixel_min_max["redmax"] = np.intersect1d(imkeys[imkeys > int(np.median(red))], imkeys[imvals == 0])[0]
 
-                                self.pixel_min_max["redmin"] = red.min()
+                                MAPIR_Defaults.pixel_min_max["redmin"] = red.min()
                                 # imgcount = dict((i, list(green.flatten()).count(i)) for i in range(0, 65536))
                                 # self.imkeys = np.array(list(imgcount.keys()))
                                 # imvals = np.array(list(imgcount.values()))
 
-                                self.pixel_min_max["greenmax"] = \
+                                MAPIR_Defaults.pixel_min_max["greenmax"] = \
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(green))], green)[0])
-                                self.pixel_min_max["greenmin"] = green.min()
+                                MAPIR_Defaults.pixel_min_max["greenmin"] = green.min()
                                 # imgcount = dict((i, list(blue.flatten()).count(i)) for i in range(0, 65536))
                                 # self.imkeys = np.array(list(imgcount.keys()))
                                 # imvals = np.array(list(imgcount.values()))
 
-                                self.pixel_min_max["bluemax"] = \
+                                MAPIR_Defaults.pixel_min_max["bluemax"] = \
                                     int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(blue))], blue)[0])
-                                self.pixel_min_max["bluemin"] = blue.min()
+                                MAPIR_Defaults.pixel_min_max["bluemin"] = blue.min()
 
                                 # pixel_min_max["redmax"] = red.max()
                                 # pixel_min_max["redmin"] = red.min()
@@ -3399,137 +3368,137 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 # imgcount = dict((i, list(red.flatten()).count(i)) for i in range(0, 65536))
                                 # self.imkeys = np.array(list(imgcount.keys()))
                                 # imvals = np.array(list(imgcount.values()))
-                                self.pixel_min_max["redmax"] = max(int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(red))], red)[0]), self.pixel_min_max["redmax"])
-                                self.pixel_min_max["redmin"] = min(red.min(), self.pixel_min_max["redmin"])
+                                MAPIR_Defaults.pixel_min_max["redmax"] = max(int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(red))], red)[0]), MAPIR_Defaults.pixel_min_max["redmax"])
+                                MAPIR_Defaults.pixel_min_max["redmin"] = min(red.min(), MAPIR_Defaults.pixel_min_max["redmin"])
                                 # imgcount = dict((i, list(green.flatten()).count(i)) for i in range(0, 65536))
                                 # self.imkeys = np.array(list(imgcount.keys()))
                                 # imvals = np.array(list(imgcount.values()))
-                                self.pixel_min_max["greenmax"] = max(
-                                    int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(green))], green)[0]), self.pixel_min_max["greenmax"])
-                                self.pixel_min_max["greenmin"] = min(green.min(), self.pixel_min_max["greenmin"])
+                                MAPIR_Defaults.pixel_min_max["greenmax"] = max(
+                                    int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(green))], green)[0]), MAPIR_Defaults.pixel_min_max["greenmax"])
+                                MAPIR_Defaults.pixel_min_max["greenmin"] = min(green.min(), MAPIR_Defaults.pixel_min_max["greenmin"])
                                 # imgcount = dict((i, list(blue.flatten()).count(i)) for i in range(0, 65536))
                                 # self.imkeys = np.array(list(imgcount.keys()))
                                 # imvals = np.array(list(imgcount.values()))
-                                self.pixel_min_max["bluemax"] = max(
-                                    int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(blue))], blue)[0]), self.pixel_min_max["bluemax"])
-                                self.pixel_min_max["bluemin"] = min(blue.min(), self.pixel_min_max["bluemin"])
+                                MAPIR_Defaults.pixel_min_max["bluemax"] = max(
+                                    int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(blue))], blue)[0]), MAPIR_Defaults.pixel_min_max["bluemax"])
+                                MAPIR_Defaults.pixel_min_max["bluemin"] = min(blue.min(), MAPIR_Defaults.pixel_min_max["bluemin"])
 
 
                             if ind[0] == 5:  # Survey1_NDVI
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmax"] = (MAPIR_Defaults.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmin"] = (MAPIR_Defaults.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[3]) \
+                                    MAPIR_Defaults.pixel_min_max["bluemin"] = (MAPIR_Defaults.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[3]) \
+                                    MAPIR_Defaults.pixel_min_max["bluemax"] = (MAPIR_Defaults.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[2]
                             elif (ind[0] == 4) and ind[1] == 0:
                                 if "tif" or "TIF" in calpixel:
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmax"] = (MAPIR_Defaults.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmin"] = (MAPIR_Defaults.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[3]) \
+                                    MAPIR_Defaults.pixel_min_max["bluemin"] = (MAPIR_Defaults.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[3]) \
+                                    MAPIR_Defaults.pixel_min_max["bluemax"] = (MAPIR_Defaults.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[2]
                                 elif "jpg" or "JPG" in calpixel:
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmax"] = (MAPIR_Defaults.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmin"] = (MAPIR_Defaults.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[3]) \
+                                    MAPIR_Defaults.pixel_min_max["bluemin"] = (MAPIR_Defaults.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[3]) \
+                                    MAPIR_Defaults.pixel_min_max["bluemax"] = (MAPIR_Defaults.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[2]
                             elif ind[0] == 8:
                                 if "tif" or "TIF" in calpixel:
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmax"] = (MAPIR_Defaults.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmin"] = (MAPIR_Defaults.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[3]) \
+                                    MAPIR_Defaults.pixel_min_max["bluemin"] = (MAPIR_Defaults.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[3]) \
+                                    MAPIR_Defaults.pixel_min_max["bluemax"] = (MAPIR_Defaults.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[2]
                                 elif "jpg" or "JPG" in calpixel:
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmax"] = (MAPIR_Defaults.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmin"] = (MAPIR_Defaults.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[3]) \
+                                    MAPIR_Defaults.pixel_min_max["bluemin"] = (MAPIR_Defaults.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[3]) \
+                                    MAPIR_Defaults.pixel_min_max["bluemax"] = (MAPIR_Defaults.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[2]
                             elif ind[0] == 5:
                                 if "tif" or "TIF" in calpixel:
-                                    self.pixel_min_max["redmax"] = (
-                                                              self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmax"] = (
+                                                              MAPIR_Defaults.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[0]
-                                    self.pixel_min_max["redmin"] = (
-                                                              self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmin"] = (
+                                                              MAPIR_Defaults.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[
+                                    MAPIR_Defaults.pixel_min_max["bluemin"] = (MAPIR_Defaults.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[
                                         3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[
+                                    MAPIR_Defaults.pixel_min_max["bluemax"] = (MAPIR_Defaults.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[
                                         3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[2]
                                 elif "jpg" or "JPG" in calpixel:
-                                    self.pixel_min_max["redmax"] = (
-                                                              self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmax"] = (
+                                                              MAPIR_Defaults.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[0]
-                                    self.pixel_min_max["redmin"] = (
-                                                              self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmin"] = (
+                                                              MAPIR_Defaults.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[
+                                    MAPIR_Defaults.pixel_min_max["bluemin"] = (MAPIR_Defaults.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[
                                         3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[
+                                    MAPIR_Defaults.pixel_min_max["bluemax"] = (MAPIR_Defaults.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[
                                         3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[2]
                             elif ind[0] == 6 or ind[0] > 7:
                                 if "tif" or "TIF" in calpixel:
-                                    self.pixel_min_max["redmax"] = (
-                                                              self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmax"] = (
+                                                              MAPIR_Defaults.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
-                                    self.pixel_min_max["redmin"] = (
-                                                              self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmin"] = (
+                                                              MAPIR_Defaults.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
+                                    MAPIR_Defaults.pixel_min_max["bluemin"] = (MAPIR_Defaults.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
                                         3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
+                                    MAPIR_Defaults.pixel_min_max["bluemax"] = (MAPIR_Defaults.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
                                         3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
                                 elif "jpg" or "JPG" in calpixel:
-                                    self.pixel_min_max["redmax"] = (
-                                                              self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmax"] = (
+                                                              MAPIR_Defaults.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
-                                    self.pixel_min_max["redmin"] = (
-                                                              self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
+                                    MAPIR_Defaults.pixel_min_max["redmin"] = (
+                                                              MAPIR_Defaults.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
+                                    MAPIR_Defaults.pixel_min_max["bluemin"] = (MAPIR_Defaults.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
                                         3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
+                                    MAPIR_Defaults.pixel_min_max["bluemax"] = (MAPIR_Defaults.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
                                         3]) \
                                                                + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
                         self.seed_pass = False
                         if self.useqr == True:
-                            self.pixel_min_max["redmax"] = int(
-                                self.multiplication_values["Red"] * self.pixel_min_max["redmax"])
-                            self.pixel_min_max["greenmax"] = int(
-                                self.multiplication_values["Green"] * self.pixel_min_max["greenmax"])
-                            self.pixel_min_max["bluemax"] = int(
-                                self.multiplication_values["Blue"] * self.pixel_min_max["bluemax"])
-                            self.pixel_min_max["redmin"] = int(
-                                self.multiplication_values["Red"] * self.pixel_min_max["redmin"])
-                            self.pixel_min_max["greenmin"] = int(
-                                self.multiplication_values["Green"] * self.pixel_min_max["greenmin"])
-                            self.pixel_min_max["bluemin"] = int(
-                                self.multiplication_values["Blue"] * self.pixel_min_max["bluemin"])
+                            MAPIR_Defaults.pixel_min_max["redmax"] = int(
+                                MAPIR_Defaults.multiplication_values["Red"] * MAPIR_Defaults.pixel_min_max["redmax"])
+                            MAPIR_Defaults.pixel_min_max["greenmax"] = int(
+                                MAPIR_Defaults.multiplication_values["Green"] * MAPIR_Defaults.pixel_min_max["greenmax"])
+                            MAPIR_Defaults.pixel_min_max["bluemax"] = int(
+                                MAPIR_Defaults.multiplication_values["Blue"] * MAPIR_Defaults.pixel_min_max["bluemax"])
+                            MAPIR_Defaults.pixel_min_max["redmin"] = int(
+                                MAPIR_Defaults.multiplication_values["Red"] * MAPIR_Defaults.pixel_min_max["redmin"])
+                            MAPIR_Defaults.pixel_min_max["greenmin"] = int(
+                                MAPIR_Defaults.multiplication_values["Green"] * MAPIR_Defaults.pixel_min_max["greenmin"])
+                            MAPIR_Defaults.pixel_min_max["bluemin"] = int(
+                                MAPIR_Defaults.multiplication_values["Blue"] * MAPIR_Defaults.pixel_min_max["bluemin"])
                         for i, calfile in enumerate(files_to_calibrate):
 
                             cameramodel = ind
@@ -3540,7 +3509,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                     QtWidgets.QApplication.processEvents()
 
 
-                                    self.CalibratePhotos(calfile, self.multiplication_values, self.pixel_min_max, outdir, ind)
+                                    self.CalibratePhotos(calfile, MAPIR_Defaults.multiplication_values, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                 except Exception as e:
                                     exc_type, exc_obj,exc_tb = sys.exc_info()
                                     self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
@@ -3548,61 +3517,61 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 # self.CalibrationLog.append("NOT Using QR")
                                 if (cameramodel[0] == 4) and (self.CalibrationFilter.currentIndex() == 0):  # Survey2 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 4 and self.CalibrationFilter.currentIndex() == 1:  # Survey2 NIR
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NIR_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NIR_TIF, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NIR_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NIR_JPG, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 4 and self.CalibrationFilter.currentIndex() == 2:  # Survey2 RED
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_RED_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_RED_TIF, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_RED_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_RED_JPG, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 4 and self.CalibrationFilter.currentIndex() == 3:  # Survey2 GREEN
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_GREEN_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_GREEN_TIF, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_GREEN_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_GREEN_JPG, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 4 and self.CalibrationFilter.currentIndex() == 4:  # Survey2 BLUE
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_BLUE_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_BLUE_TIF, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_BLUE_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_BLUE_JPG, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 5:  # Survey1 NDVI
                                     if "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 9:  # DJI X3 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 6:  # DJI Phantom4 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF, self.pixel_min_max,
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF, MAPIR_Defaults.pixel_min_max,
                                                              outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG, self.pixel_min_max,
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG, MAPIR_Defaults.pixel_min_max,
                                                              outdir, ind)
                                 elif cameramodel[0] == 7 or cameramodel[0] == 8:  # DJI PHANTOM3 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF, self.pixel_min_max,
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF, MAPIR_Defaults.pixel_min_max,
                                                              outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_JPG, self.pixel_min_max,
+                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_JPG, MAPIR_Defaults.pixel_min_max,
                                                              outdir, ind)
                                 elif self.CalibrationCameraModel.currentIndex() == 3 and self.CalibrationFilter.currentIndex() == 1:  # Survey2 NIR
 
-                                    self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY3_W_RGN_TIF, self.pixel_min_max, outdir, ind)
+                                    self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY3_W_RGN_TIF, MAPIR_Defaults.pixel_min_max, outdir, ind)
                                 elif self.CalibrationCameraModel.currentIndex() == 3 and self.CalibrationFilter.currentIndex() == 2:  # Survey2 NIR
 
-                                    self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY3_W_NGB_TIF, self.pixel_min_max,
+                                    self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY3_W_NGB_TIF, MAPIR_Defaults.pixel_min_max,
                                                          outdir, ind)
                                 elif self.CalibrationCameraModel.currentIndex() == 3 and self.CalibrationFilter.currentIndex() == 3:  # Survey2 NIR
 
-                                    self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY3_W_NGB_TIF, self.pixel_min_max,
+                                    self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY3_W_NGB_TIF, MAPIR_Defaults.pixel_min_max,
                                                          outdir, ind)
                                 else:
                                     self.CalibrationLog.append(
@@ -3674,10 +3643,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             # imgcount = dict((i, list(temp1.flatten()).count(i)) for i in range(0, 65536))
                             # self.imkeys = np.array(list(imgcount.keys()))
                             # imvals = np.array(list(imgcount.values()))
-                            self.monominmax["min"] = min(temp1.min(), self.monominmax["min"])
-                            self.monominmax["max"] = max(
+                            MAPIR_Defaults.monominmax["min"] = min(temp1.min(), MAPIR_Defaults.monominmax["min"])
+                            MAPIR_Defaults.monominmax["max"] = max(
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp1))], temp1)[0]),
-                                self.monominmax["max"])
+                                MAPIR_Defaults.monominmax["max"])
 
                         for calpixel2 in files_to_calibrate2:
                             # print("MM2")
@@ -3688,10 +3657,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             # imgcount = dict((i, list(temp2.flatten()).count(i)) for i in range(0, 65536))
                             # self.imkeys = np.array(list(imgcount.keys()))
                             # imvals = np.array(list(imgcount.values()))
-                            self.monominmax["min"] = min(temp2.min(), self.monominmax["min"])
-                            self.monominmax["max"] = max(
+                            MAPIR_Defaults.monominmax["min"] = min(temp2.min(), MAPIR_Defaults.monominmax["min"])
+                            MAPIR_Defaults.monominmax["max"] = max(
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp2))], temp2)[0]),
-                                self.monominmax["max"])
+                                MAPIR_Defaults.monominmax["max"])
                         for calpixel3 in files_to_calibrate3:
                             # print("MM3")
                             os.chdir(calfolder3)
@@ -3702,10 +3671,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             # imgcount = dict((i, list(temp3.flatten()).count(i)) for i in range(0, 65536))
                             # self.imkeys = np.array(list(imgcount.keys()))
                             # imvals = np.array(list(imgcount.values()))
-                            self.monominmax["min"] = min(temp3.min(), self.monominmax["min"])
-                            self.monominmax["max"] = max(
+                            MAPIR_Defaults.monominmax["min"] = min(temp3.min(), MAPIR_Defaults.monominmax["min"])
+                            MAPIR_Defaults.monominmax["max"] = max(
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp3))], temp3)[0]),
-                                self.monominmax["max"])
+                                MAPIR_Defaults.monominmax["max"])
                         for calpixel4 in files_to_calibrate4:
                             # print("MM4")
                             os.chdir(calfolder4)
@@ -3715,10 +3684,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             # imgcount = dict((i, list(temp4.flatten()).count(i)) for i in range(0, 65536))
                             # self.imkeys = np.array(list(imgcount.keys()))
                             # imvals = np.array(list(imgcount.values()))
-                            self.monominmax["min"] = min(temp4.min(), self.monominmax["min"])
-                            self.monominmax["max"] = max(
+                            MAPIR_Defaults.monominmax["min"] = min(temp4.min(), MAPIR_Defaults.monominmax["min"])
+                            MAPIR_Defaults.monominmax["max"] = max(
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp4))], temp4)[0]),
-                                self.monominmax["max"])
+                                MAPIR_Defaults.monominmax["max"])
                         for calpixel5 in files_to_calibrate5:
                             # print("MM5")
                             os.chdir(calfolder5)
@@ -3728,10 +3697,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             # imgcount = dict((i, list(temp5.flatten()).count(i)) for i in range(0, 65536))
                             # self.imkeys = np.array(list(imgcount.keys()))
                             # imvals = np.array(list(imgcount.values()))
-                            self.monominmax["min"] = min(temp5.min(), self.monominmax["min"])
-                            self.monominmax["max"] = max(
+                            MAPIR_Defaults.monominmax["min"] = min(temp5.min(), MAPIR_Defaults.monominmax["min"])
+                            MAPIR_Defaults.monominmax["max"] = max(
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp5))], temp5)[0]),
-                                self.monominmax["max"])
+                                MAPIR_Defaults.monominmax["max"])
                         for calpixel6 in files_to_calibrate6:
                             # print("MM6")
                             os.chdir(calfolder6)
@@ -3741,10 +3710,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             # imgcount = dict((i, list(temp6.flatten()).count(i)) for i in range(0, 65536))
                             # self.imkeys = np.array(list(imgcount.keys()))
                             # imvals = np.array(list(imgcount.values()))
-                            self.monominmax["min"] = min(temp6.min(), self.monominmax["min"])
-                            self.monominmax["max"] = max(
+                            MAPIR_Defaults.monominmax["min"] = min(temp6.min(), MAPIR_Defaults.monominmax["min"])
+                            MAPIR_Defaults.monominmax["max"] = max(
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp6))], temp6)[0]),
-                                self.monominmax["max"])
+                                MAPIR_Defaults.monominmax["max"])
 
                         if os.path.exists(calfolder):
                             # # print("Cal1")
@@ -3975,15 +3944,15 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         if len(refimg.shape) > 2:
             refimg = refimg[:,:,0]
         refimg = refimg.astype("uint16")
-        refimg[refimg > self.monominmax["max"]] = self.monominmax["max"]
-        pixmin = coeffs * self.monominmax["min"]
-        pixmax = coeffs * self.monominmax["max"]
+        refimg[refimg > MAPIR_Defaults.monominmax["max"]] = MAPIR_Defaults.monominmax["max"]
+        pixmin = coeffs * MAPIR_Defaults.monominmax["min"]
+        pixmax = coeffs * MAPIR_Defaults.monominmax["max"]
         tempim = coeffs * refimg
-        # pixmin = np.array((((self.monominmax["min"] ^ 2) * coeffs[0]) + (self.monominmax["min"] * coeffs[1]) + coeffs[1]), dtype=object)
-        # pixmax = np.array((((self.monominmax["max"] ^ 2) * coeffs[0]) + (self.monominmax["max"] * coeffs[1]) + coeffs[1]), dtype=object)
+        # pixmin = np.array((((MAPIR_Defaults.monominmax["min"] ^ 2) * coeffs[0]) + (MAPIR_Defaults.monominmax["min"] * coeffs[1]) + coeffs[1]), dtype=object)
+        # pixmax = np.array((((MAPIR_Defaults.monominmax["max"] ^ 2) * coeffs[0]) + (MAPIR_Defaults.monominmax["max"] * coeffs[1]) + coeffs[1]), dtype=object)
         # tempim = np.array(((np.power(refimg, 2) * coeffs[0]) + (refimg * coeffs[1]) + coeffs[2]), dtype=object)
-        # pixmin = (self.monominmax["min"] * coeffs[1]) + coeffs[0]
-        # pixmax = (self.monominmax["max"] * coeffs[1]) + coeffs[0]
+        # pixmin = (MAPIR_Defaults.monominmax["min"] * coeffs[1]) + coeffs[0]
+        # pixmax = (MAPIR_Defaults.monominmax["max"] * coeffs[1]) + coeffs[0]
         # tempim = (refimg * coeffs[1]) + coeffs[0]
         tempim -= pixmin
         tempim /= (pixmax - pixmin)
@@ -4044,8 +4013,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         #              self.qrcoeffs6])
         #     refimg *= clist
         #
-        #     refimg -= self.monominmax["min"]
-        #     refimg /= (self.monominmax["max"] + self.monominmax["min"])
+        #     refimg -= MAPIR_Defaults.monominmax["min"]
+        #     refimg /= (MAPIR_Defaults.monominmax["max"] + MAPIR_Defaults.monominmax["min"])
         #     refimg *= 65535
         #
         #     refimg = refimg.astype("uint16")
@@ -4073,9 +4042,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 alpha = refimg[:, :, 3]
                 refimg = copy.deepcopy(refimg[:, :, :3])
             if self.useqr:
-                red = (red * self.multiplication_values["Red"])
-                green = (green * self.multiplication_values["Green"])
-                blue = (blue * self.multiplication_values["Blue"])
+                red = (red * MAPIR_Defaults.multiplication_values["Red"])
+                green = (green * MAPIR_Defaults.multiplication_values["Green"])
+                blue = (blue * MAPIR_Defaults.multiplication_values["Blue"])
 
 
 
@@ -4389,13 +4358,13 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     f.truncate()
 
             if list is not None and len(list) > 0:
-                self.ref = self.refindex[1]
+                self.ref = MAPIR_Defaults.refindex[1]
                 # self.CalibrationLog.append(list)
                 temp = np.fromstring(str(list), dtype=int, sep=',')
                 self.coords = [[temp[0],temp[1]],[temp[2],temp[3]],[temp[6],temp[7]],[temp[4],temp[5]]]
                 # self.CalibrationLog.append()
             else:
-                self.ref = self.refindex[0]
+                self.ref = MAPIR_Defaults.refindex[0]
                 if ind[0] > 2:
                     im = cv2.imread(image)
                     grayscale = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
@@ -4553,18 +4522,18 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     print(e)
                     print("Line: " + str(exc_tb.tb_lineno))
 
-                #                 (self.refvalues[self.ref]["RGN"][2][0] - self.refvalues[self.ref]["Red"][0] ) / \
-                #                (self.refvalues[self.ref]["RGN"][2][0] + self.refvalues[self.ref]["Red"][0] )
+                #                 (MAPIR_Defaults.refvalues[self.ref]["RGN"][2][0] - MAPIR_Defaults.refvalues[self.ref]["Red"][0] ) / \
+                #                (MAPIR_Defaults.refvalues[self.ref]["RGN"][2][0] + MAPIR_Defaults.refvalues[self.ref]["Red"][0] )
                 #
-                # ideal_ndvi_2 = (self.refvalues[self.ref]["RGN"][2][1] - self.refvalues[self.ref]["Red"][1] ) / \
-                #                (self.refvalues[self.ref]["RGN"][2][1] + self.refvalues[self.ref]["Red"][1] )
+                # ideal_ndvi_2 = (MAPIR_Defaults.refvalues[self.ref]["RGN"][2][1] - MAPIR_Defaults.refvalues[self.ref]["Red"][1] ) / \
+                #                (MAPIR_Defaults.refvalues[self.ref]["RGN"][2][1] + MAPIR_Defaults.refvalues[self.ref]["Red"][1] )
                 #
                 #
-                # ideal_ndvi_3 = (self.refvalues[self.ref]["RGN"][2][2] - self.refvalues[self.ref]["Red"][2]) / \
-                #                (self.refvalues[self.ref]["RGN"][2][2] + self.refvalues[self.ref]["Red"][2])
+                # ideal_ndvi_3 = (MAPIR_Defaults.refvalues[self.ref]["RGN"][2][2] - MAPIR_Defaults.refvalues[self.ref]["Red"][2]) / \
+                #                (MAPIR_Defaults.refvalues[self.ref]["RGN"][2][2] + MAPIR_Defaults.refvalues[self.ref]["Red"][2])
                 #
-                # ideal_ndvi_4 = (self.refvalues[self.ref]["RGN"][2][3] - self.refvalues[self.ref]["Red"][3]) / \
-                #                (self.refvalues[self.ref]["RGN"][2][3] + self.refvalues[self.ref]["Red"][3])
+                # ideal_ndvi_4 = (MAPIR_Defaults.refvalues[self.ref]["RGN"][2][3] - MAPIR_Defaults.refvalues[self.ref]["Red"][3]) / \
+                #                (MAPIR_Defaults.refvalues[self.ref]["RGN"][2][3] + MAPIR_Defaults.refvalues[self.ref]["Red"][3])
 
                 t1redmean = np.mean(targ1values[:, :, 2])
                 t1greenmean = np.mean(targ1values[:, :, 1])
@@ -4622,39 +4591,39 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
                 if ind[1] == 1 and (ind[0] == 4) \
                         or (ind[0] == 3 and ind[1] == 3):
-                    yred = self.refvalues[self.ref]["850"][0]
-                    ygreen = self.refvalues[self.ref]["850"][1]
-                    yblue = self.refvalues[self.ref]["850"][2]
+                    yred = MAPIR_Defaults.refvalues[self.ref]["850"][0]
+                    ygreen = MAPIR_Defaults.refvalues[self.ref]["850"][1]
+                    yblue = MAPIR_Defaults.refvalues[self.ref]["850"][2]
                 elif ind[1] == 2 and (ind[0] == 4):
-                    yred = self.refvalues[self.ref]["650"][0]
-                    ygreen = self.refvalues[self.ref]["650"][1]
-                    yblue = self.refvalues[self.ref]["650"][2]
+                    yred = MAPIR_Defaults.refvalues[self.ref]["650"][0]
+                    ygreen = MAPIR_Defaults.refvalues[self.ref]["650"][1]
+                    yblue = MAPIR_Defaults.refvalues[self.ref]["650"][2]
                 elif ind[1] == 3 and (ind[0] == 4):
-                    yred = self.refvalues[self.ref]["550"][0]
-                    ygreen = self.refvalues[self.ref]["550"][1]
-                    yblue = self.refvalues[self.ref]["550"][2]
+                    yred = MAPIR_Defaults.refvalues[self.ref]["550"][0]
+                    ygreen = MAPIR_Defaults.refvalues[self.ref]["550"][1]
+                    yblue = MAPIR_Defaults.refvalues[self.ref]["550"][2]
                 elif ind[1] == 4 and (ind[0] == 4):
-                    yred = self.refvalues[self.ref]["450"][0]
-                    ygreen = self.refvalues[self.ref]["450"][1]
-                    yblue = self.refvalues[self.ref]["450"][2]
+                    yred = MAPIR_Defaults.refvalues[self.ref]["450"][0]
+                    ygreen = MAPIR_Defaults.refvalues[self.ref]["450"][1]
+                    yblue = MAPIR_Defaults.refvalues[self.ref]["450"][2]
                 elif (ind[1] == 1 and ind[0] == 3) or (
                     ind[0] == 7) or (ind[0] == 2 and ind[1] == 0):
-                    yred = self.refvalues[self.ref]["550/660/850"][0]
-                    ygreen = self.refvalues[self.ref]["550/660/850"][1]
-                    yblue = self.refvalues[self.ref]["550/660/850"][2]
+                    yred = MAPIR_Defaults.refvalues[self.ref]["550/660/850"][0]
+                    ygreen = MAPIR_Defaults.refvalues[self.ref]["550/660/850"][1]
+                    yblue = MAPIR_Defaults.refvalues[self.ref]["550/660/850"][2]
                 elif (ind[0] == 3 and ind[1] == 2) or (ind[0] == 2 and ind[1] == 1):
-                    yred = self.refvalues[self.ref]["475/550/850"][0]
-                    ygreen = self.refvalues[self.ref]["475/550/850"][1]
-                    yblue = self.refvalues[self.ref]["475/550/850"][2]
+                    yred = MAPIR_Defaults.refvalues[self.ref]["475/550/850"][0]
+                    ygreen = MAPIR_Defaults.refvalues[self.ref]["475/550/850"][1]
+                    yblue = MAPIR_Defaults.refvalues[self.ref]["475/550/850"][2]
                 elif (ind[0] == 3 and ind[1] == 4):
 
-                    yred = self.refvalues[self.ref]["490/615/808"][0]
-                    ygreen = self.refvalues[self.ref]["490/615/808"][1]
-                    yblue = self.refvalues[self.ref]["490/615/808"][2]
+                    yred = MAPIR_Defaults.refvalues[self.ref]["490/615/808"][0]
+                    ygreen = MAPIR_Defaults.refvalues[self.ref]["490/615/808"][1]
+                    yblue = MAPIR_Defaults.refvalues[self.ref]["490/615/808"][2]
                 else:
-                    yred = self.refvalues[self.ref]["660/850"][0]
-                    ygreen = self.refvalues[self.ref]["660/850"][1]
-                    yblue = self.refvalues[self.ref]["660/850"][2]
+                    yred = MAPIR_Defaults.refvalues[self.ref]["660/850"][0]
+                    ygreen = MAPIR_Defaults.refvalues[self.ref]["660/850"][1]
+                    yblue = MAPIR_Defaults.refvalues[self.ref]["660/850"][2]
 
 
                 xred = np.array(xred)
@@ -4674,9 +4643,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 cofb = yblue[0]/xblue[0]
 
 
-                self.multiplication_values["Red"] = cofr
-                self.multiplication_values["Green"] = cofg
-                self.multiplication_values["Blue"] = cofb
+                MAPIR_Defaults.multiplication_values["Red"] = cofr
+                MAPIR_Defaults.multiplication_values["Green"] = cofg
+                MAPIR_Defaults.multiplication_values["Blue"] = cofb
                 # pred = np.poly1d(cred)
                 #
                 #
@@ -4726,38 +4695,38 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         t4mean = np.mean(targ4values)
                     y = [0.87, 0.51, 0.23, 0.0]
                     if ind[1] == 0:
-                        y = self.refvalues[self.ref]["Mono405"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono405"]
 
                     elif ind[1] == 1:
-                        y = self.refvalues[self.ref]["Mono450"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono450"]
 
                     elif ind[1] == 2:
-                        y = self.refvalues[self.ref]["Mono490"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono490"]
 
                     elif ind[1] == 3:
-                        y = self.refvalues[self.ref]["Mono518"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono518"]
 
 
                     elif ind[1] == 4:
-                        y = self.refvalues[self.ref]["Mono550"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono550"]
 
 
                     elif ind[1] == 5:
-                        y = self.refvalues[self.ref]["Mono590"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono590"]
                     elif ind[1] == 6:
-                        y = self.refvalues[self.ref]["Mono615"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono615"]
                     elif ind[1] == 7:
-                        y = self.refvalues[self.ref]["Mono632"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono632"]
                     elif ind[1] == 8:
-                        y = self.refvalues[self.ref]["Mono650"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono650"]
                     elif ind[1] == 9:
-                        y = self.refvalues[self.ref]["Mono685"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono685"]
                     elif ind[1] == 10:
-                        y = self.refvalues[self.ref]["Mono725"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono725"]
                     elif ind[1] == 11:
-                        y = self.refvalues[self.ref]["Mono808"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono808"]
                     elif ind[1] == 12:
-                        y = self.refvalues[self.ref]["Mono850"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono850"]
 
                     x = [t1mean, t2mean, t3mean, t4mean]
                 else:
@@ -4777,39 +4746,39 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         t3mean = np.mean(targ3values)
                     y = [0.87, 0.51, 0.23]
                     if ind[1] == 0:
-                        y = self.refvalues[self.ref]["Mono405"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono405"]
 
                     elif ind[1] == 1:
-                        y = self.refvalues[self.ref]["Mono450"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono450"]
 
 
                     elif ind[1] == 2:
-                        y = self.refvalues[self.ref]["Mono518"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono518"]
 
 
                     elif ind[1] == 3:
-                        y = self.refvalues[self.ref]["Mono550"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono550"]
 
 
                     elif ind[1] == 4:
-                        y = self.refvalues[self.ref]["Mono590"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono590"]
                     elif ind[1] == 5:
-                        y = self.refvalues[self.ref]["Mono632"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono632"]
                     elif ind[1] == 6:
-                        y = self.refvalues[self.ref]["Mono650"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono650"]
                     elif ind[1] == 7:
-                        y = self.refvalues[self.ref]["Mono615"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono615"]
                     elif ind[1] == 8:
-                        y = self.refvalues[self.ref]["Mono725"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono725"]
                     elif ind[1] == 9:
-                        y = self.refvalues[self.ref]["Mono780"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono780"]
                     elif ind[1] == 10:
-                        y = self.refvalues[self.ref]["Mono808"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono808"]
 
                     elif ind[1] == 11:
-                        y = self.refvalues[self.ref]["Mono850"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono850"]
                     elif ind[1] == 12:
-                        y = self.refvalues[self.ref]["Mono880"]
+                        y = MAPIR_Defaults.refvalues[self.ref]["Mono880"]
 
 
                     x = [t1mean, t2mean, t3mean]
@@ -4819,7 +4788,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 y = np.array(y)
 
 
-                self.multiplication_values["Mono"] = x.dot(y) / x.dot(x)
+                MAPIR_Defaults.multiplication_values["Mono"] = x.dot(y) / x.dot(x)
 
                 if list is not None and len(list) > 0:
                     self.CalibrationLog.append("Found QR Target Model 2, please proceed with calibration.")
@@ -5222,8 +5191,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                      r'-ifd0:blacklevelrepeatdim=' + str(1) + " " + str(1),
                      r'-ifd0:blacklevel=0',
                      r'-bandname=' + str(bandname[0] + ', ' + bandname[1] + ', ' + bandname[2]),
-                     # r'-bandname2=' + str( r'F' + str(self.BandNames.get(bandname, [0, 0, 0])[1])),
-                     # r'-bandname3=' + str( r'F' + str(self.BandNames.get(bandname, [0, 0, 0])[2])),
+                     # r'-bandname2=' + str( r'F' + str(MAPIR_Defaults.BandNames.get(bandname, [0, 0, 0])[1])),
+                     # r'-bandname3=' + str( r'F' + str(MAPIR_Defaults.BandNames.get(bandname, [0, 0, 0])[2])),
                      r'-WavelengthFWHM=' + str( self.lensvals[3:6][0][2] + ', ' + self.lensvals[3:6][1][2] + ', ' + self.lensvals[3:6][2][2]) ,
                      r'-ModelType=perspective',
                      r'-Yaw=' + str(ypr[0]),
@@ -5353,10 +5322,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                  r'-Pitch=' + str(ypr[1]),
                                  r'-Roll=' + str(ypr[2]),
                                  r'-CentralWavelength=' + str(float(centralwavelength[0])) + ', ' + str(float(centralwavelength[1])) + ', ' + str(float(centralwavelength[2])),
-                                 # r'-BandName="{band1=' + str(self.BandNames[bandname][0]) + r'band2=' + str(self.BandNames[bandname][1]) + r'band3=' + str(self.BandNames[bandname][2]) + r'}"',
+                                 # r'-BandName="{band1=' + str(MAPIR_Defaults.BandNames[bandname][0]) + r'band2=' + str(MAPIR_Defaults.BandNames[bandname][1]) + r'band3=' + str(MAPIR_Defaults.BandNames[bandname][2]) + r'}"',
                                  r'-bandname=' + str(bandname[0] + ', ' + bandname[1] + ', ' + bandname[2]),
-                                 # r'-bandname2=' + str( r'F' + self.BandNames.get(bandname, [0,0,0])[1]),
-                                 # r'-bandname3=' + str( r'F' + self.BandNames.get(bandname, [0,0,0])[2]),
+                                 # r'-bandname2=' + str( r'F' + MAPIR_Defaults.BandNames.get(bandname, [0,0,0])[1]),
+                                 # r'-bandname3=' + str( r'F' + MAPIR_Defaults.BandNames.get(bandname, [0,0,0])[2]),
 
                                  r'-WavelengthFWHM=' +str( self.lensvals[3:6][0][2] + ', ' + self.lensvals[3:6][1][2] + ', ' + self.lensvals[3:6][2][2]),
                                  r'-GPSLatitude="' + str(self.conv.META_PAYLOAD["GNSS_LAT_HI"][1]) + r'"',
@@ -5399,7 +5368,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                  r'-CentralWavelength=' + str(float(centralwavelength[0])),
                                  r'-ifd0:blacklevelrepeatdim=' + str(1) + " " +  str(1),
                                  r'-ifd0:blacklevel=0',
-                                 # r'-BandName="{band1=' + str(self.BandNames[bandname][0]) + r'band2=' + str(self.BandNames[bandname][1]) + r'band3=' + str(self.BandNames[bandname][2]) + r'}"',
+                                 # r'-BandName="{band1=' + str(MAPIR_Defaults.BandNames[bandname][0]) + r'band2=' + str(MAPIR_Defaults.BandNames[bandname][1]) + r'band3=' + str(MAPIR_Defaults.BandNames[bandname][2]) + r'}"',
                                  r'-bandname=' + bandname[0],
                                  r'-WavelengthFWHM=' + str(self.lensvals[3:6][0][2]),
                                  r'-GPSLatitude="' + str(self.conv.META_PAYLOAD["GNSS_LAT_HI"][1]) + r'"',
