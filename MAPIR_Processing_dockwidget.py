@@ -144,6 +144,7 @@ class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
     """
     parent = None
 
+    #GAMMA_LIST is a dictionary containing constant values for the Gamma list
     GAMMA_LIST = [{"CCM": [1,0,0,0,1,0,0,0,1], "RGB_OFFSET": [0,0,0], "GAMMA": [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]},
                   {"CCM": [1,0,1.402,1,-0.34414,-0.71414,1,1.772,0], "RGB_OFFSET": [0, 0, 0],
                    "GAMMA": [2.3,1.3,2.3,0.3,0.3,0.3,2.3,2.3,1,2,1,2,2,2,1,2,1,2,2,0,2,0,2,0]},
@@ -154,7 +155,6 @@ class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
         """Constructor."""
         super(DebayerMatrix, self).__init__(parent=parent)
         self.parent = parent
-
         self.setupUi(self)
 
     def on_ModalSaveButton_released(self):
@@ -816,11 +816,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
         self.setupUi(self)
         try:
-
+            #set legend equal to lut_legend.jpg
             legend = cv2.imread(os.path.dirname(__file__) + "/lut_legend.jpg")
             # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             # legend = cv2.cvtColor(legend, cv2.COLOR_GRAY2RGB)
-            legh, legw = legend.shape[:2]
+            legh, legw = legend.shape[:2] #find legend height and width
             self.legend_frame = QtGui.QImage(legend.data, legw, legh, legw, QtGui.QImage.Format_Grayscale8)
             # self.LUTGraphic.setPixmap(QtGui.QPixmap.fromImage(img2))
             self.LUTGraphic.setPixmap(QtGui.QPixmap.fromImage(
