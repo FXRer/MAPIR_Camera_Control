@@ -735,12 +735,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     poll = []
     ei = tEventInfo()
     capturing = False
-    SQ_TO_TARG = 2.1875
-    SQ_TO_SQ = 5.0
-    CORNER_TO_CORNER = 5.25
-    CORNER_TO_TARG = 10.0
-    TARGET_LENGTH = 2.0
-    TARG_TO_TARG = 2.6
     dialog = None
     imcols = 4608
     imrows = 3456
@@ -4501,14 +4495,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         right = self.coords[2]
             if list is not None and len(list) > 0:
                 guidelength = np.sqrt(np.power((center[0] - right[0]), 2) + np.power((center[1] - right[1]), 2))
-                pixelinch = guidelength / self.CORNER_TO_CORNER
-                rad = (pixelinch * self.CORNER_TO_TARG)
+                pixelinch = guidelength / MAPIR_Defaults.CORNER_TO_CORNER
+                rad = (pixelinch * MAPIR_Defaults.CORNER_TO_TARG)
                 vx = center[1] - right[1]
                 vy = center[0] - right[0]
             else:
                 guidelength = np.sqrt(np.power((center[0] - bottom[0]), 2) + np.power((center[1] - bottom[1]), 2))
-                pixelinch = guidelength / self.SQ_TO_SQ
-                rad = (pixelinch * self.SQ_TO_TARG)
+                pixelinch = guidelength / MAPIR_Defaults.SQ_TO_SQ
+                rad = (pixelinch * MAPIR_Defaults.SQ_TO_TARG)
                 vx = center[0] - bottom[0]
                 vy = center[1] - bottom[1]
 
