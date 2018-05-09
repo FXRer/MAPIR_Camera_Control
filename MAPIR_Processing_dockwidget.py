@@ -171,6 +171,8 @@ class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
 class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
     """class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS)
         takes in inputs QtWidgets.QDialog and ADVANCED_CLASS
+
+        sets up the advanced options in the kernel tab
     """
     parent = None
 
@@ -446,7 +448,7 @@ class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
     """
     class KernalCan
 
-    ....add description
+    sets the CAN bus for kernel time, it is a data bus used in vehicles
 
     """
     parent = None
@@ -700,21 +702,15 @@ class KernelTime(QtWidgets.QDialog, TIME_CLASS):
             self.KernelReferenceTime.setDateTime(QtCore.QDateTime.currentDateTime())
 
 class tPoll:
-    """ class tPoll sets variables request, code, len equal to zero, it sets values equal to an empty list"""
+    """ class tPoll sets variables request, code, len equal to zero, it sets values equal to an empty list
+
+    it is setting up a timer for the KernelTime class
+    """
     def __init__(self):
         request = 0
         code = 0
         len = 0 #Len can also store the value depending on the code given
         values = []
-
-class tEventInfo:
-    """class tEventInfor sets variables mode, process, focusing, inversion, and nr_faces equal to 0"""
-    def __init__(self):
-        mode = 0
-        process = 0
-        focusing = 0
-        inversion = 0
-        nr_faces = 0
 
 class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     """
@@ -725,7 +721,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     # eFilter = mousewheelFilter()
     camera = 0
     poll = []
-    ei = tEventInfo()
     capturing = False
     dialog = None
     imcols = 4608
