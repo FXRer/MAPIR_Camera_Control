@@ -1,3 +1,6 @@
+""" BandOrder.py sets up which of the sets of single band images is treated as the first band in a multiband result"""
+
+
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 import PyQt5.uic as uic
