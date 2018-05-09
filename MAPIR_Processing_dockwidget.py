@@ -752,7 +752,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     coords = []
     # drivesfound = []
     ref = ""
-    
+
 
     imkeys = np.array(list(range(0, 65536)))
     weeks = 0
@@ -1100,7 +1100,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 #     self.display_image = gdal.Open(self.KernelBrowserFile.text())
                 #     self.display_image = np.array(self.display_image.GetRasterBand(1).ReadAsArray())
                 if self.display_image.dtype == np.dtype("uint16"):
-                    self.display_image = self.display_image / 65535.0
+                    self.display_image = self.display_image / MAPIR_Defaults.UINT16MAX_FLOAT
                     self.display_image = self.display_image * 255.0
                     self.display_image = self.display_image.astype("uint8")
                 # self.imkeys = np.array(list(range(0, 65536)))
@@ -3161,9 +3161,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 calfolder4 = self.CalibrationInFolder_4.text()
                 calfolder5 = self.CalibrationInFolder_5.text()
                 calfolder6 = self.CalibrationInFolder_6.text()
-                MAPIR_Defaults.pixel_min_max = {"redmax": 0.0, "redmin": 65535.0,
-                                 "greenmax": 0.0, "greenmin": 65535.0,
-                                 "bluemax": 0.0, "bluemin": 65535.0}
+                MAPIR_Defaults.pixel_min_max = {"redmax": 0.0, "redmin": MAPIR_Defaults.UINT16MAX_FLOAT,
+                                 "greenmax": 0.0, "greenmin": MAPIR_Defaults.UINT16MAX_FLOAT,
+                                 "bluemax": 0.0, "bluemin": MAPIR_Defaults.UINT16MAX_FLOAT}
                 # self.CalibrationLog.append("Calibration target folder is: " + calfolder + "\n")
                 files_to_calibrate = []
                 files_to_calibrate2 = []
@@ -3886,19 +3886,19 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             tempim = tempim.astype("uint8")
         else:
             if self.IndexBox.checkState() == 0:
-                tempim *= 65535.0
+                tempim *= MAPIR_Defaults.UINT16MAX_FLOAT
 
                 tempim = tempim.astype("uint16")
             else:
                 tempim = tempim.astype("float")
         # print(str(tempim))
         # tempim = np.floor((refimg * coeffs[1]) + coeffs[0]).astype("uint16")
-        # tempim[tempim > 65535] = 65535
+        # tempim[tempim > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
         # tempim[tempim < 0] = 0
         #
         # tempimg = tempim / tempim.max()
         #
-        # tempimg *= 65535
+        # tempimg *= MAPIR_Defaults.UINT16MAX_INT
         #
         # tempimg = tempimg.astype("uint16")
 
@@ -3940,7 +3940,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         #
         #     refimg -= MAPIR_Defaults.monominmax["min"]
         #     refimg /= (MAPIR_Defaults.monominmax["max"] + MAPIR_Defaults.monominmax["min"])
-        #     refimg *= 65535
+        #     refimg *= MAPIR_Defaults.UINT16MAX_INT
         #
         #     refimg = refimg.astype("uint16")
         # else:
@@ -4108,21 +4108,21 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     # tempimg = cv2.merge((blue, green, red)).astype("float32")
                     # cv2.imwrite(output_directory + photo.split('.')[1] + "_Percent." + photo.split('.')[2], tempimg)
 
-                    red *= 65535
-                    green *= 65535
-                    blue *= 65535
-                    # red[blue > 65535] = 65535
-                    # red[green > 65535] = 65535
+                    red *= MAPIR_Defaults.UINT16MAX_INT
+                    green *= MAPIR_Defaults.UINT16MAX_INT
+                    blue *= MAPIR_Defaults.UINT16MAX_INT
+                    # red[blue > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+                    # red[green > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
                     #
-                    # green[red > 65535] = 65535
-                    # green[blue > 65535] = 65535
+                    # green[red > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+                    # green[blue > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
                     #
-                    # blue[red > 65535] = 65535
-                    # blue[green > 65535] = 65535
+                    # blue[red > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+                    # blue[green > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
 
-                    green[green > 65535] = 65535
-                    red[red > 65535] = 65535
-                    blue[blue > 65535] = 65535
+                    green[green > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+                    red[red > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+                    blue[blue > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
 
     #                 # red[blue < 0] = 0
     #                 # red[green < 0] = 0
@@ -4232,8 +4232,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 nir = nir / 255.0
                 visible = visible / 255.0
             elif nir.dtype == "uint16":
-                nir /= 65535.0
-                visible /= 65535.0
+                nir /= MAPIR_Defaults.UINT16MAX_FLOAT
+                visible /= MAPIR_Defaults.UINT16MAX_FLOAT
 
             numer = nir - visible
             denom = nir + visible
@@ -4555,9 +4555,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 xgreen = np.array(xgreen)
                 xblue = np.array(xblue)
 
-                xred /= 65535
-                xgreen /= 65535
-                xblue /= 65535
+                xred /= MAPIR_Defaults.UINT16MAX_INT
+                xgreen /= MAPIR_Defaults.UINT16MAX_INT
+                xblue /= MAPIR_Defaults.UINT16MAX_INT
 
                 yred = np.array(yred)
                 ygreen = np.array(ygreen)
@@ -4814,9 +4814,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 images = np.zeros((4000 * 3000),dtype=np.uint16)
                                 for i in range(0, 12):
                                     images += 2 ** (11 - i) * data[:,  i]
-                                # red = (65535.0/31.0 * np.bitwise_and(np.right_shift(data, 11), 0x1f)).astype("uint16")
-                                # green = (65535.0/63.0 * np.bitwise_and(np.right_shift(data, 5), 0x3f)).astype("uint16")
-                                # blue = (65535.0/31.0 * np.bitwise_and(data, 0x1f)).astype("uint16")
+                                # red = (MAPIR_Defaults.UINT16MAX_FLOAT/31.0 * np.bitwise_and(np.right_shift(data, 11), 0x1f)).astype("uint16")
+                                # green = (MAPIR_Defaults.UINT16MAX_FLOAT/63.0 * np.bitwise_and(np.right_shift(data, 5), 0x3f)).astype("uint16")
+                                # blue = (MAPIR_Defaults.UINT16MAX_FLOAT/31.0 * np.bitwise_and(data, 0x1f)).astype("uint16")
                                 #
                                 # img = cv2.merge((blue,green,red)).astype("uint16")
                                 #
@@ -4825,9 +4825,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 img = np.reshape(images, (3000, 4000))
                                 tim = self.debayer(img)
                                 color = copy.deepcopy(tim)
-                                # color[tim[:, :, 0] >= 65535] = 65535
-                                # color[tim[:, :, 1] >= 65535] = 65535
-                                # color[tim[:, :, 2] >= 65535] = 65535
+                                # color[tim[:, :, 0] >= MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+                                # color[tim[:, :, 1] >= MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+                                # color[tim[:, :, 2] >= MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
                                 # cv2.imwrite(outfolder + "test.tif", img)
                                 # cv2.imwrite(outfolder + "testDB.tif", tim)
                             except Exception as e:
@@ -4878,7 +4878,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             cv2.imencode(".jpg", color)
                         else:
                             # color = (color - mincol) / (maxcol  - mincol)
-                            # color = color * 65535.0
+                            # color = color * MAPIR_Defaults.UINT16MAX_FLOAT
                             color = color.astype("uint16")
                             filename = input.split('.')
                             outputfilename = filename[1] + '.tif'
@@ -4954,7 +4954,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         #
                         # color[:,:,1] = gr
                         #
-                        # color[color > 65535] = 65535
+                        # color[color > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
                         # color[color < 0] = 0
                         # color[:, :, 1] = color2[:, :, 2]
                         color[:, :, 1] = color2[:, :, 0]
@@ -4967,7 +4967,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         goff = 0
                         boff = 0
                         color -= 2690
-                        color = color / 65535
+                        color = color / MAPIR_Defaults.UINT16MAX_INT
                         if self.PreProcessColorBox.isChecked():
                             red = color[:, :, 0] = (1.510522 * color[:, :, 0]) + (0.0 * color[:, :, 1]) + (0.0 * color[:, :, 2]) + roff
                             green = color[:, :, 1] = (0.0 * color[:, :, 0]) + (1 * color[:, :, 1]) + (0.0 * color[:, :, 2]) + goff
@@ -4980,7 +4980,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             color[green < 0.0] = 0.0
                             color[blue < 0.0] = 0.0
 
-                        color = (color * 65535.0).astype("uint16")
+                        color = (color * MAPIR_Defaults.UINT16MAX_FLOAT).astype("uint16")
 
 
 
@@ -5002,7 +5002,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                     v_array = np.ndarray((h, w), np.dtype("float32"),
                                                          np.fromfile(vigfile, np.dtype("float32")))
                                     img = img / v_array
-                                    img[img > 65535.0] = 65535.0
+                                    img[img > MAPIR_Defaults.UINT16MAX_FLOAT] = MAPIR_Defaults.UINT16MAX_FLOAT
                                     img[img < 0.0] = 0.0
                                     img = img.astype("uint16")
                                 cv2.imwrite(outphoto, img)
@@ -5048,7 +5048,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         v_array = np.ndarray((h, w), np.dtype("float32"),
                                                              np.fromfile(vigfile, np.dtype("float32")))
                                         img = img / v_array
-                                        img[img > 65535.0] = 65535.0
+                                        img[img > MAPIR_Defaults.UINT16MAX_FLOAT] = MAPIR_Defaults.UINT16MAX_FLOAT
                                         img[img < 0.0] = 0.0
                                         img = img.astype("uint16")
                                     cv2.imwrite(outphoto, img)

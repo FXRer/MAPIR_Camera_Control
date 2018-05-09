@@ -2,8 +2,11 @@
 
 These defaults serve as substitutes for values that would be derived from the calibration targets
 """
-# the following constants are default values for the camera if the target is not used
 
+UINT16MAX_FLOAT = 65535.0
+UINT16MAX_INT = 65535
+
+# the following constants are default values for the camera if the target is not used
 BASE_COEFF_SURVEY2_RED_JPG = [-2.55421832, 16.01240929, 0.0, 0.0, 0.0, 0.0]
 BASE_COEFF_SURVEY2_GREEN_JPG = [0.0, 0.0, -0.60437250, 4.82869470, 0.0, 0.0]
 BASE_COEFF_SURVEY2_BLUE_JPG = [0.0, 0.0, 0.0, 0.0, -0.39268985, 2.67916884]
