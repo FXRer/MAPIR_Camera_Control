@@ -708,7 +708,12 @@ class tEventInfo:
 
 
 
+'''
 
+class MAPIR_ProcessingDockWidget is the largest class within the widget program and contains the hard-coded constants,
+the code to generate the widget, and the code for most of the tabs within the widget
+
+'''
 class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     BASE_COEFF_SURVEY2_RED_JPG = [-2.55421832, 16.01240929, 0.0, 0.0, 0.0, 0.0]
     BASE_COEFF_SURVEY2_GREEN_JPG = [0.0, 0.0, -0.60437250, 4.82869470, 0.0, 0.0]
