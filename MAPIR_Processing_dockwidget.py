@@ -1312,7 +1312,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         QtWidgets.QApplication.processEvents()
     def on_ViewerCalcButton_released(self):
         if self.LUTwindow == None:
-            self.calcwindow = Calculator(self)
+            self.calcwindow = Calculator(self) #pass the calculator a new version of itself (a Q object) to the display
         self.calcwindow.resize(385, 250)
         self.calcwindow.show()
         QtWidgets.QApplication.processEvents()

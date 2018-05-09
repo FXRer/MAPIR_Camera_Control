@@ -1,3 +1,16 @@
+"""
+/***************************************************************************
+ Calculator.py
+
+ Class function for calculating Normalized Difference Vegetation Index (NDVI)
+
+ calculator.py is passed a new Q object and class RASTER_CLASS which it then
+ modifies and sends back with the calculated NDVI
+ ***************************************************************************/
+
+
+"""
+
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 import PyQt5.uic as uic
@@ -9,17 +22,17 @@ RASTER_CLASS, _ = uic.loadUiType(os.path.join(
 
 
 class Calculator(QtWidgets.QDialog, RASTER_CLASS):
-    ndvi = None
+    ndvi = None #Normalized Difference Vegetation Index
     def __init__(self, parent=None):
         """Constructor."""
         super(Calculator, self).__init__(parent=parent)
         self.parent = parent
 
         self.setupUi(self)
-        img = cv2.imread(os.path.dirname(__file__) + "/ndvi_400px.jpg")
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        h, w = img.shape[:2]
-        img2 = QtGui.QImage(img, w, h, w * 3, QtGui.QImage.Format_RGB888)
+        img = cv2.imread(os.path.dirname(__file__) + "/ndvi_400px.jpg") #read in image containing NDVI formula
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)                      #change from BGR to RGB
+        h, w = img.shape[:2]                                            #find the height and width
+        img2 = QtGui.QImage(img, w, h, w * 3, QtGui.QImage.Format_RGB888) #img2 is for the QtGui
         self.IndexFormula.setPixmap(QtGui.QPixmap.fromImage(img2))
         self.RasterX.addItem(self.parent.KernelBrowserFile.text().split(r'/')[-1] + " @Band1(Red Channel)")
         self.RasterX.addItem(self.parent.KernelBrowserFile.text().split(r'/')[-1] + " @Band2(Green Channel)")
@@ -33,6 +46,7 @@ class Calculator(QtWidgets.QDialog, RASTER_CLASS):
         # self.RasterZ.addItem(self.parent.KernelBrowserFile.text().split(os.sep)[-1] + " @Band2")
         # self.RasterZ.addItem(self.parent.KernelBrowserFile.text().split(os.sep)[-1] + " @Band3")
         self.parent.ViewerCalcButton.setEnabled(False)
+
     def on_RasterApplyButton_released(self):
         try:
             self.processIndex()
@@ -45,6 +59,7 @@ class Calculator(QtWidgets.QDialog, RASTER_CLASS):
                 self.parent.ViewerIndexBox.setChecked(True)
         except Exception as e:
             print(e)
+
     def on_RasterOkButton_released(self):
         try:
             self.processIndex()
@@ -67,7 +82,7 @@ class Calculator(QtWidgets.QDialog, RASTER_CLASS):
 
     def processIndex(self):
         try:
-            h, w = self.parent.display_image_original.shape[:2]
+            h, w = self.parent.display_image_original.shape[:2] #get image height and width
             bands = [self.parent.display_image_original[:, :, 0], self.parent.display_image_original[:, :, 1], self.parent.display_image_original[:, :, 2]]
             self.ndvi = self.parent.calculateIndex(bands[self.RasterX.currentIndex()], bands[self.RasterY.currentIndex()])
             self.parent.LUT_Min = copy.deepcopy(np.percentile(self.ndvi, 2))
