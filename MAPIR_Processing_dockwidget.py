@@ -451,6 +451,8 @@ class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
 
     sets the CAN bus for kernel time, it is a data bus used in vehicles
 
+    a data bus is a connector or set of wires that provides transportation for data
+
     """
     parent = None
 
@@ -930,9 +932,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
     def __init__(self, parent=None):
         """Constructor."""
-        super(MAPIR_ProcessingDockWidget, self).__init__(parent)
+        super(MAPIR_ProcessingDockWidget, self).__init__(parent) #constructor is inheriting dockwidget's variables
 
-        self.setupUi(self)
+
+        #multiple inheritance approach to setting up the UI
+        #setupUi() is the pyQt function that generates the UI that was created in pyQt
+        #for further documentation see: http://pyqt.sourceforge.net/Docs/PyQt4/designer.html
+
+        self.setupUi(self) #call to setup the qt UI object of type self 
         try:
             #set legend equal to lut_legend.jpg
             legend = cv2.imread(os.path.dirname(__file__) + "/lut_legend.jpg")
