@@ -2,7 +2,7 @@ import os
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from MAPIR_Processing_dockwidget import *
+from MAC_dockwidget import *
 
 '''
 This is the main function that runs the MAPIR widget, it instantiates a QT app object and then a 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
                 '''create a processing dock widget app 
                 the app is defined in the MAPIR_PRocessing_dockwidget.py file'''
-                myapp = MAPIR_ProcessingDockWidget()
+                myapp = MAPIR_ProcessingDockWidget() #instantiate a dockwidget app
                 myapp.show() #Show the MAPIR gui
                 #splash.finish(myapp) #end the loading screen
 

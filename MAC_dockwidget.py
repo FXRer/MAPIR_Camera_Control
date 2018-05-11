@@ -72,7 +72,7 @@ if not os.path.exists(modpath + os.sep + "instring.txt"):
     istr = open(modpath + os.sep + "instring.txt", "w")
     istr.close()
 
-#from osgeo import gdal
+from osgeo import gdal
 
 import glob
 
