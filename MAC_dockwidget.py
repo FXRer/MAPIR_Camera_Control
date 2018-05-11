@@ -34,7 +34,6 @@ import platform
 import itertools
 import ctypes
 import string
-import win32api
 import PIL
 import bitstring
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -45,14 +44,10 @@ import numpy as np
 import subprocess
 import cv2
 import copy
-import hid
+import pyhidapi
 import time
 
-import gdal
-import glob
-
 from MAPIR_Enums import *
-from MAPIR_Defaults import *
 from Calculator import *
 from LUT_Dialog import *
 from Vignette import *
@@ -64,6 +59,12 @@ from MAPIR_Converter import *
 from Exposure import *
 # import KernelBrowserViewer
 
+if sys.platform == "win32":
+    import win32api
+    si = subprocess.STARTUPINFO()
+    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+
 modpath = os.path.dirname(os.path.realpath(__file__))
 
 # print(str(modpath))
@@ -71,49 +72,18 @@ if not os.path.exists(modpath + os.sep + "instring.txt"):
     istr = open(modpath + os.sep + "instring.txt", "w")
     istr.close()
 
+from osgeo import gdal
 
+import glob
 
 all_cameras = []
 
-"""
-One big issue is that every time you call any .exe in Windows a command window is pulled up each time
-
-In order to address this we will create a variable: 'si' which stands for system information
-
-When si is declared it pulls up the generic startup info from the system, then one of the flags in si can be set to 
-suppress the popping up of a window each time an exe is called
-
-Now that si exists with the suppressed pop ups it can be passed to other functions as a substitute for the default 
-system information to avoid having to write this code everytime
-"""
-
-
-if sys.platform == "win32":
-
-    si = subprocess.STARTUPINFO()
-    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-
-"""exiftool is crossplatform, needs to be cosnumed in 3 differeent wased based on which OS is being used
-on mac use homebrew
-"""
 
 # if sys.platform == "win32":
 #       import exiftool
 #       exiftool.executable = modpath + os.sep + "exiftool.exe"
 
-"""
-The following code is meant to define various classes:
 
-FORM_CLASS represents the main UI class
-MODAL_CLASS is the window that forces you to save changes before closing
-
-CAN_CLASS is for the can settings modal window
-TIME_CLASS represents the time settings modal window
-TRANSFER_CLASS is a modal window for the transfer
-ADVANCED_CLASS is a modal window for advanced settings on the camera
-MATRIX_CLASS is a modal window for the CT (Color Transform) Matrix
-"""
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_base.ui'))
 MODAL_CLASS, _ = uic.loadUiType(os.path.join(
@@ -131,21 +101,9 @@ ADVANCED_CLASS, _ = uic.loadUiType(os.path.join(
 MATRIX_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_matrix.ui'))
 
-
-
-
 class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
-    """DebayerMatrix (Debayer ~ De )
-
-        No such thing as Red Blue Green Channels, need to take the image and interpolate through it to get separate RBG channel
-        1/4 Red data is actually there, other 75% must be interpolated
-        1/4 Blue data is actually there, other 75% must be interpolated
-        1/2 Green is actually there, other 50% must be interpolated
-
-    """
     parent = None
 
-    #GAMMA_LIST is a dictionary containing constant values for the Gamma list
     GAMMA_LIST = [{"CCM": [1,0,0,0,1,0,0,0,1], "RGB_OFFSET": [0,0,0], "GAMMA": [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]},
                   {"CCM": [1,0,1.402,1,-0.34414,-0.71414,1,1.772,0], "RGB_OFFSET": [0, 0, 0],
                    "GAMMA": [2.3,1.3,2.3,0.3,0.3,0.3,2.3,2.3,1,2,1,2,2,2,1,2,1,2,2,0,2,0,2,0]},
@@ -156,25 +114,17 @@ class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
         """Constructor."""
         super(DebayerMatrix, self).__init__(parent=parent)
         self.parent = parent
+
         self.setupUi(self)
 
     def on_ModalSaveButton_released(self):
-    """ on_ModalSaveButton_released closes self when the save button is released (clicked)
-    """
         self.close()
 
     def on_ModalCancelButton_released(self):
-        """ on_ModalCancelButton_released closes self when the cancel button is released (clicked)
-        """
         self.close()
 
 
 class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
-    """class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS)
-        takes in inputs QtWidgets.QDialog and ADVANCED_CLASS
-
-        sets up the advanced options in the kernel tab
-    """
     parent = None
 
     def __init__(self, parent=None):
@@ -241,9 +191,6 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
     #         instring.write(self.ModalOutputFolder.text())
     #         self.ModalSaveButton.setEnabled(True)
     def on_SaveButton_released(self):
-        """
-
-        """
         # self.parent.transferoutfolder  = self.ModalOutputFolder.text()
         # self.parent.yestransfer = self.TransferBox.isChecked()
         # self.parent.yesdelete = self.DeleteBox.isChecked()
@@ -363,6 +310,7 @@ class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
         QtWidgets.QApplication.processEvents()
         self.close()
 
+
 # class KernelDelete(QtWidgets.QDialog, DEL_CLASS):
 #     parent = None
 #
@@ -385,20 +333,8 @@ class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
 #     def on_ModalCancelButton_released(self):
 #         self.close()
 
+
 class KernelModal(QtWidgets.QDialog, MODAL_CLASS):
-    """
-    class KernalModal(QtWidgets.QDialog, MODAL_CLASS)
-
-    first the submethod calls setupUI to pop up the widgets
-
-    next when the save button is released it records the inputs given by the user for the seconds, minutes, hours, days, and
-    weeks
-
-    Finally seconds are converted to minutes, minutes to hours, hours to days, and days to weeks in order to generate a
-    string that may be passed to writeToIntervalLine()
-
-    this string represents the time interval that the MAPIR camera will take between taking images as specified by the user
-    """
     parent = None
 
     def __init__(self, parent=None):
@@ -445,13 +381,8 @@ class KernelModal(QtWidgets.QDialog, MODAL_CLASS):
     def on_ModalCancelButton_released(self):
         self.close()
 
+
 class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
-    """
-    class KernalCan
-
-    sets the CAN bus for kernel time, it is a data bus used in vehicles
-
-    """
     parent = None
 
     def __init__(self, parent=None):
@@ -461,7 +392,7 @@ class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
 
         self.setupUi(self)
         buf = [0] * 512
-        buf[0] = self.parent.SET_REGIST ER_READ_REPORT
+        buf[0] = self.parent.SET_REGISTER_READ_REPORT
         buf[1] = eRegister.RG_CAN_NODE_ID.value
         nodeid = self.parent.writeToKernel(buf)[2]
         # buf[2] = nodeid
@@ -523,31 +454,11 @@ class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
     def on_ModalCancelButton_released(self):
         self.close()
 
+
 class KernelTime(QtWidgets.QDialog, TIME_CLASS):
-    """
-    class KernelTime(QtWidgets.QDialog, TIME_CLASS)
-
-    takes in actual UTC (Coordinated Universal Time), GPS, or Computer Time
-    reads the time from the kernal's internal clock
-
-    Syncs the internal clock to whichever of the three times was selected
-
-    """
     parent = None
     timer = QtCore.QTimer()
-    BUFF_LEN = 512 #length of the buffer
-
-
-    '''
-
-       The following SET commands represent odd integers that correspond to the buffer values which tell the kernel
-       camera which operation to take 
-
-       e.g. SET_EVENT_REPORT tells the kernel camera to conduct operation 1
-
-       the reason that these integers are odd is because they are flipping the next bit on 
-    '''
-
+    BUFF_LEN = 512
     SET_EVENT_REPORT = 1
     SET_COMMAND_REPORT = 3
     SET_REGISTER_WRITE_REPORT = 5
@@ -574,9 +485,6 @@ class KernelTime(QtWidgets.QDialog, TIME_CLASS):
         #     self.parent.camera = self.parent.paths[0]
         # else:
         self.adjustRTC()
-
-
-    #to create the time string you have to follow boolean logic take the first 8 bits, then the next 8 bits, etc
 
     def adjustRTC(self):
         buf = [0] * 512
@@ -701,28 +609,76 @@ class KernelTime(QtWidgets.QDialog, TIME_CLASS):
             self.KernelReferenceTime.setDateTime(QtCore.QDateTime.currentDateTimeUtc())
         else:
             self.KernelReferenceTime.setDateTime(QtCore.QDateTime.currentDateTime())
-
 class tPoll:
-    """ class tPoll sets variables request, code, len equal to zero, it sets values equal to an empty list
-
-    it is setting up a timer for the KernelTime class
-    """
     def __init__(self):
         request = 0
         code = 0
         len = 0 #Len can also store the value depending on the code given
         values = []
+class tEventInfo:
+    def __init__(self):
+        mode = 0
+        process = 0
+        focusing = 0
+        inversion = 0
+        nr_faces = 0
+
+
+
+
+
 
 class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
-    """
-    class MAPIR_ProcessingDockWidget is the largest class within the widget program and contains the hard-coded constants,
-    the code to generate the widget, and the code for most of the tabs within the widget
-    """
+    BASE_COEFF_SURVEY2_RED_JPG = [-2.55421832, 16.01240929, 0.0, 0.0, 0.0, 0.0]
+    BASE_COEFF_SURVEY2_GREEN_JPG = [0.0, 0.0, -0.60437250, 4.82869470, 0.0, 0.0]
+    BASE_COEFF_SURVEY2_BLUE_JPG = [0.0, 0.0, 0.0, 0.0, -0.39268985, 2.67916884]
+    BASE_COEFF_SURVEY2_NDVI_JPG = [-0.29870245, 6.51199915, 0.0, 0.0, -0.65112026, 10.30416005]
+    BASE_COEFF_SURVEY2_NIR_JPG = [-0.46967653, 7.13619139, 0.0, 0.0, 0.0, 0.0]
+    BASE_COEFF_SURVEY1_NDVI_JPG = [-6.33770486888, 331.759383023, 0.0, 0.0, -0.6931339436, 51.3264675118]
+    BASE_COEFF_SURVEY2_RED_TIF = [-5.09645820, 0.24177528, 0.0, 0.0, 0.0, 0.0]
+    BASE_COEFF_SURVEY2_GREEN_TIF = [0.0, 0.0, -1.39528479, 0.07640011, 0.0, 0.0]
+    BASE_COEFF_SURVEY2_BLUE_TIF = [0.0, 0.0, 0.0, 0.0, -0.67299134, 0.03943339]
+    BASE_COEFF_SURVEY2_NDVI_TIF = [3.21946584661, 1.06087488594, 0.0, 0.0, -43.6505776052, 1.46482226805]
+    BASE_COEFF_SURVEY2_NIR_TIF = [-2.24216724, 0.12962333, 0.0, 0.0, 0.0, 0.0]
+    BASE_COEFF_SURVEY3_W_NGB_TIF = [13.2610911247, 3.97721174076, 5.73811506234]
+    BASE_COEFF_SURVEY3_N_NGB_TIF = [13.2610911247, 3.97721174076, 5.73811506234]
+    BASE_COEFF_SURVEY3_W_RGN_TIF = [5.09994742157, 3.85344547793, 9.49432813587]
+    BASE_COEFF_SURVEY3_N_RGN_TIF = [5.09994742157, 3.85344547793, 9.49432813587]
+    BASE_COEFF_SURVEY3_N_NIR_TIF = [13.2610911247, 0.0, 0.0]
+    BASE_COEFF_DJIX3_NDVI_JPG = [-0.34430543, 4.63184993, 0.0, 0.0, -0.49413940, 16.36429964]
+    BASE_COEFF_DJIX3_NDVI_TIF = [-0.74925346, 0.01350319, 0.0, 0.0, -0.77810008, 0.03478272]
+    BASE_COEFF_DJIPHANTOM4_NDVI_JPG = [-1.17016961, 0.03333209, 0.0, 0.0, -0.99455214, 0.05373502]
+    BASE_COEFF_DJIPHANTOM4_NDVI_TIF = [-1.17016961, 0.03333209, 0.0, 0.0, -0.99455214, 0.05373502]
+    BASE_COEFF_DJIPHANTOM3_NDVI_JPG = [-1.54494979, 3.44708472, 0.0, 0.0, -1.40606832, 6.35407929]
+    BASE_COEFF_DJIPHANTOM3_NDVI_TIF = [-1.37495554, 0.01752340, 0.0, 0.0, -1.41073753, 0.03700812]
+    BASE_COEFF_KERNEL_F644 = [0.0, 0.0]
+    BASE_COEFF_KERNEL_F405 = [0.0, 0.0]
+    BASE_COEFF_KERNEL_F450 = [0.0, 0.0]
+    BASE_COEFF_KERNEL_F520 = [0.0, 0.0]
+    BASE_COEFF_KERNEL_F550 = [0.0, 0.0]
+    BASE_COEFF_KERNEL_F632 = [0.0, 0.0]
+    BASE_COEFF_KERNEL_F650 = [0.0, 0.0]
+    BASE_COEFF_KERNEL_F725 = [0.0, 0.0]
+    BASE_COEFF_KERNEL_F808 = [0.0, 0.0]
+    BASE_COEFF_KERNEL_F850 = [0.0, 0.0]
+    BASE_COEFF_KERNEL_F395_870 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    BASE_COEFF_KERNEL_F475_850 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    BASE_COEFF_KERNEL_F550_850 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    BASE_COEFF_KERNEL_F660_850 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    BASE_COEFF_KERNEL_F475_550_850 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    BASE_COEFF_KERNEL_F550_660_850 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     # eFilter = mousewheelFilter()
     camera = 0
     poll = []
+    ei = tEventInfo()
     capturing = False
+    SQ_TO_TARG = 2.1875
+    SQ_TO_SQ = 5.0
+    CORNER_TO_CORNER = 5.25
+    CORNER_TO_TARG = 10.0
+    TARGET_LENGTH = 2.0
+    TARG_TO_TARG = 2.6
     dialog = None
     imcols = 4608
     imrows = 3456
@@ -740,14 +696,96 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     coords = []
     # drivesfound = []
     ref = ""
+    refindex = ["oldrefvalues", "newrefvalues"]
+    refvalues = {
+    "oldrefvalues":{
+        "660/850": [[0.87032549, 0.52135779, 0.23664799], [0, 0, 0], [0.8463514, 0.51950608, 0.22795518]],
+        "446/800": [[0.8419608509, 0.520440145, 0.230113958], [0, 0, 0], [0.8645652801, 0.5037779363, 0.2359041624]],
+        "850": [[0.8463514, 0.51950608, 0.22795518], [0, 0, 0], [0, 0, 0]],
+        # "808": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        "650": [[0.87032549, 0.52135779, 0.23664799], [0, 0, 0], [0, 0, 0]],
+        "550": [[0, 0, 0], [0.87415089, 0.51734381, 0.24032515], [0, 0, 0]],
+        "450": [[0, 0, 0], [0, 0, 0], [0.86469794, 0.50392915, 0.23565447]],
+        "Mono450": [0.8634818638, 0.5024087105, 0.2351860396],
+        "Mono550": [0.8740616379, 0.5173070235, 0.2402423818],
+        "Mono650": [0.8705783136, 0.5212290524, 0.2366437854],
+        "Mono725": [0.8606071247, 0.521474266, 0.2337744252],
+        "Mono808": [0.8406184266, 0.5203405498, 0.2297701185],
+        "Mono850": [0.8481919553, 0.519491643, 0.2278713071],
+        "Mono405": [0.8556905469, 0.4921243183, 0.2309899254],
+        "Mono518": [0.8729814889, 0.5151370187, 0.2404729692],
+        "Mono632": [0.8724034645, 0.5209649915, 0.2374529161],
+        # "Mono660": [0.8704202831, 0.5212214688, 0.2365919358],
+        "Mono590": [0.8747043911, 0.5195596573, 0.2392049856],
+        "550/660/850": [[0.8474610999, 0.5196055607, 0.2279922965],[0.8699940018, 0.5212235151, 0.2364397706],[0.8740311726, 0.5172611881, 0.2402870156]]
 
+    },
+    "newrefvalues":{
+        "660/850": [[0.87032549, 0.52135779, 0.23664799], [0, 0, 0], [0.8653063177, 0.2798126291, 0.2337498097, 0.0193295348]],
+        "446/800": [[0.7882333002, 0.2501235178, 0.1848459584, 0.020036883], [0, 0, 0], [0.8645652801, 0.5037779363, 0.2359041624]],
+        "850": [[0.8649280907, 0.2800907016, 0.2340131491, 0.0195446727], [0, 0, 0], [0, 0, 0]],
+        # "808": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        "650": [[0.8773469949, 0.2663571183, 0.199919444, 0.0192325637], [0, 0, 0], [0, 0, 0]],
+        "550": [[0, 0, 0], [0.8686559344, 0.2655697585, 0.1960837144, 0.0195629009], [0, 0, 0]],
+        "450": [[0, 0, 0], [0, 0, 0], [0.7882333002, 0.2501235178, 0.1848459584, 0.020036883]],
+        "Mono405": [0.6959473282,  0.2437485737, 0.1799017476, 0.0205591758],
+        "Mono450": [0.7882333002, 0.2501235178, 0.1848459584, 0.020036883],
+        "Mono490": [0.8348841674, 0.2580074987, 0.1890252099, 0.01975703],
+        "Mono518": [0.8572181897, 0.2628629357, 0.192259471, 0.0196629792],
+        "Mono550": [0.8686559344, 0.2655697585, 0.1960837144, 0.0195629009],
+        "Mono590": [0.874586922, 0.2676592931, 0.1993779934, 0.0193745668],
+        "Mono615": [0.8748454449, 0.2673426216, 0.1996415667, 0.0192891156],
+        "Mono632": [0.8758224323, 0.2670055225, 0.2023045295, 0.0192596465],
+        "Mono650": [0.8773469949, 0.2663571183, 0.199919444, 0.0192325637],
+        "Mono685": [0.8775925081, 0.2648548355, 0.1945563456, 0.0192860556],
+        "Mono725": [0.8756774317, 0.266883373, 0.21603525, 0.194527158],
+        "Mono780": [0.8722125382, 0.2721842015, 0.2238493387, 0.0196295938],
+        "Mono808": [0.8699458632, 0.2780141682, 0.2283300902, 0.0216592377],
+        "Mono850": [0.8649280907, 0.2800907016, 0.2340131491, 0.0195446727],
+        "Mono880": [0.8577996233, 0.2673899041, 0.2371926238, 0.0202034892],
+        "550/660/850": [[0.8689592421, 0.2656248359, 0.1961875592, 0.0195576511], [0.8775934407, 0.2661207692, 0.1987265874, 0.0192249327],
+                        [0.8653063177, 0.2798126291, 0.2337498097, 0.0193295348]],
+        "490/615/808": [[0.8414604806, 0.2594283565, 0.1897271608, 0.0197180224],
+                        [0.8751529643, 0.2673261446, 0.2007025375, 0.0192817427],
+                        [0.868782908, 0.27845399, 0.2298671821, 0.0211305297]],
+        "475/550/850": [[0.8348841674, 0.2580074987, 0.1890252099, 0.01975703], [0.8689592421, 0.2656248359, 0.1961875592, 0.0195576511],
+                        [0.8653063177, 0.2798126291, 0.2337498097, 0.0193295348]]
+        # "Mono450": [10.137101, 24.131129, 2.500000],
+        # "Mono550": [13.050459, 25.918403, 2.444385],
+        # "Mono650": [42.873777, 25.681838, 2.400000],
+        # "Mono725": [57.362319, 26.209292, 2.444148],
+        # "Mono808": [80.761967, 27.552786, 2.522048],
+        # "Mono850": [85.470884, 27.989664, 2.476279],
+        # "Mono405": [10.419592, 23.297778, 2.579408],
+        # "Mono518": [10.192879, 25.668374, 2.500000],
+        # "Mono632": [40.314177, 25.624361, 2.400000],
+        # "Mono615": [36.590561, 25.575475, 2.400000],
+        #
+        # "Mono590": [28.088219, 25.614054, 2.400000],
+        # "Mono780": [72.470173, 27.114517, 2.500000],
+        # "Mono880": [86.40861, 28.33615, 2.387391],
+        # # "550/660/850": [[0.12730952, .2591748, 0.02444606], [0.42100882, 0.2567382, 0.0240000],
+        # #                 [0.85491034, 0.27943831, 0.0247464]],
+        # "550/660/850": [[12.730952, 25.91748, 2.444606], [42.100882, 25.67382, 2.40000],
+        #                 [85.491034, 27.943831, 2.47464]],
+        # "475/550/850": [[9.893005, 24.868873, 2.5], [14.1338, 25.919591, 2.440347],
+        #                 [85.217001, 27.952459, 2.516666]]
 
+    }}
+    pixel_min_max = {"redmax": 0.0, "redmin": 65535.0,
+                     "greenmax": 0.0, "greenmin": 65535.0,
+                     "bluemax": 0.0, "bluemin": 65535.0}
+    multiplication_values = {"Red": [0.00],
+                             "Green": [0.00],
+                             "Blue": [0.00],
+                             "Mono": [0.00]}
+    monominmax = {"min": 65535.0,"max": 0.0}
     imkeys = np.array(list(range(0, 65536)))
     weeks = 0
     days = 0
     hours = 0
     minutes = 0
-    seconds = 1
+    seconds = 1 #why is seconds set to 1????
     conv = None
     kcr = None
     analyze_bands = []
@@ -761,7 +799,31 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     rdr = []
     ManualExposurewindow = None
     AutoExposurewindow = None
+    BandNames = {
+        "RGB": [644, 0, 0],
+        "405": [405, 0, 0],
+        "450": [450, 0, 0],
+        "490": [490, 0, 0],
+        "518": [518, 0, 0],
+        "550": [550, 0, 0],
+        "590": [590, 0, 0],
+        "615": [615, 0, 0],
+        "632": [632, 0, 0],
+        "650": [650, 0, 0],
+        "685": [685, 0, 0],
+        "725": [725, 0, 0],
+        "780": [780, 0, 0],
+        "808": [808, 0, 0],
+        "850": [850, 0, 0],
+        "880": [880, 0, 0],
+        "940": [940, 0, 0],
+        "945": [945, 0, 0],
+        "UVR": [870, 0, 395],
+        "NGB": [850, 550, 475],
+        "RGN": [660, 550, 850],
+        "OCN": [615, 490, 808],
 
+    }
     VigWindow = None
     ndvipsuedo = None
     savewindow = None
@@ -811,134 +873,17 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     paths_14_0 = []
     ISO_VALS = (1,2,4,8,16,32)
     lensvals = None
-
-    BandNames = {
-        "RGB": [644, 0, 0],
-        "405": [405, 0, 0],
-        "450": [450, 0, 0],
-        "490": [490, 0, 0],
-        "518": [518, 0, 0],
-        "550": [550, 0, 0],
-        "590": [590, 0, 0],
-        "615": [615, 0, 0],
-        "632": [632, 0, 0],
-        "650": [650, 0, 0],
-        "685": [685, 0, 0],
-        "725": [725, 0, 0],
-        "780": [780, 0, 0],
-        "808": [808, 0, 0],
-        "850": [850, 0, 0],
-        "880": [880, 0, 0],
-        "940": [940, 0, 0],
-        "945": [945, 0, 0],
-        "UVR": [870, 0, 395],
-        "NGB": [850, 550, 475],
-        "RGN": [660, 550, 850],
-        "OCN": [615, 490, 808],
-
-    }
-    refindex = ["oldrefvalues", "newrefvalues"]
-    refvalues = {
-        "oldrefvalues": {
-            "660/850": [[0.87032549, 0.52135779, 0.23664799], [0, 0, 0], [0.8463514, 0.51950608, 0.22795518]],
-            "446/800": [[0.8419608509, 0.520440145, 0.230113958], [0, 0, 0],
-                        [0.8645652801, 0.5037779363, 0.2359041624]],
-            "850": [[0.8463514, 0.51950608, 0.22795518], [0, 0, 0], [0, 0, 0]],
-            # "808": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            "650": [[0.87032549, 0.52135779, 0.23664799], [0, 0, 0], [0, 0, 0]],
-            "550": [[0, 0, 0], [0.87415089, 0.51734381, 0.24032515], [0, 0, 0]],
-            "450": [[0, 0, 0], [0, 0, 0], [0.86469794, 0.50392915, 0.23565447]],
-            "Mono450": [0.8634818638, 0.5024087105, 0.2351860396],
-            "Mono550": [0.8740616379, 0.5173070235, 0.2402423818],
-            "Mono650": [0.8705783136, 0.5212290524, 0.2366437854],
-            "Mono725": [0.8606071247, 0.521474266, 0.2337744252],
-            "Mono808": [0.8406184266, 0.5203405498, 0.2297701185],
-            "Mono850": [0.8481919553, 0.519491643, 0.2278713071],
-            "Mono405": [0.8556905469, 0.4921243183, 0.2309899254],
-            "Mono518": [0.8729814889, 0.5151370187, 0.2404729692],
-            "Mono632": [0.8724034645, 0.5209649915, 0.2374529161],
-            # "Mono660": [0.8704202831, 0.5212214688, 0.2365919358],
-            "Mono590": [0.8747043911, 0.5195596573, 0.2392049856],
-            "550/660/850": [[0.8474610999, 0.5196055607, 0.2279922965], [0.8699940018, 0.5212235151, 0.2364397706],
-                            [0.8740311726, 0.5172611881, 0.2402870156]]
-
-        },
-        "newrefvalues": {
-            "660/850": [[0.87032549, 0.52135779, 0.23664799], [0, 0, 0],
-                        [0.8653063177, 0.2798126291, 0.2337498097, 0.0193295348]],
-            "446/800": [[0.7882333002, 0.2501235178, 0.1848459584, 0.020036883], [0, 0, 0],
-                        [0.8645652801, 0.5037779363, 0.2359041624]],
-            "850": [[0.8649280907, 0.2800907016, 0.2340131491, 0.0195446727], [0, 0, 0], [0, 0, 0]],
-            # "808": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            "650": [[0.8773469949, 0.2663571183, 0.199919444, 0.0192325637], [0, 0, 0], [0, 0, 0]],
-            "550": [[0, 0, 0], [0.8686559344, 0.2655697585, 0.1960837144, 0.0195629009], [0, 0, 0]],
-            "450": [[0, 0, 0], [0, 0, 0], [0.7882333002, 0.2501235178, 0.1848459584, 0.020036883]],
-            "Mono405": [0.6959473282, 0.2437485737, 0.1799017476, 0.0205591758],
-            "Mono450": [0.7882333002, 0.2501235178, 0.1848459584, 0.020036883],
-            "Mono490": [0.8348841674, 0.2580074987, 0.1890252099, 0.01975703],
-            "Mono518": [0.8572181897, 0.2628629357, 0.192259471, 0.0196629792],
-            "Mono550": [0.8686559344, 0.2655697585, 0.1960837144, 0.0195629009],
-            "Mono590": [0.874586922, 0.2676592931, 0.1993779934, 0.0193745668],
-            "Mono615": [0.8748454449, 0.2673426216, 0.1996415667, 0.0192891156],
-            "Mono632": [0.8758224323, 0.2670055225, 0.2023045295, 0.0192596465],
-            "Mono650": [0.8773469949, 0.2663571183, 0.199919444, 0.0192325637],
-            "Mono685": [0.8775925081, 0.2648548355, 0.1945563456, 0.0192860556],
-            "Mono725": [0.8756774317, 0.266883373, 0.21603525, 0.194527158],
-            "Mono780": [0.8722125382, 0.2721842015, 0.2238493387, 0.0196295938],
-            "Mono808": [0.8699458632, 0.2780141682, 0.2283300902, 0.0216592377],
-            "Mono850": [0.8649280907, 0.2800907016, 0.2340131491, 0.0195446727],
-            "Mono880": [0.8577996233, 0.2673899041, 0.2371926238, 0.0202034892],
-            "550/660/850": [[0.8689592421, 0.2656248359, 0.1961875592, 0.0195576511],
-                            [0.8775934407, 0.2661207692, 0.1987265874, 0.0192249327],
-                            [0.8653063177, 0.2798126291, 0.2337498097, 0.0193295348]],
-            "490/615/808": [[0.8414604806, 0.2594283565, 0.1897271608, 0.0197180224],
-                            [0.8751529643, 0.2673261446, 0.2007025375, 0.0192817427],
-                            [0.868782908, 0.27845399, 0.2298671821, 0.0211305297]],
-            "475/550/850": [[0.8348841674, 0.2580074987, 0.1890252099, 0.01975703],
-                            [0.8689592421, 0.2656248359, 0.1961875592, 0.0195576511],
-                            [0.8653063177, 0.2798126291, 0.2337498097, 0.0193295348]]
-            # "Mono450": [10.137101, 24.131129, 2.500000],
-            # "Mono550": [13.050459, 25.918403, 2.444385],
-            # "Mono650": [42.873777, 25.681838, 2.400000],
-            # "Mono725": [57.362319, 26.209292, 2.444148],
-            # "Mono808": [80.761967, 27.552786, 2.522048],
-            # "Mono850": [85.470884, 27.989664, 2.476279],
-            # "Mono405": [10.419592, 23.297778, 2.579408],
-            # "Mono518": [10.192879, 25.668374, 2.500000],
-            # "Mono632": [40.314177, 25.624361, 2.400000],
-            # "Mono615": [36.590561, 25.575475, 2.400000],
-            #
-            # "Mono590": [28.088219, 25.614054, 2.400000],
-            # "Mono780": [72.470173, 27.114517, 2.500000],
-            # "Mono880": [86.40861, 28.33615, 2.387391],
-            # # "550/660/850": [[0.12730952, .2591748, 0.02444606], [0.42100882, 0.2567382, 0.0240000],
-            # #                 [0.85491034, 0.27943831, 0.0247464]],
-            # "550/660/850": [[12.730952, 25.91748, 2.444606], [42.100882, 25.67382, 2.40000],
-            #                 [85.491034, 27.943831, 2.47464]],
-            # "475/550/850": [[9.893005, 24.868873, 2.5], [14.1338, 25.919591, 2.440347],
-            #                 [85.217001, 27.952459, 2.516666]]
-
-        }}
-    pixel_min_max = {"redmax": 0.0, "redmin": 65535.0,
-                     "greenmax": 0.0, "greenmin": 65535.0,
-                     "bluemax": 0.0, "bluemin": 65535.0}
-    multiplication_values = {"Red": [0.00],
-                             "Green": [0.00],
-                             "Blue": [0.00],
-                             "Mono": [0.00]}
-    monominmax = {"min": 65535.0, "max": 0.0}
-
     def __init__(self, parent=None):
         """Constructor."""
         super(MAPIR_ProcessingDockWidget, self).__init__(parent)
 
         self.setupUi(self)
         try:
-            #set legend equal to lut_legend.jpg
+
             legend = cv2.imread(os.path.dirname(__file__) + "/lut_legend.jpg")
             # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             # legend = cv2.cvtColor(legend, cv2.COLOR_GRAY2RGB)
-            legh, legw = legend.shape[:2] #find legend height and width
+            legh, legw = legend.shape[:2]
             self.legend_frame = QtGui.QImage(legend.data, legw, legh, legw, QtGui.QImage.Format_Grayscale8)
             # self.LUTGraphic.setPixmap(QtGui.QPixmap.fromImage(img2))
             self.LUTGraphic.setPixmap(QtGui.QPixmap.fromImage(
@@ -993,7 +938,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         self.ConnectKernels()
     def ConnectKernels(self):
         self.KernelLog.append(' ')
-        all_cameras = hid.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
+        all_cameras = pyhidapi.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
 
         if all_cameras == []:
 
@@ -1205,7 +1150,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 #     self.display_image = gdal.Open(self.KernelBrowserFile.text())
                 #     self.display_image = np.array(self.display_image.GetRasterBand(1).ReadAsArray())
                 if self.display_image.dtype == np.dtype("uint16"):
-                    self.display_image = self.display_image / MAPIR_Defaults.UINT16MAX_FLOAT
+                    self.display_image = self.display_image / 65535.0
                     self.display_image = self.display_image * 255.0
                     self.display_image = self.display_image.astype("uint8")
                 # self.imkeys = np.array(list(range(0, 65536)))
@@ -1430,7 +1375,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         QtWidgets.QApplication.processEvents()
     def on_ViewerCalcButton_released(self):
         if self.LUTwindow == None:
-            self.calcwindow = Calculator(self) #pass the calculator a new version of itself (a Q object) to the display
+            self.calcwindow = Calculator(self)
         self.calcwindow.resize(385, 250)
         self.calcwindow.show()
         QtWidgets.QApplication.processEvents()
@@ -2302,7 +2247,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             #
             #     return r
             # else:
-            dev = hid.device()
+            dev = pyhidapi.device()
             dev.open_path(self.camera)
             q = dev.write(buffer)
             if buffer[0] == 3 and buffer[1] == 1:
@@ -3241,7 +3186,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
     def on_CalibrateButton_released(self):
         try:
-            self.CalibrateButton.setEnabled(False)
             if self.CalibrationCameraModel.currentIndex() == -1\
                     and self.CalibrationCameraModel_2.currentIndex() == -1 \
                     and self.CalibrationCameraModel_3.currentIndex() == -1 \
@@ -3266,9 +3210,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 calfolder4 = self.CalibrationInFolder_4.text()
                 calfolder5 = self.CalibrationInFolder_5.text()
                 calfolder6 = self.CalibrationInFolder_6.text()
-                self.pixel_min_max = {"redmax": 0.0, "redmin": MAPIR_Defaults.UINT16MAX_FLOAT,
-                                 "greenmax": 0.0, "greenmin": MAPIR_Defaults.UINT16MAX_FLOAT,
-                                 "bluemax": 0.0, "bluemin": MAPIR_Defaults.UINT16MAX_FLOAT}
+                self.pixel_min_max = {"redmax": 0.0, "redmin": 65535.0,
+                                 "greenmax": 0.0, "greenmin": 65535.0,
+                                 "bluemax": 0.0, "bluemin": 65535.0}
                 # self.CalibrationLog.append("Calibration target folder is: " + calfolder + "\n")
                 files_to_calibrate = []
                 files_to_calibrate2 = []
@@ -3415,106 +3359,106 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
 
                             if ind[0] == 5:  # Survey1_NDVI
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG[2]
+                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * self.BASE_COEFF_SURVEY1_NDVI_JPG[1]) \
+                                                              + self.BASE_COEFF_SURVEY1_NDVI_JPG[0]
+                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * self.BASE_COEFF_SURVEY1_NDVI_JPG[1]) \
+                                                              + self.BASE_COEFF_SURVEY1_NDVI_JPG[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_SURVEY1_NDVI_JPG[3]) \
+                                                               + self.BASE_COEFF_SURVEY1_NDVI_JPG[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_SURVEY1_NDVI_JPG[3]) \
+                                                               + self.BASE_COEFF_SURVEY1_NDVI_JPG[2]
                             elif (ind[0] == 4) and ind[1] == 0:
                                 if "tif" or "TIF" in calpixel:
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF[2]
+                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * self.BASE_COEFF_SURVEY2_NDVI_TIF[1]) \
+                                                              + self.BASE_COEFF_SURVEY2_NDVI_TIF[0]
+                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * self.BASE_COEFF_SURVEY2_NDVI_TIF[1]) \
+                                                              + self.BASE_COEFF_SURVEY2_NDVI_TIF[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_SURVEY2_NDVI_TIF[3]) \
+                                                               + self.BASE_COEFF_SURVEY2_NDVI_TIF[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_SURVEY2_NDVI_TIF[3]) \
+                                                               + self.BASE_COEFF_SURVEY2_NDVI_TIF[2]
                                 elif "jpg" or "JPG" in calpixel:
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG[2]
+                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * self.BASE_COEFF_SURVEY2_NDVI_JPG[1]) \
+                                                              + self.BASE_COEFF_SURVEY2_NDVI_JPG[0]
+                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * self.BASE_COEFF_SURVEY2_NDVI_JPG[1]) \
+                                                              + self.BASE_COEFF_SURVEY2_NDVI_JPG[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_SURVEY2_NDVI_JPG[3]) \
+                                                               + self.BASE_COEFF_SURVEY2_NDVI_JPG[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_SURVEY2_NDVI_JPG[3]) \
+                                                               + self.BASE_COEFF_SURVEY2_NDVI_JPG[2]
                             elif ind[0] == 8:
                                 if "tif" or "TIF" in calpixel:
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF[2]
+                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * self.BASE_COEFF_DJIX3_NDVI_TIF[1]) \
+                                                              + self.BASE_COEFF_DJIX3_NDVI_TIF[0]
+                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * self.BASE_COEFF_DJIX3_NDVI_TIF[1]) \
+                                                              + self.BASE_COEFF_DJIX3_NDVI_TIF[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_DJIX3_NDVI_TIF[3]) \
+                                                               + self.BASE_COEFF_DJIX3_NDVI_TIF[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_DJIX3_NDVI_TIF[3]) \
+                                                               + self.BASE_COEFF_DJIX3_NDVI_TIF[2]
                                 elif "jpg" or "JPG" in calpixel:
-                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[0]
-                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG[2]
+                                    self.pixel_min_max["redmax"] = (self.pixel_min_max["redmax"] * self.BASE_COEFF_DJIX3_NDVI_JPG[1]) \
+                                                              + self.BASE_COEFF_DJIX3_NDVI_JPG[0]
+                                    self.pixel_min_max["redmin"] = (self.pixel_min_max["redmin"] * self.BASE_COEFF_DJIX3_NDVI_JPG[1]) \
+                                                              + self.BASE_COEFF_DJIX3_NDVI_JPG[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_DJIX3_NDVI_JPG[3]) \
+                                                               + self.BASE_COEFF_DJIX3_NDVI_JPG[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_DJIX3_NDVI_JPG[3]) \
+                                                               + self.BASE_COEFF_DJIX3_NDVI_JPG[2]
                             elif ind[0] == 5:
                                 if "tif" or "TIF" in calpixel:
                                     self.pixel_min_max["redmax"] = (
-                                                              self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[0]
+                                                              self.pixel_min_max["redmax"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[1]) \
+                                                              + self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[0]
                                     self.pixel_min_max["redmin"] = (
-                                                              self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[
+                                                              self.pixel_min_max["redmin"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[1]) \
+                                                              + self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[
                                         3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[
+                                                               + self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[
                                         3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[2]
+                                                               + self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF[2]
                                 elif "jpg" or "JPG" in calpixel:
                                     self.pixel_min_max["redmax"] = (
-                                                              self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[0]
+                                                              self.pixel_min_max["redmax"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[1]) \
+                                                              + self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[0]
                                     self.pixel_min_max["redmin"] = (
-                                                              self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[
+                                                              self.pixel_min_max["redmin"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[1]) \
+                                                              + self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[
                                         3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[
+                                                               + self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[
                                         3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[2]
+                                                               + self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG[2]
                             elif ind[0] == 6 or ind[0] > 7:
                                 if "tif" or "TIF" in calpixel:
                                     self.pixel_min_max["redmax"] = (
-                                                              self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
+                                                              self.pixel_min_max["redmax"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
+                                                              + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
                                     self.pixel_min_max["redmin"] = (
-                                                              self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
+                                                              self.pixel_min_max["redmin"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
+                                                              + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
                                         3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
+                                                               + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
                                         3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
+                                                               + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
                                 elif "jpg" or "JPG" in calpixel:
                                     self.pixel_min_max["redmax"] = (
-                                                              self.pixel_min_max["redmax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
+                                                              self.pixel_min_max["redmax"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
+                                                              + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
                                     self.pixel_min_max["redmin"] = (
-                                                              self.pixel_min_max["redmin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
-                                                              + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
-                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
+                                                              self.pixel_min_max["redmin"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[1]) \
+                                                              + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[0]
+                                    self.pixel_min_max["bluemin"] = (self.pixel_min_max["bluemin"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
                                         3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
-                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
+                                                               + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
+                                    self.pixel_min_max["bluemax"] = (self.pixel_min_max["bluemax"] * self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[
                                         3]) \
-                                                               + MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
+                                                               + self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF[2]
                         self.seed_pass = False
                         if self.useqr == True:
                             self.pixel_min_max["redmax"] = int(
@@ -3547,61 +3491,61 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 # self.CalibrationLog.append("NOT Using QR")
                                 if (cameramodel[0] == 4) and (self.CalibrationFilter.currentIndex() == 0):  # Survey2 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_NDVI_TIF, self.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_NDVI_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 4 and self.CalibrationFilter.currentIndex() == 1:  # Survey2 NIR
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NIR_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_NIR_TIF, self.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NIR_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_NIR_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 4 and self.CalibrationFilter.currentIndex() == 2:  # Survey2 RED
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_RED_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_RED_TIF, self.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_RED_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_RED_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 4 and self.CalibrationFilter.currentIndex() == 3:  # Survey2 GREEN
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_GREEN_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_GREEN_TIF, self.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_GREEN_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_GREEN_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 4 and self.CalibrationFilter.currentIndex() == 4:  # Survey2 BLUE
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_BLUE_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_BLUE_TIF, self.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_BLUE_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY2_BLUE_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 5:  # Survey1 NDVI
                                     if "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY1_NDVI_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY1_NDVI_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 9:  # DJI X3 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_TIF, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_DJIX3_NDVI_TIF, self.pixel_min_max, outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIX3_NDVI_JPG, self.pixel_min_max, outdir, ind)
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_DJIX3_NDVI_JPG, self.pixel_min_max, outdir, ind)
                                 elif cameramodel[0] == 6:  # DJI Phantom4 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_TIF, self.pixel_min_max,
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_DJIPHANTOM4_NDVI_TIF, self.pixel_min_max,
                                                              outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM4_NDVI_JPG, self.pixel_min_max,
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_DJIPHANTOM4_NDVI_JPG, self.pixel_min_max,
                                                              outdir, ind)
                                 elif cameramodel[0] == 7 or cameramodel[0] == 8:  # DJI PHANTOM3 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_TIF, self.pixel_min_max,
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_DJIPHANTOM3_NDVI_TIF, self.pixel_min_max,
                                                              outdir, ind)
                                     elif "JPG" in calfile.split('.')[2].upper():
-                                        self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_DJIPHANTOM3_NDVI_JPG, self.pixel_min_max,
+                                        self.CalibratePhotos(calfile, self.BASE_COEFF_DJIPHANTOM3_NDVI_JPG, self.pixel_min_max,
                                                              outdir, ind)
                                 elif self.CalibrationCameraModel.currentIndex() == 3 and self.CalibrationFilter.currentIndex() == 1:  # Survey2 NIR
 
-                                    self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY3_W_RGN_TIF, self.pixel_min_max, outdir, ind)
+                                    self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY3_W_RGN_TIF, self.pixel_min_max, outdir, ind)
                                 elif self.CalibrationCameraModel.currentIndex() == 3 and self.CalibrationFilter.currentIndex() == 2:  # Survey2 NIR
 
-                                    self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY3_W_NGB_TIF, self.pixel_min_max,
+                                    self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY3_W_NGB_TIF, self.pixel_min_max,
                                                          outdir, ind)
                                 elif self.CalibrationCameraModel.currentIndex() == 3 and self.CalibrationFilter.currentIndex() == 3:  # Survey2 NIR
 
-                                    self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY3_W_NGB_TIF, self.pixel_min_max,
+                                    self.CalibratePhotos(calfile, self.BASE_COEFF_SURVEY3_W_NGB_TIF, self.pixel_min_max,
                                                          outdir, ind)
                                 else:
                                     self.CalibrationLog.append(
@@ -3776,11 +3720,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         self.CalibrateMono(calfile, self.qrcoeffs, outdir, ind)
                                     else:
                                         if self.CalibrationFilter.currentIndex() == 0:
-                                            self.CalibrateMono(calfile, MAPIR_Defaults.BASE_COEFF_KERNEL_F590, outdir, ind)
+                                            self.CalibrateMono(calfile, self.BASE_COEFF_KERNEL_F590, outdir, ind)
                                         elif self.CalibrationFilter.currentIndex() == 1:
-                                            self.CalibrateMono(calfile, MAPIR_Defaults.BASE_COEFF_KERNEL_F650, outdir, ind)
+                                            self.CalibrateMono(calfile, self.BASE_COEFF_KERNEL_F650, outdir, ind)
                                         elif self.CalibrationFilter.currentIndex() == 2:
-                                            self.CalibrateMono(calfile, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir, ind)
+                                            self.CalibrateMono(calfile, self.BASE_COEFF_KERNEL_F850, outdir, ind)
                         if os.path.exists(calfolder2):
                             # print("Cal2")
                             # files_to_calibrate2 = []
@@ -3811,11 +3755,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         self.CalibrateMono(calfile2, self.qrcoeffs2, outdir2, ind)
                                     else:
                                         if self.CalibrationFilter.currentIndex() == 0:
-                                            self.CalibrateMono(calfile2, MAPIR_Defaults.BASE_COEFF_KERNEL_F590, outdir2)
+                                            self.CalibrateMono(calfile2, self.BASE_COEFF_KERNEL_F590, outdir2)
                                         elif self.CalibrationFilter.currentIndex() == 1:
-                                            self.CalibrateMono(calfile2, MAPIR_Defaults.BASE_COEFF_KERNEL_F650, outdir2)
+                                            self.CalibrateMono(calfile2, self.BASE_COEFF_KERNEL_F650, outdir2)
                                         elif self.CalibrationFilter.currentIndex() == 2:
-                                            self.CalibrateMono(calfile2, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir2)
+                                            self.CalibrateMono(calfile2, self.BASE_COEFF_KERNEL_F850, outdir2)
                         if os.path.exists(calfolder3):
         #                     # print("Cal3")
         #                     files_to_calibrate3 = []
@@ -3846,11 +3790,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         self.CalibrateMono(calfile3, self.qrcoeffs3, outdir3, ind)
                                     else:
                                         if self.CalibrationFilter.currentIndex() == 0:
-                                            self.CalibrateMono(calfile3, MAPIR_Defaults.BASE_COEFF_KERNEL_F590, outdir3)
+                                            self.CalibrateMono(calfile3, self.BASE_COEFF_KERNEL_F590, outdir3)
                                         elif self.CalibrationFilter.currentIndex() == 1:
-                                            self.CalibrateMono(calfile3, MAPIR_Defaults.BASE_COEFF_KERNEL_F650, outdir3)
+                                            self.CalibrateMono(calfile3, self.BASE_COEFF_KERNEL_F650, outdir3)
                                         elif self.CalibrationFilter.currentIndex() == 2:
-                                            self.CalibrateMono(calfile3, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir3)
+                                            self.CalibrateMono(calfile3, self.BASE_COEFF_KERNEL_F850, outdir3)
                         if os.path.exists(calfolder4):
                             # print("Cal4")
                             # files_to_calibrate4 = []
@@ -3881,11 +3825,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         self.CalibrateMono(calfile4, self.qrcoeffs4, outdir4, ind)
                                     else:
                                         if self.CalibrationFilter.currentIndex() == 0:
-                                            self.CalibrateMono(calfile4, MAPIR_Defaults.BASE_COEFF_KERNEL_F590, outdir4)
+                                            self.CalibrateMono(calfile4, self.BASE_COEFF_KERNEL_F590, outdir4)
                                         elif self.CalibrationFilter.currentIndex() == 1:
-                                            self.CalibrateMono(calfile4, MAPIR_Defaults.BASE_COEFF_KERNEL_F650, outdir4)
+                                            self.CalibrateMono(calfile4, self.BASE_COEFF_KERNEL_F650, outdir4)
                                         elif self.CalibrationFilter.currentIndex() == 2:
-                                            self.CalibrateMono(calfile4, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir4)
+                                            self.CalibrateMono(calfile4, self.BASE_COEFF_KERNEL_F850, outdir4)
                         if os.path.exists(calfolder5):
                             # print("Cal5")
                             # files_to_calibrate5 = []
@@ -3916,11 +3860,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         self.CalibrateMono(calfile5, self.qrcoeffs5, outdir5, ind)
                                     else:
                                         if self.CalibrationFilter.currentIndex() == 0:
-                                            self.CalibrateMono(calfile5, MAPIR_Defaults.BASE_COEFF_KERNEL_F590, outdir5)
+                                            self.CalibrateMono(calfile5, self.BASE_COEFF_KERNEL_F590, outdir5)
                                         elif self.CalibrationFilter.currentIndex() == 1:
-                                            self.CalibrateMono(calfile5, MAPIR_Defaults.BASE_COEFF_KERNEL_F650, outdir5)
+                                            self.CalibrateMono(calfile5, self.BASE_COEFF_KERNEL_F650, outdir5)
                                         elif self.CalibrationFilter.currentIndex() == 2:
-                                            self.CalibrateMono(calfile5, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir5)
+                                            self.CalibrateMono(calfile5, self.BASE_COEFF_KERNEL_F850, outdir5)
                         if os.path.exists(calfolder6):
                             # print("Cal6")
                             # files_to_calibrate6 = []
@@ -3953,15 +3897,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         self.CalibrateMono(calfile6, self.qrcoeffs6, outdir6, ind)
                                     else:
                                         if self.CalibrationFilter.currentIndex() == 0:
-                                            self.CalibrateMono(calfile6, MAPIR_Defaults.BASE_COEFF_KERNEL_F590, outdir6)
+                                            self.CalibrateMono(calfile6, self.BASE_COEFF_KERNEL_F590, outdir6)
                                         elif self.CalibrationFilter.currentIndex() == 1:
-                                            self.CalibrateMono(calfile6, MAPIR_Defaults.BASE_COEFF_KERNEL_F650, outdir6)
+                                            self.CalibrateMono(calfile6, self.BASE_COEFF_KERNEL_F650, outdir6)
                                         elif self.CalibrationFilter.currentIndex() == 2:
-                                            self.CalibrateMono(calfile6, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir6)
+                                            self.CalibrateMono(calfile6, self.BASE_COEFF_KERNEL_F850, outdir6)
 
 
                 self.CalibrationLog.append("Finished Calibrating " + str(len(files_to_calibrate) + len(files_to_calibrate2) + len(files_to_calibrate3) + len(files_to_calibrate4) + len(files_to_calibrate5) + len(files_to_calibrate6)) + " images\n")
-                self.CalibrateButton.setEnabled(True)
                 self.seed_pass = False
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
@@ -3991,19 +3934,19 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             tempim = tempim.astype("uint8")
         else:
             if self.IndexBox.checkState() == 0:
-                tempim *= MAPIR_Defaults.UINT16MAX_FLOAT
+                tempim *= 65535.0
 
                 tempim = tempim.astype("uint16")
             else:
                 tempim = tempim.astype("float")
         # print(str(tempim))
         # tempim = np.floor((refimg * coeffs[1]) + coeffs[0]).astype("uint16")
-        # tempim[tempim > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+        # tempim[tempim > 65535] = 65535
         # tempim[tempim < 0] = 0
         #
         # tempimg = tempim / tempim.max()
         #
-        # tempimg *= MAPIR_Defaults.UINT16MAX_INT
+        # tempimg *= 65535
         #
         # tempimg = tempimg.astype("uint16")
 
@@ -4021,11 +3964,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         else:
             cv2.imencode(".tif", refimg)
             cv2.imwrite(newimg, refimg)
-            srin = gdal.Open(photo)
+            #srin = gdal.Open(photo)
             inproj = srin.GetProjection()
             transform = srin.GetGeoTransform()
             gcpcount = srin.GetGCPs()
-            srout = gdal.Open(newimg, gdal.GA_Update)
+            #srout = gdal.Open(newimg, gdal.GA_Update)
             srout.SetProjection(inproj)
             srout.SetGeoTransform(transform)
             srout.SetGCPs(gcpcount, srin.GetGCPProjection())
@@ -4045,7 +3988,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         #
         #     refimg -= self.monominmax["min"]
         #     refimg /= (self.monominmax["max"] + self.monominmax["min"])
-        #     refimg *= MAPIR_Defaults.UINT16MAX_INT
+        #     refimg *= 65535
         #
         #     refimg = refimg.astype("uint16")
         # else:
@@ -4213,21 +4156,21 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     # tempimg = cv2.merge((blue, green, red)).astype("float32")
                     # cv2.imwrite(output_directory + photo.split('.')[1] + "_Percent." + photo.split('.')[2], tempimg)
 
-                    red *= MAPIR_Defaults.UINT16MAX_INT
-                    green *= MAPIR_Defaults.UINT16MAX_INT
-                    blue *= MAPIR_Defaults.UINT16MAX_INT
-                    # red[blue > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                    # red[green > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+                    red *= 65535
+                    green *= 65535
+                    blue *= 65535
+                    # red[blue > 65535] = 65535
+                    # red[green > 65535] = 65535
                     #
-                    # green[red > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                    # green[blue > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+                    # green[red > 65535] = 65535
+                    # green[blue > 65535] = 65535
                     #
-                    # blue[red > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                    # blue[green > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+                    # blue[red > 65535] = 65535
+                    # blue[green > 65535] = 65535
 
-                    green[green > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                    red[red > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                    blue[blue > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+                    green[green > 65535] = 65535
+                    red[red > 65535] = 65535
+                    blue[blue > 65535] = 65535
 
     #                 # red[blue < 0] = 0
     #                 # red[green < 0] = 0
@@ -4314,11 +4257,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             if 'tif' in photo.split('.')[2].lower():
                 cv2.imencode(".tif", refimg)
                 cv2.imwrite(newimg, refimg)
-                srin = gdal.Open(photo)
+                #srin = gdal.Open(photo)
                 inproj = srin.GetProjection()
                 transform = srin.GetGeoTransform()
                 gcpcount = srin.GetGCPs()
-                srout = gdal.Open(newimg, gdal.GA_Update)
+                #srout = gdal.Open(newimg, gdal.GA_Update)
                 srout.SetProjection(inproj)
                 srout.SetGeoTransform(transform)
                 srout.SetGCPs(gcpcount, srin.GetGCPProjection())
@@ -4337,8 +4280,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 nir = nir / 255.0
                 visible = visible / 255.0
             elif nir.dtype == "uint16":
-                nir /= MAPIR_Defaults.UINT16MAX_FLOAT
-                visible /= MAPIR_Defaults.UINT16MAX_FLOAT
+                nir /= 65535.0
+                visible /= 65535.0
 
             numer = nir - visible
             denom = nir + visible
@@ -4494,14 +4437,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         right = self.coords[2]
             if list is not None and len(list) > 0:
                 guidelength = np.sqrt(np.power((center[0] - right[0]), 2) + np.power((center[1] - right[1]), 2))
-                pixelinch = guidelength / MAPIR_Defaults.CORNER_TO_CORNER
-                rad = (pixelinch * MAPIR_Defaults.CORNER_TO_TARG)
+                pixelinch = guidelength / self.CORNER_TO_CORNER
+                rad = (pixelinch * self.CORNER_TO_TARG)
                 vx = center[1] - right[1]
                 vy = center[0] - right[0]
             else:
                 guidelength = np.sqrt(np.power((center[0] - bottom[0]), 2) + np.power((center[1] - bottom[1]), 2))
-                pixelinch = guidelength / MAPIR_Defaults.SQ_TO_SQ
-                rad = (pixelinch * MAPIR_Defaults.SQ_TO_TARG)
+                pixelinch = guidelength / self.SQ_TO_SQ
+                rad = (pixelinch * self.SQ_TO_TARG)
                 vx = center[0] - bottom[0]
                 vy = center[1] - bottom[1]
 
@@ -4660,9 +4603,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 xgreen = np.array(xgreen)
                 xblue = np.array(xblue)
 
-                xred /= MAPIR_Defaults.UINT16MAX_INT
-                xgreen /= MAPIR_Defaults.UINT16MAX_INT
-                xblue /= MAPIR_Defaults.UINT16MAX_INT
+                xred /= 65535
+                xgreen /= 65535
+                xblue /= 65535
 
                 yred = np.array(yred)
                 ygreen = np.array(ygreen)
@@ -4839,12 +4782,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
     # Helper functions
     def debayer(self, m):
-        b = m[0:: 2, 1:: 2]
+        r = m[0:: 2, 1:: 2]
         g = np.clip(m[0::2, 0::2] // 2 + m[1::2, 1::2] // 2, 0, 2**14 - 1)
-        r = m[1:: 2, 0:: 2]
-        # b = (((b - b.min()) / (b.max() - b.min())) * 65536.0).astype("uint16")
-        # r = (((r - r.min()) / (r.max() - r.min())) * 65536.0).astype("uint16")
-        # g = (((g - g.min()) / (g.max() - g.min())) * 65536.0).astype("uint16")
+        b = m[1:: 2, 0:: 2]
         return np.dstack([b, g, r])
 
     def preProcessHelper(self, infolder, outfolder, customerdata=True):
@@ -4918,10 +4858,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
                                 images = np.zeros((4000 * 3000),dtype=np.uint16)
                                 for i in range(0, 12):
-                                    images += 2 ** (11 - i) * data[:,  i]
-                                # red = (MAPIR_Defaults.UINT16MAX_FLOAT/31.0 * np.bitwise_and(np.right_shift(data, 11), 0x1f)).astype("uint16")
-                                # green = (MAPIR_Defaults.UINT16MAX_FLOAT/63.0 * np.bitwise_and(np.right_shift(data, 5), 0x3f)).astype("uint16")
-                                # blue = (MAPIR_Defaults.UINT16MAX_FLOAT/31.0 * np.bitwise_and(data, 0x1f)).astype("uint16")
+                                    images += 2 ** (15 - i) * data[:,  i]
+                                # red = (65535.0/31.0 * np.bitwise_and(np.right_shift(data, 11), 0x1f)).astype("uint16")
+                                # green = (65535.0/63.0 * np.bitwise_and(np.right_shift(data, 5), 0x3f)).astype("uint16")
+                                # blue = (65535.0/31.0 * np.bitwise_and(data, 0x1f)).astype("uint16")
                                 #
                                 # img = cv2.merge((blue,green,red)).astype("uint16")
                                 #
@@ -4929,19 +4869,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 #
                                 img = np.reshape(images, (3000, 4000))
                                 tim = self.debayer(img)
-                                color = copy.deepcopy(tim)
-                                # color[tim[:, :, 0] >= MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                                # color[tim[:, :, 1] >= MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                                # color[tim[:, :, 2] >= MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                                # cv2.imwrite(outfolder + "test.tif", img)
-                                # cv2.imwrite(outfolder + "testDB.tif", tim)
+                                cv2.imwrite(outfolder + "test.tif", img)
+                                cv2.imwrite(outfolder + "testDB.tif", tim)
                             except Exception as e:
                                 print(e)
                                 oldfirmware = True
                         else:
                             img = np.fromfile(rawimage, np.dtype('u2'), self.imsize).reshape(
                                 (self.imrows, self.imcols))
-                            color = cv2.cvtColor(img, cv2.COLOR_BAYER_RG2RGB).astype("uint16")
                         if oldfirmware == True:
                             with open(input, "rb") as rawimage:
 
@@ -4969,21 +4904,21 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
 
 
-
+                        color = cv2.cvtColor(img, cv2.COLOR_BAYER_RG2RGB).astype("uint16")
                         if self.PreProcessCameraModel.currentIndex() == 3 and self.PreProcessFilter.currentIndex() == 3:
                             color = color[:,:,0]
-                        # maxcol = color.max()
-                        # mincol = color.min()
+                        maxcol = color.max()
+                        mincol = color.min()
                         if self.PreProcessJPGBox.isChecked():
-                            # color = (color - mincol) / (maxcol  - mincol)
-                            # color = color * 255.0
+                            color = (color - mincol) / (maxcol  - mincol)
+                            color = color * 255.0
                             color = color.astype("uint8")
                             filename = input.split('.')
                             outputfilename = filename[1] + '.jpg'
                             cv2.imencode(".jpg", color)
                         else:
-                            # color = (color - mincol) / (maxcol  - mincol)
-                            # color = color * MAPIR_Defaults.UINT16MAX_FLOAT
+                            color = (color - mincol) / (maxcol  - mincol)
+                            color = color * 65535.0
                             color = color.astype("uint16")
                             filename = input.split('.')
                             outputfilename = filename[1] + '.tif'
@@ -5059,7 +4994,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         #
                         # color[:,:,1] = gr
                         #
-                        # color[color > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+                        # color[color > 65535] = 65535
                         # color[color < 0] = 0
                         # color[:, :, 1] = color2[:, :, 2]
                         color[:, :, 1] = color2[:, :, 0]
@@ -5072,7 +5007,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         goff = 0
                         boff = 0
                         color -= 2690
-                        color = color / MAPIR_Defaults.UINT16MAX_INT
+                        color = color / 65535
                         if self.PreProcessColorBox.isChecked():
                             red = color[:, :, 0] = (1.510522 * color[:, :, 0]) + (0.0 * color[:, :, 1]) + (0.0 * color[:, :, 2]) + roff
                             green = color[:, :, 1] = (0.0 * color[:, :, 0]) + (1 * color[:, :, 1]) + (0.0 * color[:, :, 2]) + goff
@@ -5085,7 +5020,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             color[green < 0.0] = 0.0
                             color[blue < 0.0] = 0.0
 
-                        color = (color * MAPIR_Defaults.UINT16MAX_FLOAT).astype("uint16")
+                        color = (color * 65535.0).astype("uint16")
 
 
 
@@ -5107,7 +5042,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                     v_array = np.ndarray((h, w), np.dtype("float32"),
                                                          np.fromfile(vigfile, np.dtype("float32")))
                                     img = img / v_array
-                                    img[img > MAPIR_Defaults.UINT16MAX_FLOAT] = MAPIR_Defaults.UINT16MAX_FLOAT
+                                    img[img > 65535.0] = 65535.0
                                     img[img < 0.0] = 0.0
                                     img = img.astype("uint16")
                                 cv2.imwrite(outphoto, img)
@@ -5153,7 +5088,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         v_array = np.ndarray((h, w), np.dtype("float32"),
                                                              np.fromfile(vigfile, np.dtype("float32")))
                                         img = img / v_array
-                                        img[img > MAPIR_Defaults.UINT16MAX_FLOAT] = MAPIR_Defaults.UINT16MAX_FLOAT
+                                        img[img > 65535.0] = 65535.0
                                         img[img < 0.0] = 0.0
                                         img = img.astype("uint16")
                                     cv2.imwrite(outphoto, img)
@@ -5298,14 +5233,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     stdin=subprocess.PIPE, startupinfo=si).stdout.decode("utf-8")
                 data = [line.strip().split(':') for line in data.split('\r\n') if line.strip()]
                 # ypr = data[0][1].split()
-                #
                 ypr = [0.0] * 3
                 # ypr[0] = abs(float(self.conv.META_PAYLOAD["ATT_Q0"][1]))
                 # ypr[1] = -float(self.conv.META_PAYLOAD["ATT_Q1"][1])
                 # ypr[2] = ((float(self.conv.META_PAYLOAD["ATT_Q2"][1]) + 180.0) % 360.0)
-                ypr[0] = abs(float(self.conv.META_PAYLOAD["ATT_Q0"][1]))
-                ypr[1] = float(self.conv.META_PAYLOAD["ATT_Q1"][1])
-                ypr[2] = ((float(self.conv.META_PAYLOAD["ATT_Q2"][1])))
                 w = int(data[0][1])
                 h = int(data[1][1])
                 model = self.findCameraModel(w * h)
