@@ -36,7 +36,6 @@ import PyQt5.uic as uic
 import time
 import glob
 
-
 modpath = os.path.dirname(os.path.realpath(__file__))
 
 # print(str(modpath))
@@ -76,48 +75,18 @@ ADVANCED_CLASS, _ = uic.loadUiType(os.path.join(
 MATRIX_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_matrix.ui'))
 
-class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
-    """DebayerMatrix (Debayer ~ De )
-
-    ***Note: This class has yet to be implemented, it is in the works
-
-        No such thing as Red Blue Green Channels, need to take the image and interpolate through it to get separate RBG channel
-        1/4 Red data is actually there, other 75% must be interpolated
-        1/4 Blue data is actually there, other 75% must be interpolated
-        1/2 Green is actually there, other 50% must be interpolated
-
-    """
-    parent = None
-
-    #GAMMA_LIST is a dictionary containing constant values for the Gamma list
-    GAMMA_LIST = [{"CCM": [1,0,0,0,1,0,0,0,1], "RGB_OFFSET": [0,0,0], "GAMMA": [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]},
-                  {"CCM": [1,0,1.402,1,-0.34414,-0.71414,1,1.772,0], "RGB_OFFSET": [0, 0, 0],
-                   "GAMMA": [2.3,1.3,2.3,0.3,0.3,0.3,2.3,2.3,1,2,1,2,2,2,1,2,1,2,2,0,2,0,2,0]},
-                  {"CCM": [3.2406,-1.5372,-0.498,-0.9689,1.8756,0.0415,0.0557,-0.2040,1.0570 ], "RGB_OFFSET": [0, 0, 0],
-                   "GAMMA": [7.0,0.0,6.5,3.0,6.0,8.0,5.5,13.0,5.0,22.0,4.5,38.0,3.5,102.0,2.5,230.0,1.75,422.0,1.25,679.0,0.875,1062.0,0.625,1575.0]},]
-
-    def __init__(self, parent=None):
-        """Constructor."""
-        super(DebayerMatrix, self).__init__(parent=parent)
-        self.parent = parent
-        self.setupUi(self)
-
-    def on_ModalSaveButton_released(self):
-    """ on_ModalSaveButton_released closes self when the save button is released (clicked)
-    """
-        self.close()
-
-    def on_ModalCancelButton_released(self):
-        """ on_ModalCancelButton_released closes self when the cancel button is released (clicked)
-        """
-        self.close()
-
-
 class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
     """class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS)
         takes in inputs QtWidgets.QDialog and ADVANCED_CLASS
 
         sets up the advanced options in the kernel tab
+
+
+    has to repeatedly send one command to the kernel camera at a time because
+    that is all the kernel is capable of processing at a time
+
+    **Note: this function can probably be improved later without the need to initialize
+    a new buffer each time the kernel is written to, will have to look into this later
     """
     parent = None
 
@@ -126,11 +95,12 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
         super(AdvancedOptions, self).__init__(parent=parent)
         self.parent = parent
 
-        self.setupUi(self)
+        self.setupUi(self) #instantiate the advanced options widget
         try:
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_READ_REPORT
-            buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value
+            #block read report means you are pulling back more than 1 byte of data from the camera
+            buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value #read in the SD Card value
             # if self.SDCTUM.text():
             #     buf[2] = int(self.SDCTUM.text()) if 0 <= int(self.SDCTUM.text()) < 255 else 255
 
@@ -139,7 +109,7 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
 
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_READ_REPORT
-            buf[1] = eRegister.RG_VIDEO_ON_DELAY.value
+            buf[1] = eRegister.RG_VIDEO_ON_DELAY.value #video on delay time
             # buf[2] = int(self.VCRD.text()) if 0 <= int(self.VCRD.text()) < 255 else 255
 
             res = self.parent.writeToKernel(buf)[2]
@@ -147,7 +117,7 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
 
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_READ_REPORT
-            buf[1] = eRegister.RG_PHOTO_FORMAT.value
+            buf[1] = eRegister.RG_PHOTO_FORMAT.value #photo format settings
 
 
             res = self.parent.writeToKernel(buf)[2]
@@ -155,7 +125,7 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
 
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_BLOCK_READ_REPORT
-            buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
+            buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value #filename
             buf[2] = 3
             # buf[3] = ord(self.CustomFilter.text()[0])
             # buf[4] = ord(self.CustomFilter.text()[1])
@@ -186,7 +156,8 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
     #         self.ModalSaveButton.setEnabled(True)
     def on_SaveButton_released(self):
         """
-
+        def on_SaveButton_released(self) writes all the data for the inputted advanced AdvancedOptions
+        to the kernel when the save button is hit
         """
         # self.parent.transferoutfolder  = self.ModalOutputFolder.text()
         # self.parent.yestransfer = self.TransferBox.isChecked()
@@ -228,7 +199,7 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
             # else:
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
-            buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value
+            buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value #read om tje SD card value
             val = int(self.SDCTUM.text()) if 0 < int(self.SDCTUM.text()) < 255 else 255
             buf[2] = val
 
@@ -236,39 +207,40 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
 
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
-            buf[1] = eRegister.RG_VIDEO_ON_DELAY.value
+            buf[1] = eRegister.RG_VIDEO_ON_DELAY.value #read in the RG video on delay data
             val = int(self.VCRD.text()) if 0 < int(self.VCRD.text()) < 255 else 255
             buf[2] = val
             self.parent.writeToKernel(buf)
 
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
-            buf[1] = eRegister.RG_PHOTO_FORMAT.value
+            buf[1] = eRegister.RG_PHOTO_FORMAT.value #read in the photo format data
             buf[2] = int(self.KernelPhotoFormat.currentIndex())
-
-
             self.parent.writeToKernel(buf)
+
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_BLOCK_WRITE_REPORT
-            buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
+            buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value #read in the media file name data
             buf[2] = 3
+            #ord(c) returns unicode text coresponding to the input c
             buf[3] = ord(self.CustomFilter.text()[0])
             buf[4] = ord(self.CustomFilter.text()[1])
             buf[5] = ord(self.CustomFilter.text()[2])
             res = self.parent.writeToKernel(buf)
+
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.parent.KernelLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
-        finally:
 
+        finally:
             QtWidgets.QApplication.processEvents()
-            self.close()
+            self.close() #close the program now that everything has been written
 
     def on_CancelButton_released(self):
         # self.parent.yestransfer = False
         # self.parent.yesdelete = False
         # self.parent.selection_made = True
-        self.close()
+        self.close() #close the UI for advanced options when the cancel button is hit
 
 class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
         """
@@ -311,33 +283,13 @@ class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
         self.close()
 
     def on_ModalCancelButton_released(self):
+        """ on_ModalCancelButton_released defines the actions taken when the cancel button is clicked""""
+
         self.parent.yestransfer = False
         self.parent.yesdelete = False
         self.parent.selection_made = True
         QtWidgets.QApplication.processEvents()
         self.close()
-
-# class KernelDelete(QtWidgets.QDialog, DEL_CLASS):
-#     parent = None
-#
-#     def __init__(self, parent=None):
-#         """Constructor."""
-#         super(KernelDelete, self).__init__(parent=parent)
-#         self.parent = parent
-#
-#         self.setupUi(self)
-#
-#     def on_ModalSaveButton_released(self):
-#         for drv in self.parent.driveletters:
-#             if os.path.isdir(drv + r":" + os.sep + r"dcim"):
-#                 # try:
-#                 files = glob.glob(drv + r":" + os.sep + r"dcim/*/*")
-#                 for file in files:
-#                     os.unlink(file)
-#         self.close()
-#
-#     def on_ModalCancelButton_released(self):
-#         self.close()
 
 class KernelModal(QtWidgets.QDialog, MODAL_CLASS):
     """
@@ -666,3 +618,65 @@ class tPoll:
         code = 0
         len = 0 #Len can also store the value depending on the code given
         values = []
+
+
+
+#kerneldelete and debayermatrix are yet to be implmented and may be unnecessary
+
+class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
+    """DebayerMatrix (Debayer ~ De )
+
+    ***Note: This class has yet to be implemented, it is in the works
+
+        No such thing as Red Blue Green Channels, need to take the image and interpolate through it to get separate RBG channel
+        1/4 Red data is actually there, other 75% must be interpolated
+        1/4 Blue data is actually there, other 75% must be interpolated
+        1/2 Green is actually there, other 50% must be interpolated
+
+    """
+    parent = None
+
+    #GAMMA_LIST is a dictionary containing constant values for the Gamma list
+    GAMMA_LIST = [{"CCM": [1,0,0,0,1,0,0,0,1], "RGB_OFFSET": [0,0,0], "GAMMA": [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]},
+                  {"CCM": [1,0,1.402,1,-0.34414,-0.71414,1,1.772,0], "RGB_OFFSET": [0, 0, 0],
+                   "GAMMA": [2.3,1.3,2.3,0.3,0.3,0.3,2.3,2.3,1,2,1,2,2,2,1,2,1,2,2,0,2,0,2,0]},
+                  {"CCM": [3.2406,-1.5372,-0.498,-0.9689,1.8756,0.0415,0.0557,-0.2040,1.0570 ], "RGB_OFFSET": [0, 0, 0],
+                   "GAMMA": [7.0,0.0,6.5,3.0,6.0,8.0,5.5,13.0,5.0,22.0,4.5,38.0,3.5,102.0,2.5,230.0,1.75,422.0,1.25,679.0,0.875,1062.0,0.625,1575.0]},]
+
+    def __init__(self, parent=None):
+        """Constructor."""
+        super(DebayerMatrix, self).__init__(parent=parent)
+        self.parent = parent
+        self.setupUi(self)
+
+    def on_ModalSaveButton_released(self):
+    """ on_ModalSaveButton_released closes self when the save button is released (clicked)
+    """
+        self.close()
+
+    def on_ModalCancelButton_released(self):
+        """ on_ModalCancelButton_released closes self when the cancel button is released (clicked)
+        """
+        self.close()
+
+# class KernelDelete(QtWidgets.QDialog, DEL_CLASS):
+#     parent = None
+#
+#     def __init__(self, parent=None):
+#         """Constructor."""
+#         super(KernelDelete, self).__init__(parent=parent)
+#         self.parent = parent
+#
+#         self.setupUi(self)
+#
+#     def on_ModalSaveButton_released(self):
+#         for drv in self.parent.driveletters:
+#             if os.path.isdir(drv + r":" + os.sep + r"dcim"):
+#                 # try:
+#                 files = glob.glob(drv + r":" + os.sep + r"dcim/*/*")
+#                 for file in files:
+#                     os.unlink(file)
+#         self.close()
+#
+#     def on_ModalCancelButton_released(self):
+#         self.close()
