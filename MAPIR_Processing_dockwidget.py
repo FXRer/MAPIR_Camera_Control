@@ -48,6 +48,9 @@ import copy
 import hid
 import time
 
+import gdal
+import glob
+
 from MAPIR_Enums import *
 from MAPIR_Defaults import *
 from Calculator import *
@@ -68,9 +71,7 @@ if not os.path.exists(modpath + os.sep + "instring.txt"):
     istr = open(modpath + os.sep + "instring.txt", "w")
     istr.close()
 
-from osgeo import gdal
 
-import glob
 
 all_cameras = []
 
