@@ -132,20 +132,11 @@ MATRIX_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_matrix.ui'))
 
 
-
+'''when are any objects of class debayermatrix actually instansiated???'''
 
 class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
-    """DebayerMatrix (Debayer ~ De )
-
-        No such thing as Red Blue Green Channels, need to take the image and interpolate through it to get separate RBG channel
-        1/4 Red data is actually there, other 75% must be interpolated
-        1/4 Blue data is actually there, other 75% must be interpolated
-        1/2 Green is actually there, other 50% must be interpolated
-
-    """
     parent = None
 
-    #GAMMA_LIST is a dictionary containing constant values for the Gamma list
     GAMMA_LIST = [{"CCM": [1,0,0,0,1,0,0,0,1], "RGB_OFFSET": [0,0,0], "GAMMA": [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]},
                   {"CCM": [1,0,1.402,1,-0.34414,-0.71414,1,1.772,0], "RGB_OFFSET": [0, 0, 0],
                    "GAMMA": [2.3,1.3,2.3,0.3,0.3,0.3,2.3,2.3,1,2,1,2,2,2,1,2,1,2,2,0,2,0,2,0]},
@@ -156,21 +147,22 @@ class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
         """Constructor."""
         super(DebayerMatrix, self).__init__(parent=parent)
         self.parent = parent
+
         self.setupUi(self)
 
     def on_ModalSaveButton_released(self):
-    """ on_ModalSaveButton_released closes self when the save button is released (clicked)
-    """
         self.close()
 
     def on_ModalCancelButton_released(self):
-        """ on_ModalCancelButton_released closes self when the cancel button is released (clicked)
-        """
         self.close()
 
 
+
 class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
-    """class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS)
+    """class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS) is the class called to instantiate the kernel advanced
+    options window
+
+
         takes in inputs QtWidgets.QDialog and ADVANCED_CLASS
 
         sets up the advanced options in the kernel tab
@@ -182,9 +174,9 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
         super(AdvancedOptions, self).__init__(parent=parent)
         self.parent = parent
 
-        self.setupUi(self)
+        self.setupUi(self) #instantiate the UI object
         try:
-            buf = [0] * 512
+            buf = [0] * 512 #buffer is a list of zeros of length 512
             buf[0] = self.parent.SET_REGISTER_READ_REPORT
             buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value
             # if self.SDCTUM.text():
@@ -327,6 +319,10 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
         self.close()
 
 class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
+
+    """
+    class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS): is the class used to instantiate the kernel transfer window
+    """
     parent = None
 
     def __init__(self, parent=None):
@@ -387,7 +383,7 @@ class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
 
 class KernelModal(QtWidgets.QDialog, MODAL_CLASS):
     """
-    class KernalModal(QtWidgets.QDialog, MODAL_CLASS)
+    class KernalModal(QtWidgets.QDialog, MODAL_CLASS) is the class used to instantiate kernal modal window objects
 
     first the submethod calls setupUI to pop up the widgets
 
@@ -939,7 +935,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         #setupUi() is the pyQt function that generates the UI that was created in pyQt
         #for further documentation see: http://pyqt.sourceforge.net/Docs/PyQt4/designer.html
 
-        self.setupUi(self) #call to setup the qt UI object of type self 
+        self.setupUi(self) #call to setup the qt UI object of type self
         try:
             #set legend equal to lut_legend.jpg
             legend = cv2.imread(os.path.dirname(__file__) + "/lut_legend.jpg")
@@ -2003,8 +1999,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 #         if found:
                 #             break
 
+                #instantiate an object of class kernal transfer
                 self.modalwindow = KernelTransfer(self)
-                self.modalwindow.resize(400, 200)
+                self.modalwindow.resize(400, 200) #reformat the window size
                 self.modalwindow.exec_()
                 # self.KernelLog.append("We made it out of transfer window")
                 if self.yestransfer:
@@ -2370,7 +2367,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     # exc_type, exc_obj,exc_tb = sys.exc_info()
     #         print(e + ' ) + exc_tb.tb_lineno
     def on_KernelAdvancedSettingsButton_released(self):
-        self.Advancedwindow = AdvancedOptions(self)
+        self.Advancedwindow = AdvancedOptions(self) #instantiate advanced options object
         # self.modalwindow = KernelCAN(self)
         self.Advancedwindow.resize(400, 200)
         self.Advancedwindow.exec_()
@@ -2457,7 +2454,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
     def on_KernelIntervalButton_released(self):
-        self.modalwindow = KernelModal(self)
+        self.modalwindow = KernelModal(self) #instantiate modal window as an object of class kernelmodal
         self.modalwindow.resize(400, 200)
         self.modalwindow.exec_()
 
