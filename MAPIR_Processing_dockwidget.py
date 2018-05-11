@@ -741,7 +741,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     # drivesfound = []
     ref = ""
 
-
     imkeys = np.array(list(range(0, 65536)))
     weeks = 0
     days = 0
@@ -811,6 +810,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     paths_14_0 = []
     ISO_VALS = (1,2,4,8,16,32)
     lensvals = None
+
+    cancelButtonPressed = False
 
     BandNames = {
         "RGB": [644, 0, 0],
@@ -4847,6 +4848,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         # g = (((g - g.min()) / (g.max() - g.min())) * 65536.0).astype("uint16")
         return np.dstack([b, g, r])
 
+    def on_PreProcessCancelButton_released(self)
+        self.cancelButtonPressed = True
+
     def preProcessHelper(self, infolder, outfolder, customerdata=True):
 
         if 5 < self.PreProcessCameraModel.currentIndex() <= 10:
@@ -4861,6 +4865,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     " " + input.split(os.sep)[1])
                 QtWidgets.QApplication.processEvents()
                 self.openDNG(infolder + input.split('.')[1] + "." + input.split('.')[2], outfolder, customerdata)
+
 
                 counter += 1
         elif 0 <= self.PreProcessCameraModel.currentIndex() <= 2:
