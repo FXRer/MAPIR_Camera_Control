@@ -94,7 +94,7 @@ if sys.platform == "win32":
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
 
-"""exiftool is crossplatform, needs to be cosnumed in 3 differeent wased based on which OS is being used
+"""exiftool is crossplatform, needs to be consumed in 3 different ways based on which OS is being used
 on mac use homebrew
 """
 
@@ -997,9 +997,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     def ConnectKernels(self):
         self.KernelLog.append(' ')
         all_cameras = hid.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
+        #find all things with the same vendor and product id as the kernals
 
         if all_cameras == []:
-
             self.KernelLog.append("No cameras found! Please check your USB connection and try again.")
         else:
             self.paths.clear()
@@ -2306,6 +2306,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             #
             #     return r
             # else:
+            #
+
+            #creating an instance of the interface to the device
+            #creating an instance of the interface to the device
             dev = hid.device()
             dev.open_path(self.camera)
             q = dev.write(buffer)
