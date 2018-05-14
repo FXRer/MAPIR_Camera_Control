@@ -47,7 +47,6 @@ import copy
 import hid
 import time
 
-import gdal
 import glob
 
 from MAPIR_Enums import *
@@ -86,8 +85,11 @@ suppress the popping up of a window each time an exe is called
 Now that si exists with the suppressed pop ups it can be passed to other functions as a substitute for the default
 system information to avoid having to write this code everytime
 """
-if sys.platform == "win32":
+if sys.platform ==  'darwin':
+    import gdal
+elif sys.platform == "win32":
     import win32api
+    from osgeo import gdal
     si = subprocess.STARTUPINFO()
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
@@ -100,156 +102,6 @@ on mac use homebrew
 #       import exiftool
 #       exiftool.executable = modpath + os.sep + "exiftool.exe"
 
-ADVANCED_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_Advanced.ui'))
-class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
-    parent = None
-
-    def __init__(self, parent=None):
-        """Constructor."""
-        super(AdvancedOptions, self).__init__(parent=parent)
-        self.parent = parent
-
-        self.setupUi(self)
-        try:
-            buf = [0] * 512
-            buf[0] = self.parent.SET_REGISTER_READ_REPORT
-            buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value
-            # if self.SDCTUM.text():
-            #     buf[2] = int(self.SDCTUM.text()) if 0 <= int(self.SDCTUM.text()) < 255 else 255
-
-            res = self.parent.writeToKernel(buf)[2]
-            self.SDCTUM.setText(str(res))
-
-            buf = [0] * 512
-            buf[0] = self.parent.SET_REGISTER_READ_REPORT
-            buf[1] = eRegister.RG_VIDEO_ON_DELAY.value
-            # buf[2] = int(self.VCRD.text()) if 0 <= int(self.VCRD.text()) < 255 else 255
-
-            res = self.parent.writeToKernel(buf)[2]
-            self.VCRD.setText(str(res))
-
-            buf = [0] * 512
-            buf[0] = self.parent.SET_REGISTER_READ_REPORT
-            buf[1] = eRegister.RG_PHOTO_FORMAT.value
-
-
-            res = self.parent.writeToKernel(buf)[2]
-            self.KernelPhotoFormat.setCurrentIndex(int(res))
-
-            buf = [0] * 512
-            buf[0] = self.parent.SET_REGISTER_BLOCK_READ_REPORT
-            buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
-            buf[2] = 3
-            # buf[3] = ord(self.CustomFilter.text()[0])
-            # buf[4] = ord(self.CustomFilter.text()[1])
-            # buf[5] = ord(self.CustomFilter.text()[2])
-            res = self.parent.writeToKernel(buf)
-            filt = chr(res[2]) + chr(res[3]) + chr(res[4])
-
-            self.CustomFilter.setText(str(filt))
-            QtWidgets.QApplication.processEvents()
-        except Exception as e:
-            exc_type, exc_obj,exc_tb = sys.exc_info()
-            self.parent.KernelLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
-            # QtWidgets.QApplication.processEvents()
-        finally:
-            QtWidgets.QApplication.processEvents()
-            self.close()
-        # for i in range(1, 256):
-        #     self.SDCTUM.addItem(str(i))
-        #
-        # for j in range(1, 256):
-        #     self.VCRD.addItem(str(j))
-    # def on_ModalBrowseButton_released(self):
-    #     with open(modpath + os.sep + "instring.txt", "r+") as instring:
-    #         self.ModalOutputFolder.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
-    #         instring.truncate(0)
-    #         instring.seek(0)
-    #         instring.write(self.ModalOutputFolder.text())
-    #         self.ModalSaveButton.setEnabled(True)
-    def on_SaveButton_released(self):
-        # self.parent.transferoutfolder  = self.ModalOutputFolder.text()
-        # self.parent.yestransfer = self.TransferBox.isChecked()
-        # self.parent.yesdelete = self.DeleteBox.isChecked()
-        # self.parent.selection_made = True
-        try:
-            # if self.parent.KernelCameraSelect.currentIndex() == 0:
-            #     for cam in self.parent.paths:
-            #         self.parent.camera = cam
-            #         buf = [0] * 512
-            #         buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
-            #         buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value
-            #         buf[2] = int(self.SDCTUM.text()) if 0 < int(self.SDCTUM.text()) < 255 else 255
-            #
-            #         self.parent.writeToKernel(buf)
-            #
-            #         buf = [0] * 512
-            #         buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
-            #         buf[1] = eRegister.RG_VIDEO_ON_DELAY.value
-            #         buf[2] = int(self.VCRD.text()) if 0 < int(self.VCRD.text()) < 255 else 255
-            #
-            #         self.parent.writeToKernel(buf)
-            #
-            #         buf = [0] * 512
-            #         buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
-            #         buf[1] = eRegister.RG_PHOTO_FORMAT.value
-            #         buf[2] = int(self.KernelPhotoFormat.currentIndex())
-            #
-            #         self.parent.writeToKernel(buf)
-            #         buf = [0] * 512
-            #         buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
-            #         buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
-            #         buf[2] = 3
-            #         buf[3] = ord(self.CustomFilter.text()[0])
-            #         buf[4] = ord(self.CustomFilter.text()[1])
-            #         buf[5] = ord(self.CustomFilter.text()[2])
-            #         res = self.parent.writeToKernel(buf)
-            #     self.parent.camera = self.parent.paths[0]
-            # else:
-            buf = [0] * 512
-            buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
-            buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value
-            val = int(self.SDCTUM.text()) if 0 < int(self.SDCTUM.text()) < 255 else 255
-            buf[2] = val
-
-            self.parent.writeToKernel(buf)
-
-            buf = [0] * 512
-            buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
-            buf[1] = eRegister.RG_VIDEO_ON_DELAY.value
-            val = int(self.VCRD.text()) if 0 < int(self.VCRD.text()) < 255 else 255
-            buf[2] = val
-            self.parent.writeToKernel(buf)
-
-            buf = [0] * 512
-            buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
-            buf[1] = eRegister.RG_PHOTO_FORMAT.value
-            buf[2] = int(self.KernelPhotoFormat.currentIndex())
-
-
-            self.parent.writeToKernel(buf)
-            buf = [0] * 512
-            buf[0] = self.parent.SET_REGISTER_BLOCK_WRITE_REPORT
-            buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
-            buf[2] = 3
-            buf[3] = ord(self.CustomFilter.text()[0])
-            buf[4] = ord(self.CustomFilter.text()[1])
-            buf[5] = ord(self.CustomFilter.text()[2])
-            res = self.parent.writeToKernel(buf)
-        except Exception as e:
-            exc_type, exc_obj,exc_tb = sys.exc_info()
-            self.parent.KernelLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
-        finally:
-
-            QtWidgets.QApplication.processEvents()
-            self.close()
-
-    def on_CancelButton_released(self):
-        # self.parent.yestransfer = False
-        # self.parent.yesdelete = False
-        # self.parent.selection_made = True
-        self.close()
 
 class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     """
