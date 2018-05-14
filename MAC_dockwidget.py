@@ -33,7 +33,6 @@ import shutil
 import platform
 import itertools
 import ctypes
-import string
 import PIL
 import bitstring
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -44,7 +43,7 @@ import numpy as np
 import subprocess
 import cv2
 import copy
-import usb
+import hid
 import time
 
 from MAPIR_Enums import *
@@ -938,7 +937,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         self.ConnectKernels()
     def ConnectKernels(self):
         self.KernelLog.append(' ')
-        all_cameras = usb.core.find(self.VENDOR_ID, self.PRODUCT_ID)
+        all_cameras = hid.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
 
         if all_cameras == []:
 
