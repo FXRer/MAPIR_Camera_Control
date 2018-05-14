@@ -88,28 +88,6 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="3">
-             <widget class="QComboBox" name="PreProcessFilter">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>151</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="duplicatesEnabled">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="3">
              <widget class="QComboBox" name="PreProcessLens">
               <property name="enabled">
@@ -138,16 +116,25 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="6">
-             <widget class="QPushButton" name="PreProcessInButton">
+            <item row="3" column="3">
+             <widget class="QComboBox" name="PreProcessFilter">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="text">
-               <string>Browse...</string>
+              <property name="minimumSize">
+               <size>
+                <width>151</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="duplicatesEnabled">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -161,21 +148,18 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="4">
-             <spacer name="horizontalSpacer_6">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+            <item row="0" column="7">
+             <widget class="QPushButton" name="PreProcessInButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
+              <property name="text">
+               <string>Browse...</string>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
+             </widget>
             </item>
             <item row="0" column="0">
              <spacer name="horizontalSpacer_3">
@@ -209,6 +193,22 @@
               </property>
              </spacer>
             </item>
+            <item row="3" column="0">
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>10</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
             <item row="1" column="4">
              <spacer name="horizontalSpacer_7">
               <property name="orientation">
@@ -225,8 +225,8 @@
               </property>
              </spacer>
             </item>
-            <item row="3" column="0">
-             <spacer name="horizontalSpacer_4">
+            <item row="0" column="4">
+             <spacer name="horizontalSpacer_6">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -235,11 +235,45 @@
               </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>10</width>
+                <width>20</width>
                 <height>20</height>
                </size>
               </property>
              </spacer>
+            </item>
+            <item row="1" column="1" alignment="Qt::AlignRight">
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Lens</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" alignment="Qt::AlignRight">
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>Filter</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="7">
+             <widget class="QPushButton" name="PreProcessOutButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Browse...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="5">
+             <widget class="QLineEdit" name="PreProcessOutFolder">
+              <property name="placeholderText">
+               <string>Select Output Folder...</string>
+              </property>
+             </widget>
             </item>
             <item row="3" column="5">
              <widget class="QPushButton" name="PreProcessButton">
@@ -260,37 +294,10 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="6">
-             <widget class="QPushButton" name="PreProcessOutButton">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+            <item row="2" column="5">
+             <widget class="QCheckBox" name="PreProcessVignette">
               <property name="text">
-               <string>Browse...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1" alignment="Qt::AlignRight">
-             <widget class="QLabel" name="label_14">
-              <property name="text">
-               <string>Filter</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1" alignment="Qt::AlignRight">
-             <widget class="QLabel" name="label_13">
-              <property name="text">
-               <string>Lens</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="5">
-             <widget class="QLineEdit" name="PreProcessOutFolder">
-              <property name="placeholderText">
-               <string>Select Output Folder...</string>
+               <string>Apply Vignette</string>
               </property>
              </widget>
             </item>
@@ -384,21 +391,14 @@
               </item>
              </widget>
             </item>
-            <item row="3" column="6">
+            <item row="3" column="7">
              <widget class="QCheckBox" name="PreProcessDarkBox">
               <property name="text">
                <string>Enable 12 bit (Dark) tiffs</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="5">
-             <widget class="QCheckBox" name="PreProcessVignette">
-              <property name="text">
-               <string>Apply Vignette</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="6">
+            <item row="2" column="7">
              <widget class="QCheckBox" name="PreProcessColorBox">
               <property name="enabled">
                <bool>false</bool>
@@ -412,6 +412,13 @@
              <widget class="QCheckBox" name="PreProcessJPGBox">
               <property name="text">
                <string>Output JPG</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="6">
+             <widget class="QPushButton" name="PreProcessCancelButton">
+              <property name="text">
+               <string>Cancel</string>
               </property>
              </widget>
             </item>

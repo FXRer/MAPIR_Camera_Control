@@ -1,3 +1,9 @@
+"""
+Vignette.py contains the class Vignette which applies a vignette to an image
+(reduction of image brigtness at edges, increased brightness at center)
+"""
+
+
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 import PyQt5.uic as uic

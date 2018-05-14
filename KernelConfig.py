@@ -1,3 +1,10 @@
+""" KernelConfig.py
+
+contains the submethods to create a camera rig
+
+"""
+
+
 import xml.etree.ElementTree as ET
 from glob import glob
 import os

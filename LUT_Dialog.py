@@ -1,3 +1,10 @@
+""" LUT_Dialog.py
+
+Contains the class Applicator that instantiates the Applicator QtWidget object
+from within the LUT calcwindow
+
+"""
+
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 import PyQt5.uic as uic
@@ -5,6 +12,8 @@ import cv2
 import csv
 import numpy as np
 import copy
+
+#LUT_Class points to the file where the dockwidget ui is stored
 LUT_Class, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_LUT.ui'))
 
@@ -26,21 +35,21 @@ class Applicator(QtWidgets.QDialog, LUT_Class):
         super(Applicator, self).__init__(parent=parent)
         self.parent = parent
 
-        self.setupUi(self)
-        self.parent.LUTButton.setEnabled(False)
+        self.setupUi(self) #instantiate the widget object
+        self.parent.LUTButton.setEnabled(False) #set enabled to false
         self.RasterMin.setText(str(round(self.parent.LUT_Min, 2)))
         self.RasterMax.setText(str(round(self.parent.LUT_Max, 2)))
         try:
             img = cv2.imread(os.path.dirname(__file__) + "/lut_red-to-green.jpg")
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            h, w = img.shape[:2]
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #change to RBG format
+            h, w = img.shape[:2] #extract the height and width
             img2 = QtGui.QImage(img, w, h, w * 3, QtGui.QImage.Format_RGB888)
             self.LUTColors.setPixmap(QtGui.QPixmap.fromImage(img2))
         except Exception as e:
             print(e)
+
     def on_RasterApplyButton_released(self):
-
-
+        """ When the raster apply button is released the processLUT function is called """
         self.processLUT()
         self.parent.LUTBox.setEnabled(True)
 
@@ -48,6 +57,7 @@ class Applicator(QtWidgets.QDialog, LUT_Class):
             self.parent.applyLUT()
         else:
             self.parent.LUTBox.setChecked(True)
+
     def on_RasterOkButton_released(self):
         try:
             self.processLUT()
@@ -64,6 +74,8 @@ class Applicator(QtWidgets.QDialog, LUT_Class):
         self.close()
 
     def on_RasterCloseButton_released(self):
+    """ When the raster close button is released the LUT button is closed"""
+
         self.parent.LUTButton.setEnabled(True)
         self.close()
 
