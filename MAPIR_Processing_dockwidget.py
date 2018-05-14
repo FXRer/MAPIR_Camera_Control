@@ -1778,11 +1778,15 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         # except Exception as e:
         # exc_type, exc_obj,exc_tb = sys.exc_info()
         #     print(e + ' ) + exc_tb.tb_lineno
+<<<<<<< HEAD
 
     def on_KernelFolderCount_currentIndexChanged(self, int = 0):
         """def on_KernelFolderCount_currentIndexChanged(self)
 
         is passed an object(self), """
+=======
+    def on_KernelFolderCount_currentIndexChanged(self):
+>>>>>>> master
         buf = [0] * 512
         buf[0] = self.SET_REGISTER_WRITE_REPORT
         buf[1] = eRegister.RG_MEDIA_FILES_CNT.value
@@ -1795,11 +1799,15 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
+<<<<<<< HEAD
 
     def on_KernelVideoOut_currentIndexChanged(self, int = 0):
         """def on_KernelVideoOut_currentIndexChanged(self)
 
         is passed an object(self) and an int = 0 """
+=======
+    def on_KernelVideoOut_currentIndexChanged(self):
+>>>>>>> master
         if self.KernelVideoOut.currentIndex() == 0:  # No Output
             buf = [0] * 512
 
@@ -1919,7 +1927,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         else:
             self.PreProcessColorBox.setChecked(False)
             self.PreProcessColorBox.setEnabled(False)
-    def on_PreProcessCameraModel_currentIndexChanged(self, int):
+    def on_PreProcessCameraModel_currentIndexChanged(self):
         self.PreProcessVignette.setChecked(False)
         self.PreProcessVignette.setEnabled(False)
         if self.PreProcessCameraModel.currentIndex() == 0 or self.PreProcessCameraModel.currentIndex() == 1:
@@ -1985,7 +1993,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.PreProcessLens.clear()
             self.PreProcessLens.setEnabled(False)
 
-    def on_CalibrationCameraModel_currentIndexChanged(self, int):
+    def on_CalibrationCameraModel_currentIndexChanged(self):
         if self.CalibrationCameraModel.currentIndex() == 0 or self.CalibrationCameraModel.currentIndex() == 1:
             self.CalibrationFilter.clear()
             self.CalibrationFilter.addItems(["405", "450", "490", "518", "550", "590", "615", "632", "650", "685", "725", "780", "808", "850", "880","940","945"])
@@ -2058,7 +2066,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLens.clear()
             self.CalibrationLens.setEnabled(False)
 
-    def on_CalibrationCameraModel_2_currentIndexChanged(self, int):
+    def on_CalibrationCameraModel_2_currentIndexChanged(self):
         if self.CalibrationCameraModel_2.currentIndex() == 0 or self.CalibrationCameraModel_2.currentIndex() == 1:
             self.CalibrationFilter_2.clear()
             self.CalibrationFilter_2.addItems(
@@ -2133,7 +2141,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLens_2.clear()
             self.CalibrationLens_2.setEnabled(False)
 
-    def on_CalibrationCameraModel_3_currentIndexChanged(self, int):
+    def on_CalibrationCameraModel_3_currentIndexChanged(self):
         if self.CalibrationCameraModel_3.currentIndex() == 0 or self.CalibrationCameraModel_3.currentIndex() == 1:
             self.CalibrationFilter_3.clear()
             self.CalibrationFilter_3.addItems(
@@ -2208,7 +2216,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLens_3.clear()
             self.CalibrationLens_3.setEnabled(False)
 
-    def on_CalibrationCameraModel_4_currentIndexChanged(self, int):
+    def on_CalibrationCameraModel_4_currentIndexChanged(self):
         if self.CalibrationCameraModel_4.currentIndex() == 0 or self.CalibrationCameraModel_4.currentIndex() == 1:
             self.CalibrationFilter_4.clear()
             self.CalibrationFilter_4.addItems(
@@ -2283,7 +2291,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLens_4.clear()
             self.CalibrationLens_4.setEnabled(False)
 
-    def on_CalibrationCameraModel_5_currentIndexChanged(self, int):
+    def on_CalibrationCameraModel_5_currentIndexChanged(self):
         if self.CalibrationCameraModel_5.currentIndex() == 0 or self.CalibrationCameraModel_5.currentIndex() == 1:
             self.CalibrationFilter_5.clear()
             self.CalibrationFilter_5.addItems(
@@ -2358,7 +2366,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLens_5.clear()
             self.CalibrationLens_5.setEnabled(False)
 
-    def on_CalibrationCameraModel_6_currentIndexChanged(self, int):
+    def on_CalibrationCameraModel_6_currentIndexChanged(self):
         if self.CalibrationCameraModel_6.currentIndex() == 0 or self.CalibrationCameraModel_6.currentIndex() == 1:
             self.CalibrationFilter_6.clear()
             self.CalibrationFilter_6.addItems(
@@ -4252,14 +4260,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
 
     # Helper functions
-    def debayer(self, m):
-        b = m[0:: 2, 1:: 2]
-        g = np.clip(m[0::2, 0::2] // 2 + m[1::2, 1::2] // 2, 0, 2**14 - 1)
-        r = m[1:: 2, 0:: 2]
-        # b = (((b - b.min()) / (b.max() - b.min())) * 65536.0).astype("uint16")
-        # r = (((r - r.min()) / (r.max() - r.min())) * 65536.0).astype("uint16")
-        # g = (((g - g.min()) / (g.max() - g.min())) * 65536.0).astype("uint16")
-        return np.dstack([b, g, r])
+    # def debayer(self, m):
+    #     r = m[0:: 2, 0:: 2]
+    #     g = np.clip(m[1::2, 0::2] // 2 + m[0::2, 1::2] // 2, 0, 2**14 - 1)
+    #     b = m[1:: 2, 1:: 2]
+    #     # b = (((b - b.min()) / (b.max() - b.min())) * 65536.0).astype("uint16")
+    #     # r = (((r - r.min()) / (r.max() - r.min())) * 65536.0).astype("uint16")
+    #     # g = (((g - g.min()) / (g.max() - g.min())) * 65536.0).astype("uint16")
+    #     return np.dstack([b, g, r])
 
     def on_PreProcessCancelButton_released(self)
         self.cancelButtonPressed = True
@@ -4321,17 +4329,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         if self.PreProcessCameraModel.currentIndex() == 3:
                             try:
                                 data = np.fromfile(input, dtype=np.uint8)
-                                # temp1 = data[::2]
-                                # temp2 = data[1::2]
-                                # # temp3 = data[2::4]
-                                # # temp4 = data[3::4]
-                                # data2 = np.zeros(len(data), dtype=np.uint8)
-                                # data2[::2] = temp2
-                                # data2[1::2] = temp1
-                                # # data2[2::4] = temp2
-                                # # data2[3::4] = temp1
-                                # data[:len(data) - 1:2], data[1::2] = data[1::2], data[:len(data) - 1:2]
+                                # data2 = np.fromfile("F:\\DCIM\Photo\\2018_0507_142527_011.RAW", dtype=np.uint8)
                                 data = np.unpackbits(data)
+<<<<<<< HEAD
                                 data = data.reshape((int(data.shape[0] / 12), 12))
 
                                 images = np.zeros((4000 * 3000),dtype=np.uint16)
@@ -4340,30 +4340,70 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 # red = (MAPIR_Defaults.UINT16MAX_FLOAT/31.0 * np.bitwise_and(np.right_shift(data, 11), 0x1f)).astype("uint16")
                                 # green = (MAPIR_Defaults.UINT16MAX_FLOAT/63.0 * np.bitwise_and(np.right_shift(data, 5), 0x3f)).astype("uint16")
                                 # blue = (MAPIR_Defaults.UINT16MAX_FLOAT/31.0 * np.bitwise_and(data, 0x1f)).astype("uint16")
+=======
+                                # data2 = np.unpackbits(data2)
+                                datsize = data.shape[0]
+                                # dat2size = data2.shape[0]
+                                data = data.reshape((int(datsize / 4), 4))
+
+
+                                temp = copy.deepcopy(data[0::2])
+                                temp2 = copy.deepcopy(data[1::2])
+                                data[0::2] = temp2
+                                data[1::2] = temp
+
+                                udata = np.packbits(np.concatenate([data[0::3], np.array([0, 0, 0, 0] * 12000000, dtype=np.uint8).reshape(12000000,4),   data[2::3], data[1::3]], axis=1).reshape(192000000, 1)).tobytes()
+
+                                img = np.fromstring(udata, np.dtype('u2'), (4000 * 3000)).reshape((3000, 4000))
+                                # udata.tofile(input)
+                                # data2 = data2.reshape((int(dat2size / 12), 12))
+                                # (data[0::2], data[1::2]) = (data[1::2], data[0::2])
+                                # data[0::2] = np.bitwise_xor(data[0::2], data[1::2])
+                                # data[1::2] = np.bitwise_xor(data[0::2], data[1::2])
+                                # data[0::2] = np.bitwise_xor(data[0::2], data[1::2])
+                                # data = data.reshape((int(datsize / 12), 12))
+                                # r = data[:, 0:3]
+                                # gr = data[:, 3:6]
+                                # b = data[:, 6:9]
+                                # gb = data[:, 9:12]
+                                # data = np.reshape([r,gr,b,gb], (12000000, 12))
+                                # images = np.zeros((4000 * 3000), dtype=np.uint16)
+                                # for i in range(0, 16):
+                                #     images += 2 ** (i) * udata[:,15 - i]
+                                # red = (65535.0/31.0 * np.bitwise_and(np.right_shift(data, 11), 0x1f)).astype("uint16")
+                                # green = (65535.0/63.0 * np.bitwise_and(np.right_shift(data, 5), 0x3f)).astype("uint16")
+                                # blue = (65535.0/31.0 * np.bitwise_and(data, 0x1f)).astype("uint16")
+>>>>>>> master
                                 #
                                 # img = cv2.merge((blue,green,red)).astype("uint16")
                                 #
                                 #
                                 #
+<<<<<<< HEAD
                                 img = np.reshape(images, (3000, 4000))
                                 tim = self.debayer(img)
                                 color = copy.deepcopy(tim)
                                 # color[tim[:, :, 0] >= MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
                                 # color[tim[:, :, 1] >= MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
                                 # color[tim[:, :, 2] >= MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
+=======
+                                # img = np.reshape(images, (3000, 4000))
+                                # tim = self.debayer(img)
+                                # color = copy.deepcopy(tim)
+                                # color[tim[:, :, 0] >= 65535] = 65535
+                                # color[tim[:, :, 1] >= 65535] = 65535
+                                # color[tim[:, :, 2] >= 65535] = 65535
+>>>>>>> master
                                 # cv2.imwrite(outfolder + "test.tif", img)
                                 # cv2.imwrite(outfolder + "testDB.tif", tim)
                             except Exception as e:
                                 print(e)
-                                oldfirmware = True
+                                # oldfirmware = True
                         else:
-                            img = np.fromfile(rawimage, np.dtype('u2'), self.imsize).reshape(
-                                (self.imrows, self.imcols))
-                            color = cv2.cvtColor(img, cv2.COLOR_BAYER_RG2RGB).astype("uint16")
-                        if oldfirmware == True:
                             with open(input, "rb") as rawimage:
+                                img = np.fromfile(rawimage, np.dtype('u2'), (4000 * 3000)).reshape((3000, 4000))
 
-                                    img = np.fromfile(rawimage, np.dtype('u2'), (4000 * 3000)).reshape((3000, 4000))
+                        color = cv2.cvtColor(img, cv2.COLOR_BAYER_RG2RGB).astype("uint16")
                                     # rawimage.seek(0)
                                     #
                                     # data = struct.unpack("=18000000B", rawimage.read())
@@ -4385,7 +4425,32 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                     # w = int(h * (4 / 3))
                                     # img = np.reshape(k, (3000, 4000)).astype("uint16")
 
+                        color[:,:,0]
+                        color[:,:,1]
+                        color[:,:,2]
 
+                        redmax = int(
+                            np.setdiff1d(self.imkeys[self.imkeys > int(np.median(color[:,:,0]))], color[:,:,0])[0])
+                        redmin = color[:,:,0].min()
+
+                        greenmax = \
+                            int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(color[:,:,2]))], color[:,:,2])[0])
+                        greenmin = color[:,:,2].min()
+
+
+                        bluemax = \
+                            int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(color[:,:,1]))], color[:,:,1])[0])
+                        bluemin = color[:,:,1].min()
+
+                        maxpixel = redmax if redmax > bluemax else bluemax
+                        maxpixel = greenmax if greenmax > maxpixel else maxpixel
+                        minpixel = redmin if redmin < bluemin else bluemin
+                        minpixel = greenmin if greenmin < minpixel else minpixel
+
+                        # color = cv2.merge((color[:,:,0],color[:,:,2],color[:,:,1])).astype(np.dtype('u2'))
+                        color[:,:,0] = (((color[:,:,0] - minpixel) / (maxpixel - minpixel)))
+                        color[:,:,2] = (((color[:,:,2] - minpixel) / (maxpixel - minpixel)))
+                        color[:,:,1] = (((color[:,:,1] - minpixel) / (maxpixel - minpixel)))
 
 
                         if self.PreProcessCameraModel.currentIndex() == 3 and self.PreProcessFilter.currentIndex() == 3:
@@ -4393,15 +4458,20 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         # maxcol = color.max()
                         # mincol = color.min()
                         if self.PreProcessJPGBox.isChecked():
-                            # color = (color - mincol) / (maxcol  - mincol)
-                            # color = color * 255.0
+                            # color = (color - int(np.percentile(color, 2))) / (int(np.percentile(color, 98)) - int(np.percentile(color, 2)))
+                            color = color * 255.0
                             color = color.astype("uint8")
                             filename = input.split('.')
                             outputfilename = filename[1] + '.jpg'
                             cv2.imencode(".jpg", color)
                         else:
+<<<<<<< HEAD
                             # color = (color - mincol) / (maxcol  - mincol)
                             # color = color * MAPIR_Defaults.UINT16MAX_FLOAT
+=======
+                            # color = (color - int(np.percentile(color, 2))) / (int(np.percentile(color, 98))  - int(np.percentile(color, 2)))
+                            color = color * 65535.0
+>>>>>>> master
                             color = color.astype("uint16")
                             filename = input.split('.')
                             outputfilename = filename[1] + '.tif'
