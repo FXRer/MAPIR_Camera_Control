@@ -1,3 +1,5 @@
+#Lookup table for lens 
+
 DROPDOW_2_LENS = {
     ("405","9.6mm"): 0,
     ("405","8.25mm"): 34,

@@ -43,7 +43,11 @@ import numpy as np
 import subprocess
 import cv2
 import copy
+<<<<<<< HEAD
 import hid
+=======
+import pyhidapi
+>>>>>>> 18dbfbf92ae1386460deceff0f1fcc332e5f6f53
 import time
 
 from MAPIR_Enums import *
@@ -937,7 +941,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         self.ConnectKernels()
     def ConnectKernels(self):
         self.KernelLog.append(' ')
+<<<<<<< HEAD
         all_cameras = hid.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
+=======
+        all_cameras = pyhidapi.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
+>>>>>>> 18dbfbf92ae1386460deceff0f1fcc332e5f6f53
 
         if all_cameras == []:
 
