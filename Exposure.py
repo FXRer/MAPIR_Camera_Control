@@ -1,3 +1,5 @@
+""" Exposure.py ... add description"""
+
 import PyQt5.uic as uic
 import os
 from MAPIR_Enums import *
