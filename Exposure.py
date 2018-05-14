@@ -1,4 +1,7 @@
-""" Exposure.py ... add description"""
+""" Exposure.py handles manual and automatic exposure Settings
+
+TODO: turn this into alooping element rather than repeated lines of code
+"""
 
 import PyQt5.uic as uic
 import os
@@ -72,6 +75,7 @@ class M_EXP_Control(QtWidgets.QDialog, M_EXP_CLASS):
         #
         # res = self.parent.writeToKernel(buf)
         self.close()
+
 #Class for handling Auto Exposure Settings
 class A_EXP_Control(QtWidgets.QDialog, A_EXP_CLASS):
     parent = None
