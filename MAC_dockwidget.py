@@ -44,7 +44,7 @@ import numpy as np
 import subprocess
 import cv2
 import copy
-import pyhidapi
+import usb
 import time
 
 from MAPIR_Enums import *
@@ -938,7 +938,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         self.ConnectKernels()
     def ConnectKernels(self):
         self.KernelLog.append(' ')
-        all_cameras = pyhidapi.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
+        all_cameras = usb.core.find(self.VENDOR_ID, self.PRODUCT_ID)
 
         if all_cameras == []:
 
@@ -2247,7 +2247,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             #
             #     return r
             # else:
-            dev = pyhidapi.device()
+            dev = hid.device()
             dev.open_path(self.camera)
             q = dev.write(buffer)
             if buffer[0] == 3 and buffer[1] == 1:
