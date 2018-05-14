@@ -1,7 +1,7 @@
 """ LUT_Dialog.py
 
 Contains the class Applicator that instantiates the Applicator QtWidget object
-from within the LUT calcwindow
+from within the LUT (Look up table) calcwindow
 
 """
 

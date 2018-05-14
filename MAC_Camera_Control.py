@@ -3,14 +3,13 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from MAC_dockwidget import *
-
-'''
-This is the main function that runs the MAPIR widget, it instantiates a QT app object and then a 
+"""
+This is the main function that runs the MAPIR widget, it instantiates a QT app object and then a
 MAPIR PRocessing Dock Widget from the MAPIR_Processing_dockwidget.py file, this object is then displayed to the user
 
-*Note: The code that is commented out is so display a loading screen to the user (doesn't work yet) and there needs to 
+*Note: The code that is commented out is so display a loading screen to the user (doesn't work yet) and there needs to
 be a cancel button added to this code
-'''
+"""
 if __name__ == "__main__":
         try:
 
@@ -32,7 +31,7 @@ if __name__ == "__main__":
                 #               app.processEvents()
 
 
-                '''create a processing dock widget app 
+                '''create a processing dock widget app
                 the app is defined in the MAPIR_PRocessing_dockwidget.py file'''
                 myapp = MAPIR_ProcessingDockWidget() #instantiate a dockwidget app
                 myapp.show() #Show the MAPIR gui

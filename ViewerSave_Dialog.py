@@ -1,3 +1,8 @@
+"""ViewerSave_Dialog.py pops up the save dialog for the view tab when the
+save button is released
+""""
+
+
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 import PyQt5.uic as uic

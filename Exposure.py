@@ -91,6 +91,8 @@ class A_EXP_Control(QtWidgets.QDialog, A_EXP_CLASS):
         super(A_EXP_Control, self).__init__(parent=parent)
         self.parent = parent
         self.setupUi(self)
+
+        #passing information to the kernel camera 
         buf = [0] * 512
         buf[0] = self.parent.SET_REGISTER_READ_REPORT
         buf[1] = eRegister.RG_AE_SELECTION.value
