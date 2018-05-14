@@ -954,7 +954,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             #     self.KernelISO.setCurrentIndex(3)
 
             dac = self.getRegister(eRegister.RG_DAC.value  # DAC Register
-
             hdmi = self.getRegister(eRegister.RG_HDMI.value)
 
             if hdmi == 1 and dac == 1:
