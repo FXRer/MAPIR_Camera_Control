@@ -74,8 +74,7 @@ class Applicator(QtWidgets.QDialog, LUT_Class):
         self.close()
 
     def on_RasterCloseButton_released(self):
-    """ When the raster close button is released the LUT button is closed"""
-
+        """ When the raster close button is released the LUT button is closed"""
         self.parent.LUTButton.setEnabled(True)
         self.close()
 

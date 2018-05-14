@@ -76,6 +76,7 @@ MATRIX_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_matrix.ui'))
 
 class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
+
     """class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS)
         takes in inputs QtWidgets.QDialog and ADVANCED_CLASS
 
@@ -95,12 +96,11 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
         super(AdvancedOptions, self).__init__(parent=parent)
         self.parent = parent
 
-        self.setupUi(self) #instantiate the advanced options widget
+        self.setupUi(self)
         try:
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_READ_REPORT
-            #block read report means you are pulling back more than 1 byte of data from the camera
-            buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value #read in the SD Card value
+            buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value
             # if self.SDCTUM.text():
             #     buf[2] = int(self.SDCTUM.text()) if 0 <= int(self.SDCTUM.text()) < 255 else 255
 
@@ -109,7 +109,7 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
 
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_READ_REPORT
-            buf[1] = eRegister.RG_VIDEO_ON_DELAY.value #video on delay time
+            buf[1] = eRegister.RG_VIDEO_ON_DELAY.value
             # buf[2] = int(self.VCRD.text()) if 0 <= int(self.VCRD.text()) < 255 else 255
 
             res = self.parent.writeToKernel(buf)[2]
@@ -117,7 +117,7 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
 
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_READ_REPORT
-            buf[1] = eRegister.RG_PHOTO_FORMAT.value #photo format settings
+            buf[1] = eRegister.RG_PHOTO_FORMAT.value
 
 
             res = self.parent.writeToKernel(buf)[2]
@@ -125,7 +125,7 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
 
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_BLOCK_READ_REPORT
-            buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value #filename
+            buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
             buf[2] = 3
             # buf[3] = ord(self.CustomFilter.text()[0])
             # buf[4] = ord(self.CustomFilter.text()[1])
@@ -199,7 +199,7 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
             # else:
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
-            buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value #read om tje SD card value
+            buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value
             val = int(self.SDCTUM.text()) if 0 < int(self.SDCTUM.text()) < 255 else 255
             buf[2] = val
 
@@ -207,47 +207,46 @@ class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
 
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
-            buf[1] = eRegister.RG_VIDEO_ON_DELAY.value #read in the RG video on delay data
+            buf[1] = eRegister.RG_VIDEO_ON_DELAY.value
             val = int(self.VCRD.text()) if 0 < int(self.VCRD.text()) < 255 else 255
             buf[2] = val
             self.parent.writeToKernel(buf)
 
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
-            buf[1] = eRegister.RG_PHOTO_FORMAT.value #read in the photo format data
+            buf[1] = eRegister.RG_PHOTO_FORMAT.value
             buf[2] = int(self.KernelPhotoFormat.currentIndex())
-            self.parent.writeToKernel(buf)
 
+
+            self.parent.writeToKernel(buf)
             buf = [0] * 512
             buf[0] = self.parent.SET_REGISTER_BLOCK_WRITE_REPORT
-            buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value #read in the media file name data
+            buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
             buf[2] = 3
-            #ord(c) returns unicode text coresponding to the input c
             buf[3] = ord(self.CustomFilter.text()[0])
             buf[4] = ord(self.CustomFilter.text()[1])
             buf[5] = ord(self.CustomFilter.text()[2])
             res = self.parent.writeToKernel(buf)
-
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.parent.KernelLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
-
         finally:
+
             QtWidgets.QApplication.processEvents()
-            self.close() #close the program now that everything has been written
+            self.close()
 
     def on_CancelButton_released(self):
         # self.parent.yestransfer = False
         # self.parent.yesdelete = False
         # self.parent.selection_made = True
-        self.close() #close the UI for advanced options when the cancel button is hit
+        self.close()
 
 class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
-        """
-        class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS)
+    """
+    class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS)
 
-        is the class called to instantiate the kernel transfer tab object
-        """
+    is the class called to instantiate the kernel transfer tab object
+    """
     parent = None
 
     def __init__(self, parent=None):
@@ -258,7 +257,7 @@ class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
         self.setupUi(self)
 
     def on_ModalBrowseButton_released(self):
-        """ on_ModalBrowseButton_released defines the actions taken when the browse button is clicked""""
+        '''on_ModalBrowseButton_released defines the actions taken when the browse button is clicked'''
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             self.ModalOutputFolder.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
@@ -267,13 +266,13 @@ class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
             self.ModalSaveButton.setEnabled(True)
 
     def on_DeleteBox_toggled(self):
-        """ on_ModalDeleteButton_released defines the actions taken when the delete button is clicked""""
+        """ on_ModalDeleteButton_released defines the actions taken when the delete button is clicked"""
         if self.DeleteBox.isChecked():
             self.ModalSaveButton.setEnabled(True)
         else:
             self.ModalSaveButton.setEnabled(False)
     def on_ModalSaveButton_released(self):
-        """ on_ModalSaveButton_released defines the actions taken when the save button is clicked""""
+        """ on_ModalSaveButton_released defines the actions taken when the save button is clicked"""
 
         self.parent.transferoutfolder  = self.ModalOutputFolder.text()
         self.parent.yestransfer = self.TransferBox.isChecked()
@@ -283,7 +282,7 @@ class KernelTransfer(QtWidgets.QDialog, TRANSFER_CLASS):
         self.close()
 
     def on_ModalCancelButton_released(self):
-        """ on_ModalCancelButton_released defines the actions taken when the cancel button is clicked""""
+        """ on_ModalCancelButton_released defines the actions taken when the cancel button is clicked"""
 
         self.parent.yestransfer = False
         self.parent.yesdelete = False
@@ -367,7 +366,7 @@ class KernelCAN(QtWidgets.QDialog, CAN_CLASS):
 
         self.setupUi(self)
         buf = [0] * 512
-        buf[0] = self.parent.SET_REGIST ER_READ_REPORT
+        buf[0] = self.parent.SET_REGISTER_READ_REPORT
         buf[1] = eRegister.RG_CAN_NODE_ID.value
         nodeid = self.parent.writeToKernel(buf)[2]
         # buf[2] = nodeid
@@ -650,8 +649,7 @@ class DebayerMatrix(QtWidgets.QDialog, MATRIX_CLASS):
         self.setupUi(self)
 
     def on_ModalSaveButton_released(self):
-    """ on_ModalSaveButton_released closes self when the save button is released (clicked)
-    """
+        """ on_ModalSaveButton_released closes self when the save button is released (clicked)"""
         self.close()
 
     def on_ModalCancelButton_released(self):
