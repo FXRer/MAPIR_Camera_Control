@@ -34,7 +34,6 @@ import platform
 import itertools
 import ctypes
 import string
-import win32api
 import PIL
 import bitstring
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -88,7 +87,7 @@ Now that si exists with the suppressed pop ups it can be passed to other functio
 system information to avoid having to write this code everytime
 """
 if sys.platform == "win32":
-
+    import win32api
     si = subprocess.STARTUPINFO()
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
@@ -101,6 +100,156 @@ on mac use homebrew
 #       import exiftool
 #       exiftool.executable = modpath + os.sep + "exiftool.exe"
 
+ADVANCED_CLASS, _ = uic.loadUiType(os.path.join(
+    os.path.dirname(__file__), 'MAPIR_Processing_dockwidget_Advanced.ui'))
+class AdvancedOptions(QtWidgets.QDialog, ADVANCED_CLASS):
+    parent = None
+
+    def __init__(self, parent=None):
+        """Constructor."""
+        super(AdvancedOptions, self).__init__(parent=parent)
+        self.parent = parent
+
+        self.setupUi(self)
+        try:
+            buf = [0] * 512
+            buf[0] = self.parent.SET_REGISTER_READ_REPORT
+            buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value
+            # if self.SDCTUM.text():
+            #     buf[2] = int(self.SDCTUM.text()) if 0 <= int(self.SDCTUM.text()) < 255 else 255
+
+            res = self.parent.writeToKernel(buf)[2]
+            self.SDCTUM.setText(str(res))
+
+            buf = [0] * 512
+            buf[0] = self.parent.SET_REGISTER_READ_REPORT
+            buf[1] = eRegister.RG_VIDEO_ON_DELAY.value
+            # buf[2] = int(self.VCRD.text()) if 0 <= int(self.VCRD.text()) < 255 else 255
+
+            res = self.parent.writeToKernel(buf)[2]
+            self.VCRD.setText(str(res))
+
+            buf = [0] * 512
+            buf[0] = self.parent.SET_REGISTER_READ_REPORT
+            buf[1] = eRegister.RG_PHOTO_FORMAT.value
+
+
+            res = self.parent.writeToKernel(buf)[2]
+            self.KernelPhotoFormat.setCurrentIndex(int(res))
+
+            buf = [0] * 512
+            buf[0] = self.parent.SET_REGISTER_BLOCK_READ_REPORT
+            buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
+            buf[2] = 3
+            # buf[3] = ord(self.CustomFilter.text()[0])
+            # buf[4] = ord(self.CustomFilter.text()[1])
+            # buf[5] = ord(self.CustomFilter.text()[2])
+            res = self.parent.writeToKernel(buf)
+            filt = chr(res[2]) + chr(res[3]) + chr(res[4])
+
+            self.CustomFilter.setText(str(filt))
+            QtWidgets.QApplication.processEvents()
+        except Exception as e:
+            exc_type, exc_obj,exc_tb = sys.exc_info()
+            self.parent.KernelLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
+            # QtWidgets.QApplication.processEvents()
+        finally:
+            QtWidgets.QApplication.processEvents()
+            self.close()
+        # for i in range(1, 256):
+        #     self.SDCTUM.addItem(str(i))
+        #
+        # for j in range(1, 256):
+        #     self.VCRD.addItem(str(j))
+    # def on_ModalBrowseButton_released(self):
+    #     with open(modpath + os.sep + "instring.txt", "r+") as instring:
+    #         self.ModalOutputFolder.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
+    #         instring.truncate(0)
+    #         instring.seek(0)
+    #         instring.write(self.ModalOutputFolder.text())
+    #         self.ModalSaveButton.setEnabled(True)
+    def on_SaveButton_released(self):
+        # self.parent.transferoutfolder  = self.ModalOutputFolder.text()
+        # self.parent.yestransfer = self.TransferBox.isChecked()
+        # self.parent.yesdelete = self.DeleteBox.isChecked()
+        # self.parent.selection_made = True
+        try:
+            # if self.parent.KernelCameraSelect.currentIndex() == 0:
+            #     for cam in self.parent.paths:
+            #         self.parent.camera = cam
+            #         buf = [0] * 512
+            #         buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
+            #         buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value
+            #         buf[2] = int(self.SDCTUM.text()) if 0 < int(self.SDCTUM.text()) < 255 else 255
+            #
+            #         self.parent.writeToKernel(buf)
+            #
+            #         buf = [0] * 512
+            #         buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
+            #         buf[1] = eRegister.RG_VIDEO_ON_DELAY.value
+            #         buf[2] = int(self.VCRD.text()) if 0 < int(self.VCRD.text()) < 255 else 255
+            #
+            #         self.parent.writeToKernel(buf)
+            #
+            #         buf = [0] * 512
+            #         buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
+            #         buf[1] = eRegister.RG_PHOTO_FORMAT.value
+            #         buf[2] = int(self.KernelPhotoFormat.currentIndex())
+            #
+            #         self.parent.writeToKernel(buf)
+            #         buf = [0] * 512
+            #         buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
+            #         buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
+            #         buf[2] = 3
+            #         buf[3] = ord(self.CustomFilter.text()[0])
+            #         buf[4] = ord(self.CustomFilter.text()[1])
+            #         buf[5] = ord(self.CustomFilter.text()[2])
+            #         res = self.parent.writeToKernel(buf)
+            #     self.parent.camera = self.parent.paths[0]
+            # else:
+            buf = [0] * 512
+            buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
+            buf[1] = eRegister.RG_UNMOUNT_SD_CARD_S.value
+            val = int(self.SDCTUM.text()) if 0 < int(self.SDCTUM.text()) < 255 else 255
+            buf[2] = val
+
+            self.parent.writeToKernel(buf)
+
+            buf = [0] * 512
+            buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
+            buf[1] = eRegister.RG_VIDEO_ON_DELAY.value
+            val = int(self.VCRD.text()) if 0 < int(self.VCRD.text()) < 255 else 255
+            buf[2] = val
+            self.parent.writeToKernel(buf)
+
+            buf = [0] * 512
+            buf[0] = self.parent.SET_REGISTER_WRITE_REPORT
+            buf[1] = eRegister.RG_PHOTO_FORMAT.value
+            buf[2] = int(self.KernelPhotoFormat.currentIndex())
+
+
+            self.parent.writeToKernel(buf)
+            buf = [0] * 512
+            buf[0] = self.parent.SET_REGISTER_BLOCK_WRITE_REPORT
+            buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
+            buf[2] = 3
+            buf[3] = ord(self.CustomFilter.text()[0])
+            buf[4] = ord(self.CustomFilter.text()[1])
+            buf[5] = ord(self.CustomFilter.text()[2])
+            res = self.parent.writeToKernel(buf)
+        except Exception as e:
+            exc_type, exc_obj,exc_tb = sys.exc_info()
+            self.parent.KernelLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
+        finally:
+
+            QtWidgets.QApplication.processEvents()
+            self.close()
+
+    def on_CancelButton_released(self):
+        # self.parent.yestransfer = False
+        # self.parent.yesdelete = False
+        # self.parent.selection_made = True
+        self.close()
 
 class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     """
@@ -409,7 +558,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             #     for i, path in enumerate(self.paths):
             #
             #         self.camera = path
-            #         buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            #         buf = [0] * 512
             #         # self.KernelLog.append(str(line + 2))
             #         buf[0] = self.SET_REGISTER_READ_REPORT
             #         buf[1] = eRegister.RG_CAMERA_LINK_ID.value
@@ -428,7 +577,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             #     arids = []
             #     for path in self.paths:@
             #         self.camera = path
-            #         buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            #         buf = [0] * 512
             #         buf[0] = self.SET_REGISTER_READ_REPORT
             #         buf[1] = eRegister.RG_CAMERA_LINK_ID.value
             #         arid = self.writetokernel(buf) #write buffer to kernel[2]
@@ -447,7 +596,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     # line = 0
                     self.camera = path
                     # self.KernelLog.append(str(line + 1))
-                    buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+                    buf = [0] * 512
                     # self.KernelLog.append(str(line + 2))
                     buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
                     # self.KernelLog.append(str(line + 3))
@@ -471,7 +620,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     QtWidgets.QApplication.processEvents()
                     # time.sleep(2)
                     # self.KernelLog.append(str(line + 8))
-                    # buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+                    # buf = [0] * 512
                     # buf[0] = self.SET_REGISTER_READ_REPORT
                     # buf[1] = eRegister.RG_SENSOR_ID.value
                     # res = self.writeToKernel(buf, True)[0][i]
@@ -509,7 +658,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 QtWidgets.QApplication.processEvents()
     # def on_Kernel3LetterSave_released(self):
     #     threeletter = self.Kernel3LetterID.text()
-    #     buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+    #     buf = [0] * 512
     #     buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
     #     buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
     #     buf[2] = 3
@@ -523,7 +672,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     # exc_type, exc_obj,exc_tb = sys.exc_info()
     #         print(e + ' ) + exc_tb.tb_lineno
     def UpdateLensID(self):
-        buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+        buf = [0] * 512
         buf[0] = self.SET_REGISTER_WRITE_REPORT
         buf[1] = eRegister.RG_LENS_ID.value
         buf[2] = DROPDOW_2_LENS.get((self.KernelFilterSelect.currentText(), self.KernelLensSelect.currentText()), 255)
@@ -538,7 +687,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     def on_KernelFilterSelect_currentIndexChanged(self, int = 0):
         try:
             # threeletter = self.KernelFilterSelect.currentText()
-            # buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            # buf = [0] * 512
             # buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
             # buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
             # buf[2] = 3
@@ -897,6 +1046,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.KernelViewer.setFocus()
             QtWidgets.QApplication.processEvents()
         print("resize")
+
     def KernelUpdate(self):
         try:
             self.KernelExposureMode.blockSignals(True)
@@ -910,21 +1060,21 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             # self.KernelGain.blockSignals(True)
             # self.KernelSetPoint.blockSignals(True)
 
-            # buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            # buf = [0] * 512
             # buf[0] = self.SET_REGISTER_READ_REPORT
             # buf[1] = eRegister.RG_LENS_ID.value
             # # buf[2] =
             #
-            # res = self.writetokernel(buf) #write buffer to kernel[2]
+            # res = self.writeToKernel(buf)[2]
             #
             # self.KernelLensSelect.setCurrentIndex(res)
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
             buf[1] = eRegister.RG_CAMERA_SETTING.value
             buf[2] = eRegister.RG_SIZE.value
 
-            res = self.writetokernel(buf) #write buffer to kernel[2:]
+            res = self.writeToKernel(buf)[2:]
             self.regs = res
 
 
@@ -953,7 +1103,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             # else:
             #     self.KernelISO.setCurrentIndex(3)
 
-            dac = self.getRegister(eRegister.RG_DAC.value  # DAC Register
+            dac = self.getRegister(eRegister.RG_DAC.value)
 
             hdmi = self.getRegister(eRegister.RG_HDMI.value)
 
@@ -997,23 +1147,23 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             # self.KernelPanel.append("ISO: " + str(self.getRegister(eRegister.RG_ISO.value)) + "00")
             # # self.KernelPanel.append("WB: " + str(self.getRegister(eRegister.RG_WHITE_BALANCE.value)))
             # self.KernelPanel.append("AE Setpoint: " + str(self.getRegister(eRegister.RG_AE_SETPOINT.value)))
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
             buf[1] = eRegister.RG_CAMERA_ID.value
             buf[2] = 6
-            st = self.writetokernel(buf) #write buffer to kernel
+            st = self.writeToKernel(buf)
             serno = str(chr(st[2]) + chr(st[3]) + chr(st[4]) + chr(st[5]) + chr(st[6]) + chr(st[7]))
             self.KernelPanel.append("Serial #: " + serno)
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_READ_REPORT
             buf[1] = eRegister.RG_CAMERA_ARRAY_TYPE.value
-            artype = self.writetokernel(buf) #write buffer to kernel[2]
+            artype = self.writeToKernel(buf)[2]
             self.KernelPanel.append("Array Type: " + str(artype))
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_READ_REPORT
             buf[1] = eRegister.RG_CAMERA_LINK_ID.value
-            arid = self.writetokernel(buf) #write buffer to kernel[2]
+            arid = self.writeToKernel(buf)[2]
             self.KernelPanel.append("Array ID: " + str(arid))
             if arid == 0:
                 self.MasterCameraLabel.setText("Master")
@@ -1160,7 +1310,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
     def getXML(self):
-        buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+        buf = [0] * 512
         buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
         buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
         buf[2] = 3
@@ -1168,7 +1318,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
         filt = chr(res[2]) + chr(res[3]) + chr(res[4])
 
-        buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+        buf = [0] * 512
         buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
         buf[1] = eRegister.RG_CAMERA_SETTING.value
         buf[2] = eRegister.RG_SIZE.value
@@ -1178,19 +1328,19 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         sens = str(self.getRegister(eRegister.RG_SENSOR_ID.value))
         lens = str(self.getRegister(eRegister.RG_LENS_ID.value))
 
-        buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+        buf = [0] * 512
         buf[0] = self.SET_REGISTER_READ_REPORT
         buf[1] = eRegister.RG_CAMERA_ARRAY_TYPE.value
-        artype = str(self.writetokernel(buf) #write buffer to kernel[2])
+        artype = str(self.writeToKernel(buf)[2])
 
-        buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+        buf = [0] * 512
         buf[0] = self.SET_REGISTER_READ_REPORT
         buf[1] = eRegister.RG_CAMERA_LINK_ID.value
-        arid = str(self.writetokernel(buf) #write buffer to kernel[2])
+        arid = str(self.writeToKernel(buf)[2])
 
         return (filt, sens, lens, arid, artype)
     def on_KernelMatrixButton_toggled(self):
-        buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+        buf = [0] * 512
         buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
         buf[1] = eRegister.RG_COLOR_GAMMA_START.value
         buf[2] = 192
@@ -1243,7 +1393,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
                         # time.sleep(2)
                         xmlret = self.getXML()
-                        buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+                        buf = [0] * 512
                         buf[0] = self.SET_COMMAND_REPORT
                         buf[1] = eCommand.CM_TRANSFER_MODE.value
                         self.writetokernel(buf) #write buffer to kernel
@@ -1343,7 +1493,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 #     self.captureImage()
                 #     time.sleep(5)
                 #     xmlret = self.getXML()
-                #     buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+                #     buf = [0] * 512
                 #     buf[0] = self.SET_COMMAND_REPORT
                 #     buf[1] = eCommand.CM_TRANSFER_MODE.value
                 #     self.writetokernel(buf) #write buffer to kernel
@@ -1482,14 +1632,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.KernelMESettingsButton.setEnabled(True)
             self.KernelAESettingsButton.setEnabled(False)
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_SHUTTER.value
             buf[2] = 9
 
             res = self.writetokernel(buf) #write buffer to kernel
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_ISO.value
             buf[2] = 1
@@ -1502,55 +1652,55 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.KernelMESettingsButton.setEnabled(False)
             self.KernelAESettingsButton.setEnabled(True)
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_SHUTTER.value
             buf[2] = 0
 
             res = self.writetokernel(buf) #write buffer to kernel
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_AE_SELECTION.value
             # buf[2] = self.AutoAlgorithm.currentIndex()
             res = self.writetokernel(buf) #write buffer to kernel
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_AE_MAX_SHUTTER.value
             # buf[2] = self.AutoMaxShutter.currentIndex()
 
             res = self.writetokernel(buf) #write buffer to kernel
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_AE_MIN_SHUTTER.value
             # buf[2] = self.AutoMinShutter.currentIndex()
 
             res = self.writetokernel(buf) #write buffer to kernel
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_AE_MAX_GAIN.value
             # buf[2] = self.AutoMaxISO.currentIndex()
 
             res = self.writetokernel(buf) #write buffer to kernel
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_AE_F_STOP.value
             # buf[2] = self.AutoFStop.currentIndex()
 
             res = self.writetokernel(buf) #write buffer to kernel
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_AE_GAIN.value
             # buf[2] = self.AutoGain.currentIndex()
 
             res = self.writetokernel(buf) #write buffer to kernel
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_AE_SETPOINT.value
             # buf[2] = self.AutoSetpoint.currentIndex()
@@ -1581,7 +1731,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         #     self.captureImage()
     def captureImage(self):
         try:
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
 
             buf[0] = self.SET_COMMAND_REPORT
             if self.KernelCaptureMode.currentIndex() == 0:
@@ -1617,7 +1767,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
     # def on_KernelShutterSpeed_currentIndexChanged(self, int = 0):
-    #     buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+    #     buf = [0] * 512
     #     buf[0] = self.SET_REGISTER_WRITE_REPORT
     #     buf[1] = eRegister.RG_SHUTTER.value
     #     if self.KernelExposureMode.currentIndex() == 1:
@@ -1630,7 +1780,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     # exc_type, exc_obj,exc_tb = sys.exc_info()
     #         print(e + ' ) + exc_tb.tb_lineno
     # def on_KernelISO_currentIndexChanged(self, int = 0):
-    #     buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+    #     buf = [0] * 512
     #     buf[0] = self.SET_REGISTER_WRITE_REPORT
     #     buf[1] = eRegister.RG_ISO.value
     #     if self.KernelExposureMode.currentIndex() == 1:
@@ -1659,7 +1809,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.regs[code] = value
             return True
     def on_TestButton_released(self):
-        buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+        buf = [0] * 512
         buf[0] = self.SET_COMMAND_REPORT
         buf[1] = eRegister.RG_CAMERA_ARRAY_TYPE.value
         artype = self.writetokernel(buf) #write buffer to kernel[2]
@@ -1714,7 +1864,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         """def on_KernelBeep_toggled(self)
 
         is passed an object(self) and enables the beeper???"""
-        buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+        buf = [0] * 512
 
         buf[0] = self.SET_REGISTER_WRITE_REPORT
         buf[1] = eRegister.RG_BEEPER_ENABLE.value
@@ -1735,7 +1885,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         """def on_KernelPWMSignal_toggled(self)
 
         is passed an object(self) """
-        buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+        buf = [0] * 512
 
         buf[0] = self.SET_REGISTER_WRITE_REPORT
         buf[1] = eRegister.RG_PWM_TRIGGER.value
@@ -1752,7 +1902,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
     # def on_KernelResetButton_released(self):
-    #     buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+    #     buf = [0] * 512
     #     buf[0] = self.SET_COMMAND_REPORT
     #     buf[1] = eRegister.CM_RESET_CAMERA.value
     #
@@ -1780,7 +1930,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         """def on_KernelFolderCount_currentIndexChanged(self)
 
         is passed an object(self), """
-        buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+        buf = [0] * 512
         buf[0] = self.SET_REGISTER_WRITE_REPORT
         buf[1] = eRegister.RG_MEDIA_FILES_CNT.value
         buf[2] = self.KernelFolderCount.currentIndex()
@@ -1798,56 +1948,56 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
         is passed an object(self) and an int = 0 """
         if self.KernelVideoOut.currentIndex() == 0:  # No Output
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
 
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_DAC.value  # DAC Register
             buf[2] = 0
             self.writetokernel(buf) #write buffer to kernel
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
 
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_HDMI.value  # HDMI Register
             buf[2] = 0
             self.writetokernel(buf) #write buffer to kernel
         elif self.KernelVideoOut.currentIndex() == 1:  # HDMI
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
 
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_DAC.value  # DAC Register
             buf[2] = 0
             self.writetokernel(buf) #write buffer to kernel
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
 
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_HDMI.value  # HDMI Register
             buf[2] = 1
             self.writetokernel(buf) #write buffer to kernel
         elif self.KernelVideoOut.currentIndex() == 2:  # SD( DAC )
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
 
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_DAC.value  # DAC Register
             buf[2] = 1
             self.writetokernel(buf) #write buffer to kernel
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
 
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_HDMI.value  # HDMI Register
             buf[2] = 0
             self.writetokernel(buf) #write buffer to kernel
         else:  # Both outputs
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
 
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_DAC.value  # DAC Register
             buf[2] = 1
             self.writetokernel(buf) #write buffer to kernel
 
-            buf = [0] * USB_MAX_BUF_LEN #create buffer of max length
+            buf = [0] * 512
 
             buf[0] = self.SET_REGISTER_WRITE_REPORT
             buf[1] = eRegister.RG_HDMI.value  # HDMI Register
@@ -4257,9 +4407,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         # r = (((r - r.min()) / (r.max() - r.min())) * 65536.0).astype("uint16")
         # g = (((g - g.min()) / (g.max() - g.min())) * 65536.0).astype("uint16")
         return np.dstack([b, g, r])
-
-    def on_PreProcessCancelButton_released(self)
-        self.cancelButtonPressed = True
 
     def preProcessHelper(self, infolder, outfolder, customerdata=True):
 
