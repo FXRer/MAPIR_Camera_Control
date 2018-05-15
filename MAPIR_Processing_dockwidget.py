@@ -47,10 +47,7 @@ import copy
 import hid
 import time
 
-<<<<<<< HEAD
-=======
 from osgeo import gdal
->>>>>>> c8fe0d61af105d3495dd41fa153c54163200709a
 import glob
 
 from MAPIR_Enums import *
@@ -1033,8 +1030,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     #
     #      Add the auto transfer check.
 
-#following code is to dictate the actions taken when kernel buttons 1-6 are released
-def on_KernelBandButton1_released(self):
+    #following code is to dictate the actions taken when kernel buttons 1-6 are released
+    def on_KernelBandButton1_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             #get the existing directory string
             self.KernelBand1.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
