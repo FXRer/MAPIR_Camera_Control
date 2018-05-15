@@ -269,8 +269,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     closingPlugin = QtCore.pyqtSignal()
     firstpass = True
     useqr = False
-    qrcoeffs = []  # Red Intercept, Red Slope,  Green Intercept, Green Slope, Blue Intercept, Blue Slope
 
+    qrcoeffs = []  # Red Intercept, Red Slope,  Green Intercept, Green Slope, Blue Intercept, Blue Slope
     qrcoeffs2 = []
     qrcoeffs3 = []
     qrcoeffs4 = []
@@ -279,8 +279,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     coords = []
     # drivesfound = []
     ref = ""
-
-    imkeys = np.array(list(range(0, 65536)))
+    #generate an empty list of size 65535, using range()
+    imkeys = np.array(list(range(0, 65536)))  #65536 =  MAX_UINT16 + 1
     weeks = 0
     days = 0
     hours = 0
@@ -352,6 +352,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
     cancelButtonPressed = False
 
+    #dictionary containing the band names for the varying filters
     BandNames = {
         "RGB": [644, 0, 0],
         "405": [405, 0, 0],
@@ -377,6 +378,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         "OCN": [615, 490, 808],
 
     }
+    #list containing the names of the dictionary refValues
     refindex = ["oldrefvalues", "newrefvalues"]
     refvalues = {
         "oldrefvalues": {
