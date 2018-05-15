@@ -403,6 +403,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             [0.8740311726, 0.5172611881, 0.2402870156]]
 
         },
+        #look up table for new reference values off new target, the values are based offset
+        #of weighted averages
         "newrefvalues": {
             "660/850": [[0.87032549, 0.52135779, 0.23664799], [0, 0, 0],
                         [0.8653063177, 0.2798126291, 0.2337498097, 0.0193295348]],
@@ -428,6 +430,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             "Mono808": [0.8699458632, 0.2780141682, 0.2283300902, 0.0216592377],
             "Mono850": [0.8649280907, 0.2800907016, 0.2340131491, 0.0195446727],
             "Mono880": [0.8577996233, 0.2673899041, 0.2371926238, 0.0202034892],
+            "Mono945": [85.10570936, 0.2879122882, 0.24298, 0.0203548055],
             "550/660/850": [[0.8689592421, 0.2656248359, 0.1961875592, 0.0195576511],
                             [0.8775934407, 0.2661207692, 0.1987265874, 0.0192249327],
                             [0.8653063177, 0.2798126291, 0.2337498097, 0.0193295348]],
@@ -437,28 +440,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             "475/550/850": [[0.8348841674, 0.2580074987, 0.1890252099, 0.01975703],
                             [0.8689592421, 0.2656248359, 0.1961875592, 0.0195576511],
                             [0.8653063177, 0.2798126291, 0.2337498097, 0.0193295348]]
-            # "Mono450": [10.137101, 24.131129, 2.500000],
-            # "Mono550": [13.050459, 25.918403, 2.444385],
-            # "Mono650": [42.873777, 25.681838, 2.400000],
-            # "Mono725": [57.362319, 26.209292, 2.444148],
-            # "Mono808": [80.761967, 27.552786, 2.522048],
-            # "Mono850": [85.470884, 27.989664, 2.476279],
-            # "Mono405": [10.419592, 23.297778, 2.579408],
-            # "Mono518": [10.192879, 25.668374, 2.500000],
-            # "Mono632": [40.314177, 25.624361, 2.400000],
-            # "Mono615": [36.590561, 25.575475, 2.400000],
-            #
-            # "Mono590": [28.088219, 25.614054, 2.400000],
-            # "Mono780": [72.470173, 27.114517, 2.500000],
-            # "Mono880": [86.40861, 28.33615, 2.387391],
-            # # "550/660/850": [[0.12730952, .2591748, 0.02444606], [0.42100882, 0.2567382, 0.0240000],
-            # #                 [0.85491034, 0.27943831, 0.0247464]],
-            # "550/660/850": [[12.730952, 25.91748, 2.444606], [42.100882, 25.67382, 2.40000],
-            #                 [85.491034, 27.943831, 2.47464]],
-            # "475/550/850": [[9.893005, 24.868873, 2.5], [14.1338, 25.919591, 2.440347],
-            #                 [85.217001, 27.952459, 2.516666]]
+
 
         }}
+    #dict containing min and max vales for RBG
     pixel_min_max = {"redmax": 0.0, "redmin": 65535.0,
                      "greenmax": 0.0, "greenmin": 65535.0,
                      "bluemax": 0.0, "bluemin": 65535.0}
@@ -701,10 +686,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.KernelLog.append("Error: " + e)
     def on_KernelCameraSelect_currentIndexChanged(self, int = 0):
-        # if self.KernelCameraSelect.currentIndex() == 0:
-        #     self.array_indicator = True
-        # else:
-        #     self.array_indicator = False
         self.camera = self.paths[self.KernelCameraSelect.currentIndex()]
 
         self.KernelFilterSelect.blockSignals(True)
@@ -724,6 +705,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     #         self.array_indicator = True
     #         self.KernelCameraSelect.setEnabled(False)
     def on_VignetteButton_released(self):
+        #action taken on vignette button being released
         if self.VigWindow == None:
             self.VigWindow = Vignette(self)
             #VigWindow is now an object of type Vignette
@@ -970,6 +952,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         self.LUTwindow.show()
 
         QtWidgets.QApplication.processEvents()
+
     def on_ViewerCalcButton_released(self):
         if self.LUTwindow == None:
             self.calcwindow = Calculator(self) #pass the calculator a new version of itself (a Q object) to the display
@@ -1077,9 +1060,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             res = self.writeToKernel(buf)[2:]
             self.regs = res
 
-
-
-
             shutter = self.getRegister(eRegister.RG_SHUTTER.value)
             if shutter == 0:
                 self.KernelExposureMode.setCurrentIndex(0)
@@ -1104,7 +1084,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             #     self.KernelISO.setCurrentIndex(3)
 
             dac = self.getRegister(eRegister.RG_DAC.value)
-                                   
+
             hdmi = self.getRegister(eRegister.RG_HDMI.value)
 
             if hdmi == 1 and dac == 1:
@@ -1116,12 +1096,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             else:
                 self.KernelVideoOut.setCurrentIndex(0)
 
-
+            #enable media
             media = self.getRegister(eRegister.RG_MEDIA_FILES_CNT.value)
             self.KernelFolderCount.setCurrentIndex(media)
-
-
-
+            #enable beeping
             beep = self.getRegister(eRegister.RG_BEEPER_ENABLE.value)
             if beep != 0:
                 self.KernelBeep.setChecked(True)
@@ -1185,6 +1163,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         # self.KernelGain.blockSignals(False)
         # self.KernelSetPoint.blockSignals(False)
     def on_KernelFolderButton_released(self):
+        #when the kernel folder button is released get the existing directory
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             self.KernelTransferFolder.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
@@ -1198,32 +1177,36 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     #
     #      Add the auto transfer check.
 
-
-
-    def on_KernelBandButton1_released(self):
+#following code is to dictate the actions taken when kernel buttons 1-6 are released
+def on_KernelBandButton1_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
+            #get the existing directory string
             self.KernelBand1.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
-            instring.write(self.KernelBand1.text())
+            instring.write(self.KernelBand1.text()) #write out the text
+
     def on_KernelBandButton2_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             self.KernelBand2.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.KernelBand2.text())
+
     def on_KernelBandButton3_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             self.KernelBand3.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.KernelBand3.text())
+
     def on_KernelBandButton4_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             self.KernelBand4.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.KernelBand4.text())
+
     def on_KernelBandButton5_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             self.KernelBand5.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
@@ -1245,13 +1228,18 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             instring.write(self.KernelRenameOutputFolder.text())
     def on_KernelRenameButton_released(self):
         try:
+            #create six folders that are all empty intially
             folder1 = []
             folder2 = []
             folder3 = []
             folder4 = []
             folder5 = []
             folder6 = []
+
+            #add data into folders with appropriate format
             if len(self.KernelBand1.text()) > 0:
+                #note that there is a "?" character because it is a wild card
+                #case (i.e. incase there is an extra "f" at the end of tif)
                 folder1.extend(glob.glob(self.KernelBand1.text() + os.sep + "*.tif?"))
                 folder1.extend(glob.glob(self.KernelBand1.text() + os.sep + "*.jpg"))
                 folder1.extend(glob.glob(self.KernelBand1.text() + os.sep + "*.jpeg"))
@@ -1284,6 +1272,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             outfolder = self.KernelRenameOutputFolder.text()
             if not os.path.exists(outfolder):
                 os.mkdir(outfolder)
+            #all folders is a list containing each of the folders
             all_folders = [folder1, folder2, folder3, folder4, folder5, folder6]
             underscore = 1
             for folder in all_folders:
@@ -1293,12 +1282,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 if len(folder) > 0:
                     if self.KernelRenameMode.currentIndex() == 0:
                         for tiff in folder:
-
-
                             shutil.copyfile(tiff, outfolder + os.sep + "IMG_" + str(counter).zfill(5) + '_' + str(
                                 underscore) + '.' + tiff.split('.')[1])
-                            counter = counter + 1
-                        underscore = underscore + 1
+                            counter = counter + 1 #iterate counter
+                        underscore = underscore + 1 #iterate underscore
                     elif self.KernelRenameMode.currentIndex() == 2:
                         for tiff in folder:
                             shutil.copyfile(tiff, outfolder + os.sep + str(self.KernelRenamePrefix.text()) + tiff.split(os.sep)[-1])
@@ -1307,8 +1294,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.KernelLog.append("Finished Renaming All Files.")
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
-            print(e)
+            print(e) #print exception
             print("Line: " + str(exc_tb.tb_lineno))
+
     def getXML(self):
         buf = [0] * 512
         buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
@@ -1339,6 +1327,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         arid = str(self.writeToKernel(buf)[2])
 
         return (filt, sens, lens, arid, artype)
+
     def on_KernelMatrixButton_toggled(self):
         buf = [0] * 512
         buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
@@ -1362,6 +1351,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.KernelLog.append("Error: " + str(e) + ' Line: ' + str(exc_tb.tb_lineno))
+    #find all availiable drivers
     def getAvailableDrives(self):
         if 'Windows' not in platform.system():
             return []
