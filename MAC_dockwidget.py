@@ -43,11 +43,8 @@ import numpy as np
 import subprocess
 import cv2
 import copy
-<<<<<<< HEAD
 import hid
-=======
 import pyhidapi
->>>>>>> 18dbfbf92ae1386460deceff0f1fcc332e5f6f53
 import time
 
 from MAPIR_Enums import *
@@ -941,11 +938,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         self.ConnectKernels()
     def ConnectKernels(self):
         self.KernelLog.append(' ')
-<<<<<<< HEAD
         all_cameras = hid.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
-=======
+
         all_cameras = pyhidapi.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
->>>>>>> 18dbfbf92ae1386460deceff0f1fcc332e5f6f53
 
         if all_cameras == []:
 
@@ -1825,7 +1820,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 drv = list(numds1 - numds)[0]
                                 if len(drv) == 1:
                                     self.driveletters.append(drv)
-                                    
+
                                     self.KernelLog.append("Camera " + str(self.pathnames[self.paths.index(cam)]) + " successfully connected to drive " + drv + ":" + os.sep)
                                     files = glob.glob(drv + r":" + os.sep + r"dcim/*/*.[tm]*", recursive=True)
                                     folders = glob.glob(drv + r":" + os.sep + r"dcim/*/")
@@ -5070,7 +5065,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         img = cv2.imread(inphoto, 0)
 
                         #TODO Take the Matrix from Opencv and try to dot product
-                        
+
                         color = cv2.cvtColor(img, cv2.COLOR_BAYER_GR2RGB)
                         # color = self.debayer(img)
 
@@ -5511,4 +5506,3 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()
-
