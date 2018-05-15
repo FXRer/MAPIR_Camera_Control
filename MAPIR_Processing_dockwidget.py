@@ -47,7 +47,7 @@ import copy
 import hid
 import time
 
-import gdal
+from osgeo import gdal
 import glob
 
 from MAPIR_Enums import *
@@ -1103,12 +1103,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             # else:
             #     self.KernelISO.setCurrentIndex(3)
 
-<<<<<<< HEAD
-            dac = self.getRegister(eRegister.RG_DAC.value  # DAC Register
-=======
             dac = self.getRegister(eRegister.RG_DAC.value)
-
->>>>>>> e0ca4f9ceab80b22b11ad9adbc74063fa4d0b965
+                                   
             hdmi = self.getRegister(eRegister.RG_HDMI.value)
 
             if hdmi == 1 and dac == 1:
