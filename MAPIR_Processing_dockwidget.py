@@ -338,11 +338,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     #   self.KernelUpdate()
 # except Exception as e:
 #             exc_type, exc_obj,exc_tb = sys.exc_info()
-# print(e
+# print(e)
     def exitTransfer(self, drv='C'):
-        tmtf = r":/dcim/tmtf.txt"
+        tmtf = r":/dcim/tmtf.txt" #location of tmtf file
 
-        if drv == 'C':
+        if drv == 'C': #What is drv??
             while drv is not '[':
                 if os.path.isdir(drv + r":/dcim/"):
                     try:
@@ -363,6 +363,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         file.close()
                 except:
                     self.KernelLog.append("Error disconnecting drive " + drv)
+
+    #Kernel refresh and kernel connect both call connect kernels
     def on_KernelRefreshButton_released(self):
         # self.exitTransfer()
         self.ConnectKernels()
@@ -370,9 +372,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         # self.exitTransfer()
         self.ConnectKernels()
     def ConnectKernels(self):
-        self.KernelLog.append(' ')
+        self.KernelLog.append(' ') #add ' ' to the kernel log
         all_cameras = hid.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
-
+        #find the cameras
         if all_cameras == []:
 
             self.KernelLog.append("No cameras found! Please check your USB connection and try again.")
@@ -515,7 +517,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         buf[1] = eRegister.RG_LENS_ID.value
         buf[2] = DROPDOW_2_LENS.get((self.KernelFilterSelect.currentText(), self.KernelLensSelect.currentText()), 255)
 
-        self.writetokernel(buf) #write buffer to kernel
+        self.writetokernel(buf) #write buffer to kernel camera
     def on_KernelLensSelect_currentIndexChanged(self, int = 0):
         try:
             self.UpdateLensID()
@@ -540,7 +542,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.KernelLog.append("Error: " + e)
     def on_KernelCameraSelect_currentIndexChanged(self, int = 0):
         self.camera = self.paths[self.KernelCameraSelect.currentIndex()]
-
         self.KernelFilterSelect.blockSignals(True)
         self.KernelFilterSelect.setCurrentIndex(self.KernelFilterSelect.findText(self.KernelCameraSelect.currentText()))
         self.KernelFilterSelect.blockSignals(False)
@@ -714,11 +715,15 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         QtWidgets.QApplication.processEvents()
 
     def on_LUTBox_toggled(self):
+        #if the LUT box is toggled then apply LUT
         self.applyLUT()
+
     def applyLUT(self):
+        """applyLUT is the function declaration that contains the infromation to
+        apply a LUT """
         try:
-            h, w = self.display_image.shape[:2]
-            if self.LUTBox.isChecked():
+            h, w = self.display_image.shape[:2] #get hieght and width
+            if self.LUTBox.isChecked(): #check if the LUTBox is checked
                 if self.LUTwindow.ClipOption.currentIndex() == 1:
                     self.frame = QtGui.QImage(self.ndvipsuedo.data, w, h, w * 4, QtGui.QImage.Format_RGBA8888)
                 else:
@@ -726,11 +731,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
                 legend = cv2.imread(os.path.dirname(__file__) + r'\lut_legend_rgb.jpg', -1).astype("uint8")
                 legend = cv2.cvtColor(legend, cv2.COLOR_BGR2RGB)
-                legh, legw = legend.shape[:2]
+                legh, legw = legend.shape[:2] #find length and width of the legend
                 self.legend_frame = QtGui.QImage(legend.data, legw, legh, legw * 3, QtGui.QImage.Format_RGB888)
                 self.LUTGraphic.setPixmap(QtGui.QPixmap.fromImage(
                     QtGui.QImage(self.legend_frame)))
-                self.LegendLayout_2.show()
+                self.LegendLayout_2.show() #show the legend layout
                 # if self.LUTwindow.ClipOption.currentIndex() == 2:
                 #     temp = copy.deepcopy(self.calcwindow.ndvi)
                 #     if self.ViewerIndexBox.isChecked():
