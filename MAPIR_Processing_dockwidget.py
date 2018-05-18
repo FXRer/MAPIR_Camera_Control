@@ -1098,9 +1098,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
             if self.KernelTransferButton.isChecked():
                 self.driveletters.clear()
-
-
-                # if self.KernelCameraSelect.currentIndex() == 0:
                 try:
 
                     for place, cam in enumerate(self.paths):
@@ -1156,9 +1153,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 else:
                                     numds = win32api.GetLogicalDriveStrings().split(':\\\x00')[:-1]
                                 QtWidgets.QApplication.processEvents()
-
-
-
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     self.KernelLog.append(str(e))
@@ -2416,21 +2410,21 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
     def on_CalibrateButton_released(self):
         try:
-            self.CalibrateButton.setEnabled(False)
+            self.CalibrateButton.setEnabled(False) #button can not be pressed while calibrating
             if self.CalibrationCameraModel.currentIndex() == -1\
                     and self.CalibrationCameraModel_2.currentIndex() == -1 \
                     and self.CalibrationCameraModel_3.currentIndex() == -1 \
                     and self.CalibrationCameraModel_4.currentIndex() == -1 \
                     and self.CalibrationCameraModel_5.currentIndex() == -1 \
                     and self.CalibrationCameraModel_6.currentIndex() == -1:
-                self.CalibrationLog.append("Attention! Please select a camera model.\n")
+                self.CalibrationLog.append("Attention! Please select a camera model.\n") #warning
             elif len(self.CalibrationInFolder.text()) <= 0 \
                     and len(self.CalibrationInFolder_2.text()) <= 0 \
                     and len(self.CalibrationInFolder_3.text()) <= 0 \
                     and len(self.CalibrationInFolder_4.text()) <= 0 \
                     and len(self.CalibrationInFolder_5.text()) <= 0 \
                     and len(self.CalibrationInFolder_6.text()) <= 0:
-                self.CalibrationLog.append("Attention! Please select a calibration folder.\n")
+                self.CalibrationLog.append("Attention! Please select a calibration folder.\n") #warning
             else:
                 self.firstpass = True
                 # self.CalibrationLog.append("CSV Input: \n" + str(self.refvalues))
@@ -2455,7 +2449,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 # self.CalibrationLog.append("Files to calibrate[0]: " + files_to_calibrate[0])
 
 
-
+                #consume the indexes that the calibrate buttons are set to
                 indexes = [[self.CalibrationCameraModel.currentIndex(), self.CalibrationFilter.currentIndex(), self.CalibrationLens.currentIndex()],
                            [self.CalibrationCameraModel_2.currentIndex(), self.CalibrationFilter_2.currentIndex(),
                             self.CalibrationLens_2.currentIndex()],
@@ -2468,13 +2462,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                            [self.CalibrationCameraModel_6.currentIndex(), self.CalibrationFilter_6.currentIndex(),
                             self.CalibrationLens_6.currentIndex()],
                            ]
-                # self.multiplication_values[self.qrcoeffs,
-                #               self.qrcoeffs2,
-                #               self.qrcoeffs3,
-                #               self.qrcoeffs4,
-                #               self.qrcoeffs5,
-                #               self.qrcoeffs6]
-
+                #folder index, listing all the folders consumed from UI
                 folderind = [calfolder,
                              calfolder2,
                              calfolder3,
@@ -2484,11 +2472,13 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
                 for j, ind in enumerate(indexes):
                     # self.CalibrationLog.append("Checking folder " + str(j + 1))
-                    if ind[0] == -1:
-                        pass
-                    elif ((ind[0] > 2) and not(ind[0] == 3 and ind[1] == 3)):
+                    DID_NOT_SELECT_A_CAMERA_MODEL = -1
 
-                        if os.path.exists(folderind[j]):
+                    if ind[0] == -DID_NOT_SELECT_A_CAMERA_MODEL: #if they didn't select a camera model during the dropdown skip to next index
+                        pass
+                    elif ((ind[0] > 2) and not(ind[0] == 3 and ind[1] == 3)):#if this is not a survey3 NIR
+
+                        if os.path.exists(folderind[j]): #if the files to calibrate has images within it
                             # print("Cal1")
                             files_to_calibrate = []
                             os.chdir(folderind[j])
@@ -2508,23 +2498,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                     else:
                                         os.mkdir(outdir)
                                         endloop = True
-                                # for calpixel in files_to_calibrate:
-                                #     # print("MM1")
-                                #     os.chdir(folderind[j])
-                                #     temp1 = cv2.imread(calpixel, -1)
-                                #     # self.imkeys = np.array(list(range(0, 65536)))
-                                #     self.monominmax["min"] = min(temp1.min(), self.monominmax["min"])
-                                #     self.monominmax["max"] = max(int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp1))],
-                                #                                               temp1)[0], self.monominmax["max"])
 
 
 
 
+                        for calpixel in files_to_calibrate: #for every file in files to calibrate
 
-                        for calpixel in files_to_calibrate:
-
-                            img = cv2.imread(calpixel, -1)
-
+                            img = cv2.imread(calpixel, -1) #read in the iamge
+                            #split the channels
                             blue = img[:, :, 0]
                             green = img[:, :, 1]
                             red = img[:, :, 2]
@@ -2533,57 +2514,36 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
                             # these are a little confusing, but the check to find the highest and lowest pixel value
                             # in each channel in each image and keep the highest/lowest value found.
+
+                            ''' this giant section of the code equalizes the histogram '''
                             if self.seed_pass == False:
 
 
                                 self.pixel_min_max["redmax"] = int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(red))], red)[0])
 
-                                # pixel_min_max["redmax"] = np.intersect1d(imkeys[imkeys > int(np.median(red))], imkeys[imvals == 0])[0]
 
                                 self.pixel_min_max["redmin"] = red.min()
-                                # imgcount = dict((i, list(green.flatten()).count(i)) for i in range(0, 65536))
-                                # self.imkeys = np.array(list(imgcount.keys()))
-                                # imvals = np.array(list(imgcount.values()))
+
 
                                 self.pixel_min_max["greenmax"] = \
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(green))], green)[0])
                                 self.pixel_min_max["greenmin"] = green.min()
-                                # imgcount = dict((i, list(blue.flatten()).count(i)) for i in range(0, 65536))
-                                # self.imkeys = np.array(list(imgcount.keys()))
-                                # imvals = np.array(list(imgcount.values()))
+
 
                                 self.pixel_min_max["bluemax"] = \
                                     int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(blue))], blue)[0])
                                 self.pixel_min_max["bluemin"] = blue.min()
 
-                                # pixel_min_max["redmax"] = red.max()
-                                # pixel_min_max["redmin"] = red.min()
-                                # pixel_min_max["greenmax"] = green.max()
-                                # pixel_min_max["greenmin"] = green.min()
-                                # pixel_min_max["bluemax"] = blue.max()
-                                # pixel_min_max["bluemin"] = blue.min()
                                 self.seed_pass = True
                             else:
-                                # pixel_min_max["redmax"] = max(red.max(), pixel_min_max["redmax"])
-                                # pixel_min_max["redmin"] = min(red.min(), pixel_min_max["redmin"])
-                                # pixel_min_max["greenmax"] = max(green.max(), pixel_min_max["greenmax"])
-                                # pixel_min_max["greenmin"] = min(green.min(), pixel_min_max["greenmin"])
-                                # pixel_min_max["bluemax"] = max(blue.max(), pixel_min_max["bluemax"])
-                                # pixel_min_max["bluemin"] = min(blue.min(), pixel_min_max["bluemin"])
-                                # imgcount = dict((i, list(red.flatten()).count(i)) for i in range(0, 65536))
-                                # self.imkeys = np.array(list(imgcount.keys()))
-                                # imvals = np.array(list(imgcount.values()))
+
                                 self.pixel_min_max["redmax"] = max(int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(red))], red)[0]), self.pixel_min_max["redmax"])
                                 self.pixel_min_max["redmin"] = min(red.min(), self.pixel_min_max["redmin"])
-                                # imgcount = dict((i, list(green.flatten()).count(i)) for i in range(0, 65536))
-                                # self.imkeys = np.array(list(imgcount.keys()))
-                                # imvals = np.array(list(imgcount.values()))
+
                                 self.pixel_min_max["greenmax"] = max(
                                     int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(green))], green)[0]), self.pixel_min_max["greenmax"])
                                 self.pixel_min_max["greenmin"] = min(green.min(), self.pixel_min_max["greenmin"])
-                                # imgcount = dict((i, list(blue.flatten()).count(i)) for i in range(0, 65536))
-                                # self.imkeys = np.array(list(imgcount.keys()))
-                                # imvals = np.array(list(imgcount.values()))
+
                                 self.pixel_min_max["bluemax"] = max(
                                     int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(blue))], blue)[0]), self.pixel_min_max["bluemax"])
                                 self.pixel_min_max["bluemin"] = min(blue.min(), self.pixel_min_max["bluemin"])
@@ -3210,34 +3170,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         refimg = cv2.imread(photo, -1)
 
         if True:
-        #     clist = np.array([self.qrcoeffs,
-        #              self.qrcoeffs2,
-        #              self.qrcoeffs3,
-        #              self.qrcoeffs4,
-        #              self.qrcoeffs5,
-        #              self.qrcoeffs6])
-        #     refimg *= clist
-        #
-        #     refimg -= self.monominmax["min"]
-        #     refimg /= (self.monominmax["max"] + self.monominmax["min"])
-        #     refimg *= MAPIR_Defaults.UINT16MAX_INT
-        #
-        #     refimg = refimg.astype("uint16")
-        # else:
-            # kernel = np.ones((2, 2), np.uint16)
-            # refimg = cv2.erode(refimg, kernel, iterations=1)
-            # refimg = cv2.dilate(refimg, kernel, iterations=1)
-            # imsize = np.shape(refimg)
-            # if imsize[0] > self.imcols or imsize[1] > self.imrows:
-            #     if "tif" or "TIF" in photo:
-            #             tempimg = np.memmap(photo, dtype=np.uint16, shape=(imsize))
-            #             refimg = None
-            #             refimg = tempimg
-            #     else:
-            #             tempimg = np.memmap(photo, dtype=np.uint8, shape=(imsize))
-            #             refimg = None
-            #             refimg = tempimg
-
             ### split channels (using cv2.split caused too much overhead and made the host program crash)
             alpha = []
             blue = refimg[:, :, 0]
@@ -3526,8 +3458,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print("Line: " + str(exc_tb.tb_lineno))
             return False
 
-####Function for finding he QR target and calculating the calibration coeficients\
+    ####Function for finding he QR target and calculating the calibration coeficients\
     def findQR(self, image, ind):
+        """ finds the MAPIR control ground target and generates normalized calibration value  """
         try:
             self.ref = ""
 
@@ -3683,6 +3616,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             newlen = np.sqrt(vx * vx + vy * vy)
 
             if list is not None and len(list) > 0:
+                #upper left = 0
+                #clockwise from upper left, thus lower left is 3
+                #doing vector math, moving along the corners
                 targ1x = (rad * (vx / newlen)) + self.coords[0][0]
                 targ1y = (rad * (vy / newlen)) + self.coords[0][1]
                 targ2x = (rad * (vx / newlen)) + self.coords[1][0]
@@ -3727,19 +3663,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     print(e)
                     print("Line: " + str(exc_tb.tb_lineno))
 
-                #                 (self.refvalues[self.ref]["RGN"][2][0] - self.refvalues[self.ref]["Red"][0] ) / \
-                #                (self.refvalues[self.ref]["RGN"][2][0] + self.refvalues[self.ref]["Red"][0] )
-                #
-                # ideal_ndvi_2 = (self.refvalues[self.ref]["RGN"][2][1] - self.refvalues[self.ref]["Red"][1] ) / \
-                #                (self.refvalues[self.ref]["RGN"][2][1] + self.refvalues[self.ref]["Red"][1] )
-                #
-                #
-                # ideal_ndvi_3 = (self.refvalues[self.ref]["RGN"][2][2] - self.refvalues[self.ref]["Red"][2]) / \
-                #                (self.refvalues[self.ref]["RGN"][2][2] + self.refvalues[self.ref]["Red"][2])
-                #
-                # ideal_ndvi_4 = (self.refvalues[self.ref]["RGN"][2][3] - self.refvalues[self.ref]["Red"][3]) / \
-                #                (self.refvalues[self.ref]["RGN"][2][3] + self.refvalues[self.ref]["Red"][3])
-
+                #finding the first 3 targets
                 t1redmean = np.mean(targ1values[:, :, 2])
                 t1greenmean = np.mean(targ1values[:, :, 1])
                 t1bluemean = np.mean(targ1values[:, :, 0])
@@ -3755,7 +3679,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 yred = []
                 yblue = []
                 ygreen = []
-                if list is not None and len(list) > 0:
+                if list is not None and len(list) > 0: #find forth target if list is greater than zero
                     targ4values = im2[(target4[1] - int((pixelinch * 0.75) / 2)):(target4[1] + int((pixelinch * 0.75) / 2)),
                                   (target4[0] - int((pixelinch * 0.75) / 2)):(target4[0] + int((pixelinch * 0.75) / 2))]
                     t4redmean = np.mean(targ4values[:, :, 2])
@@ -3763,27 +3687,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     t4bluemean = np.mean(targ4values[:, :, 0])
                     yred = [0.87, 0.51, 0.23, 0.0]
                     yblue = [0.87, 0.51, 0.23, 0.0]
-                    ygreen = [0.87, 0.51, 0.23, 0.0]
-                    # im2[(target1[1] - int((pixelinch * 0.75) / 2)):(target1[1] + int((pixelinch * 0.75) / 2)),
-                    # (target1[0] - int((pixelinch * 0.75) / 2)):(target1[0] + int((pixelinch * 0.75) / 2))] = [0, 255,0]
-                    # im2[(target2[1] - int((pixelinch * 0.75) / 2)):(target2[1] + int((pixelinch * 0.75) / 2)),
-                    # (target2[0] - int((pixelinch * 0.75) / 2)):(target2[0] + int((pixelinch * 0.75) / 2))] = [255, 0,0]
-                    # im2[(target3[1] - int((pixelinch * 0.75) / 2)):(target3[1] + int((pixelinch * 0.75) / 2)),
-                    # (target3[0] - int((pixelinch * 0.75) / 2)):(target3[0] + int((pixelinch * 0.75) / 2))] = [0, 0, 255]
-                    # im2[(target4[1] - int((pixelinch * 0.75) / 2)):(target4[1] + int((pixelinch * 0.75) / 2)),
-                    # (target4[0] - int((pixelinch * 0.75) / 2)):(target4[0] + int((pixelinch * 0.75) / 2))] = [0, 255, 255]
-                    #
-                    # cv2.imwrite(r"C:\Users\peau\Desktop\NateTest.jpg", im2)
 
                     xred = [t1redmean, t2redmean, t3redmean, t4redmean]
                     xgreen = [t1greenmean, t2greenmean, t3greenmean, t4greenmean]
                     xblue = [t1bluemean, t2bluemean, t3bluemean, t4bluemean]
 
-
-                    #
-                    # xred = [t3redmean, t4redmean]
-                    # xgreen = [t3greenmean, t4greenmean]
-                    # xblue = [t3bluemean, t4bluemean]
 
                 else:
                     yred = [0.87, 0.51, 0.23]
@@ -3945,19 +3853,13 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     y = [0.87, 0.51, 0.23]
                     if ind[1] == 0:
                         y = self.refvalues[self.ref]["Mono405"]
-
                     elif ind[1] == 1:
                         y = self.refvalues[self.ref]["Mono450"]
 
-
                     elif ind[1] == 2:
                         y = self.refvalues[self.ref]["Mono518"]
-
-
                     elif ind[1] == 3:
                         y = self.refvalues[self.ref]["Mono550"]
-
-
                     elif ind[1] == 4:
                         y = self.refvalues[self.ref]["Mono590"]
                     elif ind[1] == 5:
@@ -3972,7 +3874,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         y = self.refvalues[self.ref]["Mono780"]
                     elif ind[1] == 10:
                         y = self.refvalues[self.ref]["Mono808"]
-
                     elif ind[1] == 11:
                         y = self.refvalues[self.ref]["Mono850"]
                     elif ind[1] == 12:
@@ -4459,7 +4360,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             #     et.execute(r' -overwrite_original -tagsFromFile ' + os.path.abspath(inphoto) + ' ' + os.path.abspath(outphoto))
 
             try:
-                # self.PreProcessLog.append(str(modpath + os.sep + r'exiftool.exe') + ' ' + inphoto + ' ' + outphoto)
                 subprocess._cleanup()
                 data = subprocess.run(
                     args=[modpath + os.sep + r'exiftool.exe', '-m', r'-ifd0:imagewidth', r'-ifd0:imageheight', os.path.abspath(inphoto)],
@@ -4492,11 +4392,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 print("Line: " + str(exc_tb.tb_lineno))
                 print("Warning: No userdefined tags detected")
 
-                # subprocess.call(
-                #     [modpath + os.sep + r'exiftool.exe', '-m', r'-overwrite_original', r'-tagsFromFile',
-                #      os.path.abspath(inphoto),
-                #      # r'-all:all<all:all',
-                #      os.path.abspath(outphoto)], startupinfo=si)
+
             finally:
                 if ypr is not None:
                     try:
@@ -4728,6 +4624,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         cmralign.append(r'-c')
         cmralign.append(self.AnalyzeInput.text() + os.sep + "mapir_kernel.camerarig")
         subprocess.call(cmralign)
+
+    """
+    DarkCurrents subtract the pxiel noise that exist in a black frame images, still investigating
+    if this is necessary, probably not
+    """
     # def on_DarkCurrentInputButton_released(self):
     #     with open(modpath + os.sep + "instring.txt", "r+") as instring:
     #         self.DarkCurrentInput.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
