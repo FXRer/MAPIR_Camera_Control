@@ -1663,7 +1663,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
     #########Pre-Process Steps: Start#################
     def on_PreProcessFilter_currentIndexChanged(self):
-        if self.PreProcessCameraModel.currentIndex() == 2 and self.PreProcessFilter.currentIndex() == 2:
+        if (self.PreProcessCameraModel.currentIndex() == 2 and self.PreProcessFilter.currentIndex() == 2) or (self.PreProcessCameraModel.currentIndex() == 3 and self.PreProcessFilter.currentIndex() == 0):
             self.PreProcessColorBox.setEnabled(True)
         elif self.PreProcessCameraModel.currentIndex() == 1:
             if self.PreProcessFilter.currentIndex() in [2, 4, 6, 9, 10, 12]:
@@ -4015,7 +4015,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         if oldfirmware == True:
                             with open(input, "rb") as rawimage:
 
+<<<<<<< HEAD
                                     img = np.fromfile(rawimage, np.dtype('u2'), (4000 * 3000)).reshape((3000, 4000))
+=======
+                        color = cv2.cvtColor(img, cv2.COLOR_BAYER_RG2RGB).astype("float32")
+>>>>>>> master
                                     # rawimage.seek(0)
                                     #
                                     # data = struct.unpack("=18000000B", rawimage.read())
@@ -4036,9 +4040,45 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                     # h = int(np.sqrt(k.shape[0] / (4 / 3)))
                                     # w = int(h * (4 / 3))
                                     # img = np.reshape(k, (3000, 4000)).astype("uint16")
+                        if self.PreProcessFilter.currentIndex() == 0 and self.PreProcessCameraModel.currentIndex() == 3:
+
+<<<<<<< HEAD
+
+=======
+
+                            # redmax = np.setdiff1d(self.imkeys[self.imkeys > int(np.median(color[:,:,0]))], color[:,:,0])[0]
+                            # redmin = color[:,:,0].min()
+                            redmax = np.percentile(color[:,:,0], 98)
 
 
+                            redmin = np.percentile(color[:, :, 0], 2)
 
+                            # greenmax = \
+                            #     np.setdiff1d(self.imkeys[self.imkeys > int(np.median(color[:,:,2]))], color[:,:,2])[0]
+                            # greenmin = color[:,:,2].min()
+                            greenmax = np.percentile(color[:, :, 1], 98)
+
+                            greenmin = np.percentile(color[:, :, 1], 2)
+
+                            # bluemax = \
+                            #     np.setdiff1d(self.imkeys[self.imkeys > int(np.median(color[:,:,1]))], color[:,:,1])[0]
+                            # bluemin = color[:,:,1].min()
+                            bluemax = np.percentile(color[:, :, 2], 98)
+>>>>>>> master
+
+                            bluemin = np.percentile(color[:, :, 2], 2)
+
+                            # maxpixel = redmax if redmax > bluemax else bluemax
+                            # maxpixel = greenmax if greenmax > maxpixel else maxpixel
+                            # minpixel = redmin if redmin < bluemin else bluemin
+                            # minpixel = greenmin if greenmin < minpixel else minpixel
+
+                            # color = cv2.merge((color[:,:,0],color[:,:,2],color[:,:,1])).astype(np.dtype('u2'))
+                            color[:,:,0] = (((color[:,:,0] - redmin) / (redmax - redmin)))
+                            color[:,:,2] = (((color[:,:,2] - bluemin) / (bluemax - bluemin)))
+                            color[:,:,1] = (((color[:,:,1] - greenmin) / (greenmax - greenmin)))
+                            color[color > 1.0] = 1.0
+                            color[color < 0.0] = 0.0
 
                         if self.PreProcessCameraModel.currentIndex() == 3 and self.PreProcessFilter.currentIndex() == 3:
                             color = color[:,:,0]
