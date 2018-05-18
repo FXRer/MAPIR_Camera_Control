@@ -237,7 +237,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             "446/800": [[0.8419608509, 0.520440145, 0.230113958], [0, 0, 0],
                         [0.8645652801, 0.5037779363, 0.2359041624]],
             "850": [[0.8463514, 0.51950608, 0.22795518], [0, 0, 0], [0, 0, 0]],
-            # "808": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
             "650": [[0.87032549, 0.52135779, 0.23664799], [0, 0, 0], [0, 0, 0]],
             "550": [[0, 0, 0], [0.87415089, 0.51734381, 0.24032515], [0, 0, 0]],
             "450": [[0, 0, 0], [0, 0, 0], [0.86469794, 0.50392915, 0.23565447]],
@@ -250,7 +249,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             "Mono405": [0.8556905469, 0.4921243183, 0.2309899254],
             "Mono518": [0.8729814889, 0.5151370187, 0.2404729692],
             "Mono632": [0.8724034645, 0.5209649915, 0.2374529161],
-            # "Mono660": [0.8704202831, 0.5212214688, 0.2365919358],
             "Mono590": [0.8747043911, 0.5195596573, 0.2392049856],
             "550/660/850": [[0.8474610999, 0.5196055607, 0.2279922965], [0.8699940018, 0.5212235151, 0.2364397706],
                             [0.8740311726, 0.5172611881, 0.2402870156]]
@@ -264,7 +262,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             "446/800": [[0.7882333002, 0.2501235178, 0.1848459584, 0.020036883], [0, 0, 0],
                         [0.8645652801, 0.5037779363, 0.2359041624]],
             "850": [[0.8649280907, 0.2800907016, 0.2340131491, 0.0195446727], [0, 0, 0], [0, 0, 0]],
-            # "808": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
             "650": [[0.8773469949, 0.2663571183, 0.199919444, 0.0192325637], [0, 0, 0], [0, 0, 0]],
             "550": [[0, 0, 0], [0.8686559344, 0.2655697585, 0.1960837144, 0.0195629009], [0, 0, 0]],
             "450": [[0, 0, 0], [0, 0, 0], [0.7882333002, 0.2501235178, 0.1848459584, 0.020036883]],
@@ -314,11 +311,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         try:
             #set legend equal to lut_legend.jpg
             legend = cv2.imread(os.path.dirname(__file__) + "/lut_legend.jpg")
-            # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            # legend = cv2.cvtColor(legend, cv2.COLOR_GRAY2RGB)
             legh, legw = legend.shape[:2] #find legend height and width
             self.legend_frame = QtGui.QImage(legend.data, legw, legh, legw, QtGui.QImage.Format_Grayscale8)
-            # self.LUTGraphic.setPixmap(QtGui.QPixmap.fromImage(img2))
             self.LUTGraphic.setPixmap(QtGui.QPixmap.fromImage(
                 QtGui.QImage(self.legend_frame)))
             self.LegendLayout_2.hide()
@@ -326,23 +320,12 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
-        # try:
-        #     self.KernelViewer = KernelBrowserViewer.KernelBrowserViewer(self)
-        # except Exception as e:
-        #     exc_type, exc_obj,exc_tb = sys.exc_info()
-        #     print(e + ' ) + exc_tb.tb_lineno
-        # self.timer.timeout.connect(self.tick)
 
-    # def tick(self):
-    # try:
-    #   self.KernelUpdate()
-# except Exception as e:
-#             exc_type, exc_obj,exc_tb = sys.exc_info()
-# print(e)
     def exitTransfer(self, drv='C'):
-        tmtf = r":/dcim/tmtf.txt" #location of tmtf file
+        #tmtf is a blank file that the camera is looking for, when it reads tmtf it stops transfer mode
+        tmtf = r":/dcim/tmtf.txt" #location of tmtf file that allows you to  exit transfer mode
 
-        if drv == 'C': #What is drv??
+        if drv == 'C': #start at C, loop through drives for dcim folder
             while drv is not '[':
                 if os.path.isdir(drv + r":/dcim/"):
                     try:
@@ -381,106 +364,39 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         else:
             self.paths.clear()
             self.pathnames.clear()
-            # self.paths_1_2.clear()
-            # self.paths_3_0.clear()
-            # self.paths_14_0.clear()
+
             for cam in all_cameras:
 
-                # self.KernelLog.append("Subscript1")
                 if cam['product_string'] == 'HID Gadget':
-                    self.paths.append(cam['path'])
+                    self.paths.append(cam['path']) #adding the path to a list of paths
                     QtWidgets.QApplication.processEvents()
-                    # self.KernelLog.append("Camera: " + str(cam) + r" added to 'paths'")
-                    # time.sleep(2)
-            # try:
-            #     temp = [''] * len(self.paths)
-            #
-            #     for i, path in enumerate(self.paths):
-            #
-            #         self.camera = path
-            #         buf = [0] * 512
-            #         # self.KernelLog.append(str(line + 2))
-            #         buf[0] = self.SET_REGISTER_READ_REPORT
-            #         buf[1] = eRegister.RG_CAMERA_LINK_ID.value
-            #
-            #         res = self.writetokernel(buf) #write buffer to kernel[2]
-            #         temp[res] = path
-            #         QtWidgets.QApplication.processEvents()
-            #     self.paths = copy.deepcopy(temp)
-            #     QtWidgets.QApplication.processEvents()
-            # except Exception as e:
-            #     exc_type, exc_obj,exc_tb = sys.exc_info()
-            #     print(e)
-            #     print("Line: " + str(exc_tb.tb_lineno))
-            # if len(self.paths) > 1:
-            #     temppaths = self.paths
-            #     arids = []
-            #     for path in self.paths:@
-            #         self.camera = path
-            #         buf = [0] * 512
-            #         buf[0] = self.SET_REGISTER_READ_REPORT
-            #         buf[1] = eRegister.RG_CAMERA_LINK_ID.value
-            #         arid = self.writetokernel(buf) #write buffer to kernel[2]
-            #         arids.append(arid)
-                # [self.paths for (y, self.paths) in sorted(zip(arids, temppaths), key=lambda pair: pair[0])]
-                # for count, id in enumerate(arids):
-                #     self.paths[id] = temppaths[count]
 
             self.KernelCameraSelect.blockSignals(True)
             self.KernelCameraSelect.clear()
-            # self.KernelCameraSelect.addItem("All")
             self.KernelCameraSelect.blockSignals(False)
+
             try:
                 for i, path in enumerate(self.paths):
                     QtWidgets.QApplication.processEvents()
-                    # line = 0
                     self.camera = path
-                    # self.KernelLog.append(str(line + 1))
                     buf = [0] * 512
-                    # self.KernelLog.append(str(line + 2))
                     buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
-                    # self.KernelLog.append(str(line + 3))
                     buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
-                    # self.KernelLog.append(str(line + 4))
-                    buf[2] = 3
+                    buf[2] = 3 #cameras name is a 3 character string = 3 bytes
 
                     res = self.writetokernel(buf) #write buffer to kernel
 
-                    # self.KernelLog.append(str(line + 5))
-                    # self.KernelLog.append(str(line + 6))
-                    # print(chr(res[2]) + chr(res[3]) + chr(res[4]))
-                    # self.KernelLog.append("Subscript2")
-                    item = chr(res[2]) + chr(res[3]) + chr(res[4])
-                    # if i == 0:
-                    #     self.KernelFilterSelect.blockSignals(True)
-                    #     self.KernelFilterSelect.setCurrentIndex(self.KernelFilterSelect.findText(item))
-                    #     self.KernelFilterSelect.blockSignals(False)
-                    # self.KernelLog.append(str(line + 7))
+                    item = chr(res[2]) + chr(res[3]) + chr(res[4]) #send 2,3, and 4th index
+
                     self.KernelLog.append("Found Camera: " + str(item))
                     QtWidgets.QApplication.processEvents()
-                    # time.sleep(2)
-                    # self.KernelLog.append(str(line + 8))
-                    # buf = [0] * 512
-                    # buf[0] = self.SET_REGISTER_READ_REPORT
-                    # buf[1] = eRegister.RG_SENSOR_ID.value
-                    # res = self.writeToKernel(buf, True)[0][i]
-                    # if res[2] == 2:
-                    #     self.paths_1_2.append(path)
-                    # elif res[2] == 1:
-                    #     self.paths_3_0.append(path)
-                    # elif res[2] == 0:
-                    #     self.paths_14_0.append(path)
-                    # self.KernelLog.append("Adding Pathname " + str(item))
+
                     self.pathnames.append(item)
-                    # self.KernelLog.append(str(line + 9))
                     self.KernelCameraSelect.blockSignals(True)
-                    # self.KernelLog.append(str(line + 10))
 
                     self.KernelCameraSelect.addItem(item)
-                    # self.KernelLog.append(str(line + 11))
                     self.KernelCameraSelect.blockSignals(False)
-                    # self.KernelLog.append(str(line + 12))
-                # self.KernelLog.append("Subscript3")
+
                 self.camera = self.paths[0]
 
                 try:
@@ -496,21 +412,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 exc_type, exc_obj,exc_tb = sys.exc_info()
                 self.KernelLog.append("Error: (" + str(e) + ' Line: ' + str(exc_tb.tb_lineno) +  ") connecting to camera, please ensure all cameras are connected properly and not in transfer mode.")
                 QtWidgets.QApplication.processEvents()
-    # def on_Kernel3LetterSave_released(self):
-    #     threeletter = self.Kernel3LetterID.text()
-    #     buf = [0] * 512
-    #     buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
-    #     buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
-    #     buf[2] = 3
-    #     buf[3] = ord(threeletter[0])
-    #     buf[4] = ord(threeletter[1])
-    #     buf[5] = ord(threeletter[2])
-    #     res = self.writetokernel(buf) #write buffer to kernel
-    #     try:
-    #         self.KernelUpdate()
-    #     except Exception as e:
-    # exc_type, exc_obj,exc_tb = sys.exc_info()
-    #         print(e + ' ) + exc_tb.tb_lineno
+
     def UpdateLensID(self):
         buf = [0] * 512
         buf[0] = self.SET_REGISTER_WRITE_REPORT
@@ -735,7 +637,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 self.legend_frame = QtGui.QImage(legend.data, legw, legh, legw * 3, QtGui.QImage.Format_RGB888)
                 self.LUTGraphic.setPixmap(QtGui.QPixmap.fromImage(
                     QtGui.QImage(self.legend_frame)))
-                self.LegendLayout_2.show() #show the legend layout
+                self.LegendLayout_2.show() #show the legend 2 layout, this code seems to be unfinished
                 # if self.LUTwindow.ClipOption.currentIndex() == 2:
                 #     temp = copy.deepcopy(self.calcwindow.ndvi)
                 #     if self.ViewerIndexBox.isChecked():
@@ -779,6 +681,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 #         # self.ndvipsuedo[temp >= workingmax, 1] = temp[temp >= workingmax]
                 #         # self.ndvipsuedo[temp >= workingmax, 2] = temp[temp >= workingmax]
                 if self.ViewerIndexBox.isChecked():
+                    #display legend layour 2 if viewer index box is checked
                     self.LegendLayout_2.show()
                     self.frame = QtGui.QImage(self.calcwindow.ndvi.data, w, h, w, QtGui.QImage.Format_Grayscale8)
                 else:
@@ -889,26 +792,16 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         print("resize")
 
     def KernelUpdate(self):
+        """ Kernel update populates the memory of the buffer """
         try:
+            #this block of code prevents all these these from sending signals during the update to prevent errors from occuring
             self.KernelExposureMode.blockSignals(True)
-            # self.KernelShutterSpeed.blockSignals(True)
-            # self.KernelISO.blockSignals(True)
             self.KernelVideoOut.blockSignals(True)
             self.KernelFolderCount.blockSignals(True)
             self.KernelBeep.blockSignals(True)
             self.KernelPWMSignal.blockSignals(True)
             self.KernelLensSelect.blockSignals(True)
-            # self.KernelGain.blockSignals(True)
-            # self.KernelSetPoint.blockSignals(True)
 
-            # buf = [0] * 512
-            # buf[0] = self.SET_REGISTER_READ_REPORT
-            # buf[1] = eRegister.RG_LENS_ID.value
-            # # buf[2] =
-            #
-            # res = self.writeToKernel(buf)[2]
-            #
-            # self.KernelLensSelect.setCurrentIndex(res)
 
             buf = [0] * 512
             buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
@@ -927,19 +820,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 self.KernelExposureMode.setCurrentIndex(1)
                 self.KernelMESettingsButton.setEnabled(True)
                 self.KernelAESettingsButton.setEnabled(False)
-
-            # self.KernelShutterSpeed.setCurrentIndex(shutter - 1)
-
-            # iso = self.getRegister(eRegister.RG_ISO.value)
-            # if iso == self.ISO_VALS[0]:
-            #
-            #     self.KernelISO.setCurrentIndex(0)
-            # elif iso == self.ISO_VALS[1]:
-            #     self.KernelISO.setCurrentIndex(1)
-            # elif iso == self.ISO_VALS[2]:
-            #     self.KernelISO.setCurrentIndex(2)
-            # else:
-            #     self.KernelISO.setCurrentIndex(3)
 
             dac = self.getRegister(eRegister.RG_DAC.value)
 
@@ -976,13 +856,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.KernelPanel.append("Sensor: " + str(self.getRegister(eRegister.RG_SENSOR_ID.value)))
             self.KernelPanel.append("Lens: " + str(LENS_LOOKUP.get(self.getRegister(eRegister.RG_LENS_ID.value), 255)[0][0]))
 
-            # if shutter == 0:
-            #     self.KernelPanel.append("Shutter: Auto")
-            # else:
-            #     self.KernelPanel.append("Shutter: " + self.KernelShutterSpeed.itemText(self.getRegister(eRegister.RG_SHUTTER.value) -1) + " sec")
-            # self.KernelPanel.append("ISO: " + str(self.getRegister(eRegister.RG_ISO.value)) + "00")
-            # # self.KernelPanel.append("WB: " + str(self.getRegister(eRegister.RG_WHITE_BALANCE.value)))
-            # self.KernelPanel.append("AE Setpoint: " + str(self.getRegister(eRegister.RG_AE_SETPOINT.value)))
+
             buf = [0] * 512
             buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
             buf[1] = eRegister.RG_CAMERA_ID.value
@@ -1006,8 +880,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             else:
                 self.MasterCameraLabel.setText("Slave")
             self.KernelExposureMode.blockSignals(False)
-            # self.KernelShutterSpeed.blockSignals(False)
-            # self.KernelISO.blockSignals(False)
             self.KernelVideoOut.blockSignals(False)
             self.KernelFolderCount.blockSignals(False)
             self.KernelBeep.blockSignals(False)
@@ -1018,8 +890,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             self.KernelLog.append("Error: (" + str(e) + ' Line: ' + str(
                 exc_tb.tb_lineno) + ") updating interface.")
-        # self.KernelGain.blockSignals(False)
-        # self.KernelSetPoint.blockSignals(False)
     def on_KernelFolderButton_released(self):
         #when the kernel folder button is released get the existing directory
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
@@ -1230,10 +1100,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
                 # if self.KernelCameraSelect.currentIndex() == 0:
                 try:
-                    # for place, cam in enumerate(self.paths):
-                    #     self.camera = cam
-                    #     self.captureImage()
-                    #
+
                     for place, cam in enumerate(self.paths):
                         self.camera = cam
                         QtWidgets.QApplication.processEvents()
@@ -1284,44 +1151,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 # time.sleep(15)
 
 
-
-                            # self.KernelLog.append("Confirming camera entered transfer mode...")
-
                                 else:
                                     numds = win32api.GetLogicalDriveStrings().split(':\\\x00')[:-1]
                                 QtWidgets.QApplication.processEvents()
-                            # found = False
-                            # stop = time.time()
-                            # while int(time.time() - stop) < 30:
-                            #     QtWidgets.QApplication.processEvents()
-                            #     try:
-                            #
-                            #         drv = 'C'
-                            #         while drv is not '[':
-                            #             # self.KernelLog.append("Drives " + str(self.driveletters))
-                            #             if os.path.isdir(drv + r":/dcim/"):
-                            #                 files = glob.glob(drv + r":" + os.sep + r"dcim/*/*.[tm]*", recursive=True)
-                            #                 folders = glob.glob(drv + r":" + os.sep + r"dcim/*/")
-                            #                 if files:
-                            #                     # self.KernelLog.append("Found Files")
-                            #                     threechar = files[-1].split(os.sep)[-1][1:4]
-                            #                     # self.KernelLog.append("Three Characters = " + str(threechar))
-                            #                     if threechar == self.pathnames[place]:
-                            #                         self.KernelLog.append("Camera " + str(self.pathnames[place]) + " successfully connected to drive " + drv + ":" + os.sep)
-                            #                         QtWidgets.QApplication.processEvents()
-                            #                         # for fold in folders:
-                            #                         for fold in folders:
-                            #                             if os.path.exists(fold + str(self.pathnames[place]) + ".kernelconfig"):
-                            #                                 os.unlink(fold + str(self.pathnames[place]) + ".kernelconfig")
-                            #                             treeroot.write(fold + str(self.pathnames[place]) + ".kernelconfig")
-                            #                         found = True
-                            #                         self.driveletters.append(drv)
-                            #                         # self.KernelLog.append(str(self.driveletters))
-                            #                         os.unlink(files[-1])
-                            #                         break
-                            #             drv = chr(ord(drv) + 1)
-                            #         if found == True:
-                            #             break
+
 
 
                 except Exception as e:
@@ -1333,59 +1166,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
                 self.camera = currentcam
 
-
-
-
-
-                # else:
-                #     self.captureImage()
-                #     time.sleep(5)
-                #     xmlret = self.getXML()
-                #     buf = [0] * 512
-                #     buf[0] = self.SET_COMMAND_REPORT
-                #     buf[1] = eCommand.CM_TRANSFER_MODE.value
-                #     self.writetokernel(buf) #write buffer to kernel
-                #     time.sleep(5)
-                #     self.KernelLog.append("Camera " + str(xmlret[0]) + " entering Transfer mode")
-                #     QtWidgets.QApplication.processEvents()
-                #     treeroot = ET.parse(modpath + os.sep + "template.kernelconfig")
-                #     treeroot.find("Filter").text = xmlret[0]
-                #     treeroot.find("Sensor").text = xmlret[1]
-                #     treeroot.find("Lens").text = xmlret[2]
-                #     treeroot.find("ArrayID").text = xmlret[3]
-                #     treeroot.find("ArrayType").text = xmlret[4]
-                #     found = False
-                #     stop = time.time()
-                #     while int(time.time() - stop) < 30:
-                #         QtWidgets.QApplication.processEvents()
-                #         drv = 'C'
-                #         while drv is not '[':
-                #             # self.KernelLog.append("Drives " + str(self.driveletters))
-                #             if os.path.isdir(drv + r":/dcim/"):
-                #                 files = glob.glob(drv + r":" + os.sep + r"dcim/*/*.[tm]*", recursive=True)
-                #                 folders = glob.glob(drv + r":" + os.sep + r"dcim/*/")
-                #                 if files:
-                #                     # self.KernelLog.append("Found Files")
-                #                     threechar = files[-1].split(os.sep)[-1][1:4]
-                #                     # self.KernelLog.append("Three Characters = " + str(threechar))
-                #                     if threechar == self.pathnames[self.KernelCameraSelect.currentIndex() - 1]:
-                #                         self.KernelLog.append("Camera " + str(self.pathnames[self.KernelCameraSelect.currentIndex() - 1]) + " successfully connected to drive " + drv + ":" + os.sep)
-                #                         QtWidgets.QApplication.processEvents()
-                #                         # for fold in folders:
-                #                         for fold in folders:
-                #                             if os.path.exists(fold + str(self.pathnames[self.KernelCameraSelect.currentIndex() - 1]) + ".kernelconfig"):
-                #                                 os.unlink(fold + str(self.pathnames[self.KernelCameraSelect.currentIndex() - 1]) + ".kernelconfig")
-                #                             treeroot.write(fold + str(self.pathnames[self.KernelCameraSelect.currentIndex() - 1]) + ".kernelconfig")
-                #                         found = True
-                #                         self.driveletters.append(drv)
-                #                         # self.KernelLog.append(str(self.driveletters))
-                #                         os.unlink(files[-1])
-                #                         break
-                #             drv = chr(ord(drv) + 1)
-                #             if found:
-                #                 break
-                #         if found:
-                #             break
 
                 self.modalwindow = KernelTransfer(self)
                 self.modalwindow.resize(400, 200) #resize the window
@@ -1648,6 +1428,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             return self.regs[code]
         else:
             return 0
+
     def setRegister(self, code, value):
         if code >= eRegister.RG_SIZE.value:
             return False
@@ -1676,27 +1457,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         kernel camera
         """
         try:
-            # if self.KernelCameraSelect.currentIndex() == 0 and rlist == False:
-            #     r = []
-            #     q = []
-            #     rr = []
-            #     for i, path in enumerate(self.paths):
-            #         dev = hid.device()
-            #         dev.open_path(path)
-            #         q.append(dev.write(buffer))
-            #         if buffer[0] == 3 and buffer[1] == 1:
-            #             dev.close()
-            #             return q
-            #         else:
-            #             r.append(dev.read(self.BUFF_LEN))
-            #             dev.close()
-            #
-            #     return r
-            # else:
             dev = hid.device() #dev is interfacing with the camera through USB by calling hid.device()
-            dev.open_path(self.camera) #opening a path to write to the camera
+            dev.open_path(self.camera) #opening a path to write to the camera, now this is a camera device
             q = dev.write(buffer) #write the buffer to the camera
-            if buffer[0] == 3 and buffer[1] == 1: ##???? what???
+            if buffer[0] == self.SET_COMMAND_REPORT and buffer[1] == eCommand.CM_TRANSFER_MODE.data:
                 dev.close()
                 return q
             else: #if the buffer is not being closed read the length of the buffer???
@@ -4135,21 +3899,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     y = [0.87, 0.51, 0.23, 0.0]
                     if ind[1] == 0:
                         y = self.refvalues[self.ref]["Mono405"]
-
                     elif ind[1] == 1:
                         y = self.refvalues[self.ref]["Mono450"]
-
                     elif ind[1] == 2:
                         y = self.refvalues[self.ref]["Mono490"]
-
                     elif ind[1] == 3:
                         y = self.refvalues[self.ref]["Mono518"]
-
-
                     elif ind[1] == 4:
                         y = self.refvalues[self.ref]["Mono550"]
-
-
                     elif ind[1] == 5:
                         y = self.refvalues[self.ref]["Mono590"]
                     elif ind[1] == 6:
