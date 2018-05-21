@@ -552,8 +552,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
+
      on_ViewerStretchBox_toggled(self):
         self.stretchView()
+
      stretchView(self):
      """equalizing the historgram, stretching the image to its min and max, allows you to see very dark Images
      by introudcing more contrast
