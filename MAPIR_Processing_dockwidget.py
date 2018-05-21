@@ -354,9 +354,12 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         # self.exitTransfer()
         self.ConnectKernels()
     def on_KernelConnect_released(self):
+        """ on KernelConnect_released calls ConnectKernels when the kernel connect button is clicked """
         # self.exitTransfer()
         self.ConnectKernels()
     def ConnectKernels(self):
+        """ ConnectKernels is used to connect to the kernel cameras using hidapi
+        """
         self.KernelLog.append(' ') #add ' ' to the kernel log
         all_cameras = hid.enumerate(self.VENDOR_ID, self.PRODUCT_ID)
         #find the cameras
@@ -469,7 +472,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             #VigWindow is now an object of type Vignette
         self.VigWindow.resize(385, 160) #resize
         self.VigWindow.show() #display
+
     def on_KernelBrowserButton_released(self):
+
+        #the following lines populate the browse bar with the corresponding path to the selected file
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             self.KernelBrowserFile.setText(QtWidgets.QFileDialog.getOpenFileName(directory=instring.read())[0])
             instring.truncate(0)
@@ -549,10 +555,13 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
      on_ViewerStretchBox_toggled(self):
         self.stretchView()
      stretchView(self):
+     """equalizing the historgram, stretching the image to its min and max, allows you to see very dark Images
+     by introudcing more contrast
+     """
         try:
             if self.image_loaded:
                 if self.ViewerStretchBox.isChecked():
-                    h, w = self.display_image.shape[:2]
+                    h, w = self.display_image.shape[:2] #get the height and width
 
                     if len(self.display_image.shape) > 2:
                         self.display_image[:, :, 0] = cv2.equalizeHist(self.display_image[:, :, 0])
@@ -582,6 +591,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
      on_ViewerIndexBox_toggled(self):
         self.applyRaster()
      applyRaster(self):
+
+     """
+     handles the ndvi caclulation on the view tab
+     """
         try:
             h, w = self.display_image.shape[:2]
             if self.LUTBox.isChecked():
@@ -606,6 +619,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
      updateViewer(self, keepAspectRatio = True):
+        #refreshes the image on viewer
         self.mapscene = QtWidgets.QGraphicsScene()
 
         self.mapscene.addPixmap(QtGui.QPixmap.fromImage(
@@ -619,6 +633,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         QtWidgets.QApplication.processEvents()
 
     def on_LUTBox_toggled(self):
+        #apply LUT when the box is toggled
         #if the LUT box is toggled then apply LUT
         self.applyLUT()
 
@@ -640,23 +655,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 self.LUTGraphic.setPixmap(QtGui.QPixmap.fromImage(
                     QtGui.QImage(self.legend_frame)))
                 self.LegendLayout_2.show() #show the legend 2 layout, this code seems to be unfinished
-                # if self.LUTwindow.ClipOption.currentIndex() == 2:
-                #     temp = copy.deepcopy(self.calcwindow.ndvi)
-                #     if self.ViewerIndexBox.isChecked():
-                #
-                #         self.ndvipsuedo[temp <= self.LUTwindow._min, 0] = temp[temp <= self.LUTwindow._min]
-                #         self.ndvipsuedo[temp <= self.LUTwindow._min, 1] = temp[temp <= self.LUTwindow._min]
-                #         self.ndvipsuedo[temp <= self.LUTwindow._min, 2] = temp[temp <= self.LUTwindow._min]
-                #         self.ndvipsuedo[temp >= self.LUTwindow._max, 0] = temp[temp >= self.LUTwindow._max]
-                #         self.ndvipsuedo[temp >= self.LUTwindow._max, 1] = temp[temp >= self.LUTwindow._max]
-                #         self.ndvipsuedo[temp >= self.LUTwindow._max, 2] = temp[temp >= self.LUTwindow._max]
-                #     else:
-                #         self.ndvipsuedo[temp <= self.LUTwindow._min] = self.display_image[temp <= self.LUTwindow._min]
-                #         # self.ndvipsuedo[temp <= workingmin, 1] = temp[temp <= workingmin]
-                #         # self.ndvipsuedo[temp <= workingmin, 2] = temp[temp <= workingmin]
-                #         self.ndvipsuedo[temp >= self.LUTwindow._max] = self.display_image[temp >= self.LUTwindow._max]
-                #         # self.ndvipsuedo[temp >= workingmax, 1] = temp[temp >= workingmax]
-                #         # self.ndvipsuedo[temp >= workingmax, 2] = temp[temp >= workingmax]
+
             else:
                 legend = cv2.imread(os.path.dirname(__file__) + r'\lut_legend.jpg', 0).astype("uint8")
                 # legend = cv2.cvtColor(legend, cv2.COLOR_GRAY2RGB)
@@ -665,23 +664,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 self.LUTGraphic.setPixmap(QtGui.QPixmap.fromImage(
                     QtGui.QImage(self.legend_frame)))
 
-                # if self.LUTwindow.ClipOption.currentIndex() == 2:
-                #     temp = copy.deepcopy(self.calcwindow.ndvi)
-                #     if self.ViewerIndexBox.isChecked():
-                #
-                #         self.ndvipsuedo[temp <= self.LUTwindow._min, 0] = temp[temp <= self.LUTwindow._min]
-                #         self.ndvipsuedo[temp <= self.LUTwindow._min, 1] = temp[temp <= self.LUTwindow._min]
-                #         self.ndvipsuedo[temp <= self.LUTwindow._min, 2] = temp[temp <= self.LUTwindow._min]
-                #         self.ndvipsuedo[temp >= self.LUTwindow._max, 0] = temp[temp >= self.LUTwindow._max]
-                #         self.ndvipsuedo[temp >= self.LUTwindow._max, 1] = temp[temp >= self.LUTwindow._max]
-                #         self.ndvipsuedo[temp >= self.LUTwindow._max, 2] = temp[temp >= self.LUTwindow._max]
-                #     else:
-                #         self.ndvipsuedo[temp <= self.LUTwindow._min] = self.display_image[temp <= self.LUTwindow._min]
-                #         # self.ndvipsuedo[temp <= workingmin, 1] = temp[temp <= workingmin]
-                #         # self.ndvipsuedo[temp <= workingmin, 2] = temp[temp <= workingmin]
-                #         self.ndvipsuedo[temp >= self.LUTwindow._max] = self.display_image[temp >= self.LUTwindow._max]
-                #         # self.ndvipsuedo[temp >= workingmax, 1] = temp[temp >= workingmax]
-                #         # self.ndvipsuedo[temp >= workingmax, 2] = temp[temp >= workingmax]
+
                 if self.ViewerIndexBox.isChecked():
                     #display legend layour 2 if viewer index box is checked
                     self.LegendLayout_2.show()
@@ -751,35 +734,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         self.KernelViewer.fitInView(self.mapscene.sceneRect(), QtCore.Qt.KeepAspectRatio)
         self.KernelViewer.setFocus()
         QtWidgets.QApplication.processEvents()
-    # def wheelEvent(self, event):
-    #     if self.image_loaded == True:
-    #         try:
-    #
-    #         except Exception as e:
-    # exc_type, exc_obj,exc_tb = sys.exc_info()
-    #             print(str(e) + ' ) + str(exc_tb.tb_lineno
 
-    # def eventFilter(self, obj, event):
-    #
-    #     if self.image_loaded == True:
-    #         try:
-    #             self.KernelViewer.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
-    #             factor = 1.15
-    #             if int(event.angleDelta().y()) > 0:
-    #                 self.KernelViewer.scale(factor, factor)
-    #             else:
-    # def wheelEvent(self, event):
-    #     if self.image_loaded == True:
-    #         try:
-    #             self.KernelBrowserViewer.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
-    #             factor = 1.15
-    #             if int(event.angleDelta().y()) > 0:
-    #                 self.KernelBrowserViewer.scale(factor, factor)
-    #             else:
-    #                 self.KernelBrowserViewer.scale(1.0/factor, 1.0/factor)
-    #         except Exception as e:
-    # exc_type, exc_obj,exc_tb = sys.exc_info()
-    #             print(str(e) + ' ) + str(selfexc_tb.tb_lineno):
     def resizeEvent(self, event):
         # redraw the image in the viewer every time the window is resized
         if self.image_loaded == True:
@@ -1249,8 +1204,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.camera = currentcam
 
 
-
-
     def on_KernelExposureMode_currentIndexChanged(self, int = 0):
         # self.KernelExposureMode.blockSignals(True)
         if self.KernelExposureMode.currentIndex() == 1: #Manual
@@ -1392,36 +1345,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
-    # def on_KernelShutterSpeed_currentIndexChanged(self, int = 0):
-    #     buf = [0] * 512
-    #     buf[0] = self.SET_REGISTER_WRITE_REPORT
-    #     buf[1] = eRegister.RG_SHUTTER.value
-    #     if self.KernelExposureMode.currentIndex() == 1:
-    #         buf[2] = self.KernelShutterSpeed.currentIndex() + 1
-    #
-    #     res = self.writetokernel(buf) #write buffer to kernel #write buffer to kernel
-    #     try:
-    #         self.KernelUpdate()
-    #     except Exception as e:
-    # exc_type, exc_obj,exc_tb = sys.exc_info()
-    #         print(e + ' ) + exc_tb.tb_lineno
-    # def on_KernelISO_currentIndexChanged(self, int = 0):
-    #     buf = [0] * 512
-    #     buf[0] = self.SET_REGISTER_WRITE_REPORT
-    #     buf[1] = eRegister.RG_ISO.value
-    #     if self.KernelExposureMode.currentIndex() == 1:
-    #         buf[2] = self.ISO_VALS[self.KernelISO.currentIndex()]
-    #     else:
-    #         buf[2] = self.ISO_VALS[3]
-    #
-    #     res = self.writetokernel(buf) #write buffer to kernel
-    #     try:
-    #         self.KernelUpdate()
-    #     except Exception as e:
-    # exc_type, exc_obj,exc_tb = sys.exc_info()
-    #         print(e + ' ) + exc_tb.tb_lineno
 
     def getRegister(self, code):
+        #get the register (software interface to a hardware device)
         if code < eRegister.RG_SIZE.value:
             return self.regs[code]
         else:
@@ -1472,7 +1398,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
     def on_KernelBeep_toggled(self):
         """def on_KernelBeep_toggled(self)
-
         is passed an object(self) and enables the beeper???"""
         buf = [0] * 512
 
@@ -1493,7 +1418,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
     def on_KernelPWMSignal_toggled(self):
         """def on_KernelPWMSignal_toggled(self)
-
         is passed an object(self) """
         buf = [0] * 512
 
@@ -1511,34 +1435,18 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
-    # def on_KernelResetButton_released(self):
-    #     buf = [0] * 512
-    #     buf[0] = self.SET_COMMAND_REPORT
-    #     buf[1] = eRegister.CM_RESET_CAMERA.value
-    #
-    #     self.writetokernel(buf) #write buffer to kernel
-    #     try:
-    #         self.KernelUpdate()
-    #     except Exception as e:
-    # exc_type, exc_obj,exc_tb = sys.exc_info()
-    #         print(e + ' ) + exc_tb.tb_lineno
+
     def on_KernelAdvancedSettingsButton_released(self):
         """def on_KernelAdvancedSettingsButton_released(self)
 
         is passed an object(self), it resizes the window"""
         self.Advancedwindow = AdvancedOptions(self)
-        # self.modalwindow = KernelCAN(self)
         self.Advancedwindow.resize(400, 200) #resize the window
         self.Advancedwindow.exec_()
-        # try:
-        #     self.KernelUpdate()
-        # except Exception as e:
-        # exc_type, exc_obj,exc_tb = sys.exc_info()
-        #     print(e + ' ) + exc_tb.tb_lineno
+
 
     def on_KernelFolderCount_currentIndexChanged(self, int = 0):
         """def on_KernelFolderCount_currentIndexChanged(self)
-
         is passed an object(self), """
         buf = [0] * 512
         buf[0] = self.SET_REGISTER_WRITE_REPORT
@@ -1620,7 +1528,12 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
+
     def on_KernelIntervalButton_released(self):
+
+        """
+        Interval Button sets the interval time for kernel
+        """
         self.modalwindow = KernelModal(self)
         self.modalwindow.resize(400, 200) #resize the window
         self.modalwindow.exec_()
@@ -1637,25 +1550,18 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print("Line: " + str(exc_tb.tb_lineno))
 
     def on_KernelCANButton_released(self):
+        """
+
+        """
         self.modalwindow = KernelCAN(self)
         self.modalwindow.resize(400, 200) #resize the window
         self.modalwindow.exec_()
-        # try:
-        #     self.KernelUpdate()
-        # except Exception as e:
-        #     exc_type, exc_obj,exc_tb = sys.exc_info()
-        #     print(e)
-        #     print("Line: " + str(exc_tb.tb_lineno))
 
     def on_KernelTimeButton_released(self):
         self.modalwindow = KernelTime(self)
         self.modalwindow.resize(400, 200) #resize the window
         self.modalwindow.exec_()
-        # try:
-        #     self.KernelUpdate()
-        # except Exception as e:
-        # exc_type, exc_obj,exc_tb = sys.exc_info()
-        #     print(e + ' ) + exc_tb.tb_lineno
+
 
     def writeToIntervalLine(self):
         self.KernelIntervalLine.clear()
@@ -1677,6 +1583,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.PreProcessColorBox.setChecked(False)
             self.PreProcessColorBox.setEnabled(False)
     def on_PreProcessCameraModel_currentIndexChanged(self, int):
+        """
+        on the process tab this function populates the filter dropdown with all of the filter options, the camera model
+        is pre-populated, however the filter options vary between cameras and thus need a function to populate the list
+        """
         self.PreProcessVignette.setChecked(False)
         self.PreProcessVignette.setEnabled(False)
         if self.PreProcessCameraModel.currentIndex() == 0 or self.PreProcessCameraModel.currentIndex() == 1:
@@ -1743,6 +1653,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.PreProcessLens.setEnabled(False)
 
     def on_CalibrationCameraModel_currentIndexChanged(self, int):
+        """
+        on the calibrate tab this function populates the filter dropdown with all of the filter options, the camera model
+        is pre-populated, however the filter options vary between cameras and thus need a function to populate the list
+        """
         if self.CalibrationCameraModel.currentIndex() == 0 or self.CalibrationCameraModel.currentIndex() == 1:
             self.CalibrationFilter.clear()
             self.CalibrationFilter.addItems(["405", "450", "490", "518", "550", "590", "615", "632", "650", "685", "725", "780", "808", "850", "880","940","945"])
@@ -1816,6 +1730,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLens.setEnabled(False)
 
     def on_CalibrationCameraModel_2_currentIndexChanged(self, int):
+        """
+        on the calibrate tab this function populates the filter dropdown with all of the filter options, the camera model
+        is pre-populated, however the filter options vary between cameras and thus need a function to populate the list
+        """
         if self.CalibrationCameraModel_2.currentIndex() == 0 or self.CalibrationCameraModel_2.currentIndex() == 1:
             self.CalibrationFilter_2.clear()
             self.CalibrationFilter_2.addItems(
@@ -1891,6 +1809,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLens_2.setEnabled(False)
 
     def on_CalibrationCameraModel_3_currentIndexChanged(self, int):
+        """
+        on the calibrate tab this function populates the filter dropdown with all of the filter options, the camera model
+        is pre-populated, however the filter options vary between cameras and thus need a function to populate the list
+        """
         if self.CalibrationCameraModel_3.currentIndex() == 0 or self.CalibrationCameraModel_3.currentIndex() == 1:
             self.CalibrationFilter_3.clear()
             self.CalibrationFilter_3.addItems(
@@ -1966,6 +1888,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLens_3.setEnabled(False)
 
     def on_CalibrationCameraModel_4_currentIndexChanged(self, int):
+        """
+        on the calibrate tab this function populates the filter dropdown with all of the filter options, the camera model
+        is pre-populated, however the filter options vary between cameras and thus need a function to populate the list
+        """
         if self.CalibrationCameraModel_4.currentIndex() == 0 or self.CalibrationCameraModel_4.currentIndex() == 1:
             self.CalibrationFilter_4.clear()
             self.CalibrationFilter_4.addItems(
@@ -2041,6 +1967,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLens_4.setEnabled(False)
 
     def on_CalibrationCameraModel_5_currentIndexChanged(self, int):
+        """
+        on the calibrate tab this function populates the filter dropdown with all of the filter options, the camera model
+        is pre-populated, however the filter options vary between cameras and thus need a function to populate the list
+        """
         if self.CalibrationCameraModel_5.currentIndex() == 0 or self.CalibrationCameraModel_5.currentIndex() == 1:
             self.CalibrationFilter_5.clear()
             self.CalibrationFilter_5.addItems(
@@ -2116,6 +2046,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLens_5.setEnabled(False)
 
     def on_CalibrationCameraModel_6_currentIndexChanged(self, int):
+        """
+        on the calibrate tab this function populates the filter dropdown with all of the filter options, the camera model
+        is pre-populated, however the filter options vary between cameras and thus need a function to populate the list
+        """
         if self.CalibrationCameraModel_6.currentIndex() == 0 or self.CalibrationCameraModel_6.currentIndex() == 1:
             self.CalibrationFilter_6.clear()
             self.CalibrationFilter_6.addItems(
@@ -2216,6 +2150,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             instring.write(self.VignetteFileSelect.text())
 
     def on_PreProcessButton_released(self):
+        #calls preprocesshelper
         if self.PreProcessCameraModel.currentIndex() == -1:
             self.PreProcessLog.append("Attention! Please select a camera model.\n")
         else:
@@ -2255,9 +2190,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
                 # Calibration Steps: Start
 
+    #these calibrate buttons are used to display the pathname when the browse button is clicked
     def on_CalibrationInButton_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             self.CalibrationInFolder.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
+            #clears the instring file, moves the cursor to the beginning, and then writes the line that was just found
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.CalibrationInFolder.text())
@@ -2331,6 +2268,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             instring.write(self.CalibrationQRFile_6.text())
 
     def on_CalibrationGenButton_released(self):
+        """ Throws error at user if they do not select a camera """
         try:
             if self.CalibrationCameraModel.currentIndex() == -1:
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
@@ -2344,6 +2282,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
     def on_CalibrationGenButton_2_released(self):
+        """ Throws error at user if they do not select a camera """
         try:
             if self.CalibrationCameraModel_2.currentIndex() == -1:
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
@@ -2357,7 +2296,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
+
     def on_CalibrationGenButton_3_released(self):
+        """ Throws error at user if they do not select a camera """
+
         try:
             if self.CalibrationCameraModel_3.currentIndex() == -1:
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
@@ -2370,7 +2312,10 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
+
     def on_CalibrationGenButton_4_released(self):
+    """ Throws error at user if they do not select a camera """
+
         try:
             if self.CalibrationCameraModel_4.currentIndex() == -1:
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
@@ -2384,6 +2329,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
     def on_CalibrationGenButton_5_released(self):
+    """ Throws error at user if they do not select a camera """
+
         try:
             if self.CalibrationCameraModel_5.currentIndex() == -1:
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
@@ -2397,6 +2344,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
     def on_CalibrationGenButton_6_released(self):
+    """ Throws error at user if they do not select a camera """
+
         try:
             if self.CalibrationCameraModel_6.currentIndex() == -1:
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
@@ -2411,6 +2360,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
 
     def on_CalibrateButton_released(self):
+
+        #Throws errors if a camera model is not selected
+
         try:
             self.CalibrateButton.setEnabled(False) #button can not be pressed while calibrating
             if self.CalibrationCameraModel.currentIndex() == -1\
@@ -2483,6 +2435,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         if os.path.exists(folderind[j]): #if the files to calibrate has images within it
                             # print("Cal1")
                             files_to_calibrate = []
+                            """ parsing through the folder, looking for files"""
                             os.chdir(folderind[j])
                             files_to_calibrate.extend(glob.glob("." + os.sep + "*.[tT][iI][fF]"))
                             files_to_calibrate.extend(glob.glob("." + os.sep + "*.[tT][iI][fF][fF]"))
@@ -2681,7 +2634,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                     exc_type, exc_obj,exc_tb = sys.exc_info()
                                     self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
                             else:
-                                # self.CalibrationLog.append("NOT Using QR")
+                                # calibrating the cameras with corresponding constants
                                 if (cameramodel[0] == 4) and (self.CalibrationFilter.currentIndex() == 0):  # Survey2 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
                                         self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF, self.pixel_min_max, outdir, ind)
@@ -2801,6 +2754,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             files_to_calibrate6.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))
                             print(str(files_to_calibrate6))
 
+                        #calpixel finds the min and max pixel of the data range within a data set
                         for calpixel in files_to_calibrate:
                             # print("MM1")
                             os.chdir(calfolder)
@@ -2814,7 +2768,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             self.monominmax["max"] = max(
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp1))], temp1)[0]),
                                 self.monominmax["max"])
-
+                        #calpixel finds the min and max pixel of the data range within a data set
                         for calpixel2 in files_to_calibrate2:
                             # print("MM2")
                             os.chdir(calfolder2)
@@ -2828,6 +2782,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             self.monominmax["max"] = max(
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp2))], temp2)[0]),
                                 self.monominmax["max"])
+                        #calpixel finds the min and max pixel of the data range within a data set
                         for calpixel3 in files_to_calibrate3:
                             # print("MM3")
                             os.chdir(calfolder3)
@@ -2842,6 +2797,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             self.monominmax["max"] = max(
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp3))], temp3)[0]),
                                 self.monominmax["max"])
+                        #calpixel finds the min and max pixel of the data range within a data set
                         for calpixel4 in files_to_calibrate4:
                             # print("MM4")
                             os.chdir(calfolder4)
@@ -2855,6 +2811,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             self.monominmax["max"] = max(
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp4))], temp4)[0]),
                                 self.monominmax["max"])
+                        #calpixel finds the min and max pixel of the data range within a data set
                         for calpixel5 in files_to_calibrate5:
                             # print("MM5")
                             os.chdir(calfolder5)
@@ -2868,6 +2825,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             self.monominmax["max"] = max(
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp5))], temp5)[0]),
                                 self.monominmax["max"])
+                        #calpixel finds the min and max pixel of the data range within a data set
                         for calpixel6 in files_to_calibrate6:
                             # print("MM6")
                             os.chdir(calfolder6)
@@ -2883,16 +2841,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 self.monominmax["max"])
 
                         if os.path.exists(calfolder):
-                            # # print("Cal1")
-                            # files_to_calibrate = []
-                            # os.chdir(calfolder)
-                            # files_to_calibrate.extend(glob.glob("." + os.sep + "*.[tT][iI][fF]"))
-                            # files_to_calibrate.extend(glob.glob("." + os.sep + "*.[tT][iI][fF][fF]"))
-                            # files_to_calibrate.extend(glob.glob("." + os.sep + "*.[jJ][pP][gG]"))
-                            # files_to_calibrate.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))
-                            # print(str(files_to_calibrate))
+
                             if "tif" or "TIF" or "jpg" or "JPG" in files_to_calibrate[0]:
-                                # self.CalibrationLog.append("Found files to Calibrate.\n")
                                 foldercount = 1
                                 endloop = False
                                 while endloop is False:
@@ -2919,14 +2869,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         elif self.CalibrationFilter.currentIndex() == 2:
                                             self.CalibrateMono(calfile, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir, ind)
                         if os.path.exists(calfolder2):
-                            # print("Cal2")
-                            # files_to_calibrate2 = []
-                            # os.chdir(calfolder2)
-                            # files_to_calibrate2.extend(glob.glob("." + os.sep + "*.[tT][iI][fF]"))
-                            # files_to_calibrate2.extend(glob.glob("." + os.sep + "*.[tT][iI][fF][fF]"))
-                            # files_to_calibrate2.extend(glob.glob("." + os.sep + "*.[jJ][pP][gG]"))
-                            # files_to_calibrate2.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))
-                            # print(str(files_to_calibrate2))
+
                             if "tif" or "TIF" or "jpg" or "JPG" in files_to_calibrate2[0]:
                                 foldercount = 1
                                 endloop = False
@@ -2954,14 +2897,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         elif self.CalibrationFilter.currentIndex() == 2:
                                             self.CalibrateMono(calfile2, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir2)
                         if os.path.exists(calfolder3):
-        #                     # print("Cal3")
-        #                     files_to_calibrate3 = []
-        #                     os.chdir(calfolder3)
-        #                     files_to_calibrate3.extend(glob.glob("." + os.sep + "*.[tT][iI][fF]"))
-        #                     files_to_calibrate3.extend(glob.glob("." + os.sep + "*.[tT][iI][fF][fF]"))
-        #                     files_to_calibrate3.extend(glob.glob("." + os.sep + "*.[jJ][pP][gG]"))
-        #                     files_to_calibrate3.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))
-        #                     print(str(files_to_calibrate3))
                             if "tif" or "TIF" or "jpg" or "JPG" in files_to_calibrate3[0]:
                                 foldercount = 1
                                 endloop = False
@@ -2989,14 +2924,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         elif self.CalibrationFilter.currentIndex() == 2:
                                             self.CalibrateMono(calfile3, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir3)
                         if os.path.exists(calfolder4):
-                            # print("Cal4")
-                            # files_to_calibrate4 = []
-                            # os.chdir(calfolder4)
-                            # files_to_calibrate4.extend(glob.glob("." + os.sep + "*.[tT][iI][fF]"))
-                            # files_to_calibrate4.extend(glob.glob("." + os.sep + "*.[tT][iI][fF][fF]"))
-                            # files_to_calibrate4.extend(glob.glob("." + os.sep + "*.[jJ][pP][gG]"))
-                            # files_to_calibrate4.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))
-                            # print(str(files_to_calibrate4))
                             if "tif" or "TIF" or "jpg" or "JPG" in files_to_calibrate4[0]:
                                 foldercount = 1
                                 endloop = False
@@ -3024,14 +2951,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         elif self.CalibrationFilter.currentIndex() == 2:
                                             self.CalibrateMono(calfile4, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir4)
                         if os.path.exists(calfolder5):
-                            # print("Cal5")
-                            # files_to_calibrate5 = []
-                            # os.chdir(calfolder5)
-                            # files_to_calibrate5.extend(glob.glob("." + os.sep + "*.[tT][iI][fF]"))
-                            # files_to_calibrate5.extend(glob.glob("." + os.sep + "*.[tT][iI][fF][fF]"))
-                            # files_to_calibrate5.extend(glob.glob("." + os.sep + "*.[jJ][pP][gG]"))
-                            # files_to_calibrate5.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))
-                            # print(str(files_to_calibrate5))
                             if "tif" or "TIF" or "jpg" or "JPG" in files_to_calibrate5[0]:
                                 foldercount = 1
                                 endloop = False
@@ -3059,14 +2978,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                         elif self.CalibrationFilter.currentIndex() == 2:
                                             self.CalibrateMono(calfile5, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir5)
                         if os.path.exists(calfolder6):
-                            # print("Cal6")
-                            # files_to_calibrate6 = []
-                            # os.chdir(calfolder6)
-                            # files_to_calibrate6.extend(glob.glob("." + os.sep + "*.[tT][iI][fF]"))
-                            # files_to_calibrate6.extend(glob.glob("." + os.sep + "*.[tT][iI][fF][fF]"))
-                            # files_to_calibrate6.extend(glob.glob("." + os.sep + "*.[jJ][pP][gG]"))
-                            # files_to_calibrate6.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))
-                            # print(str(files_to_calibrate6))
                             if "tif" or "TIF" or "jpg" or "JPG" in files_to_calibrate6[0]:
                                 foldercount = 1
                                 endloop = False
@@ -3105,7 +3016,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print(repr(e))
             print("Line: " + str(exc_tb.tb_lineno))
             self.CalibrationLog.append(str(repr(e)))
+
     def CalibrateMono(self, photo, coeffs, output_directory, ind):
+
         refimg = cv2.imread(photo, -1)
         print(str(refimg))
         if len(refimg.shape) > 2:
@@ -3115,12 +3028,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         pixmin = coeffs * self.monominmax["min"]
         pixmax = coeffs * self.monominmax["max"]
         tempim = coeffs * refimg
-        # pixmin = np.array((((self.monominmax["min"] ^ 2) * coeffs[0]) + (self.monominmax["min"] * coeffs[1]) + coeffs[1]), dtype=object)
-        # pixmax = np.array((((self.monominmax["max"] ^ 2) * coeffs[0]) + (self.monominmax["max"] * coeffs[1]) + coeffs[1]), dtype=object)
-        # tempim = np.array(((np.power(refimg, 2) * coeffs[0]) + (refimg * coeffs[1]) + coeffs[2]), dtype=object)
-        # pixmin = (self.monominmax["min"] * coeffs[1]) + coeffs[0]
-        # pixmax = (self.monominmax["max"] * coeffs[1]) + coeffs[0]
-        # tempim = (refimg * coeffs[1]) + coeffs[0]
         tempim -= pixmin
         tempim /= (pixmax - pixmin)
         if self.Tiff2JpgBox.checkState() > 0:
@@ -3133,16 +3040,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 tempim = tempim.astype("uint16")
             else:
                 tempim = tempim.astype("float")
-        # print(str(tempim))
-        # tempim = np.floor((refimg * coeffs[1]) + coeffs[0]).astype("uint16")
-        # tempim[tempim > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-        # tempim[tempim < 0] = 0
-        #
-        # tempimg = tempim / tempim.max()
-        #
-        # tempimg *= MAPIR_Defaults.UINT16MAX_INT
-        #
-        # tempimg = tempimg.astype("uint16")
+
 
         refimg = tempim
 
@@ -3169,6 +3067,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.copyExif(photo, newimg)
 
     def CalibratePhotos(self, photo, coeffs, minmaxes, output_directory, ind):
+        """Calibrates the photos, finds the min and max settings then normalizes the images """
         refimg = cv2.imread(photo, -1)
 
         if True:
@@ -3184,9 +3083,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 red = (red * self.multiplication_values["Red"])
                 green = (green * self.multiplication_values["Green"])
                 blue = (blue * self.multiplication_values["Blue"])
-
-
-
 
                 ### find the maximum and minimum pixel values over the entire directory.
                 if ind[0] == 5:  ###Survey1 NDVI
@@ -3207,41 +3103,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     ### blue
                     maxpixel = minmaxes["bluemax"]
                     minpixel = minmaxes["bluemin"]
-    #             elif (ind[0] == 3 and ind[1] == 1) or ind[0] == 2:
-    #                 ## RGN
-    #                 maxpixel = minmaxes["redmax"] if minmaxes["redmax"] > minmaxes["bluemax"] else minmaxes["bluemax"]
-    #                 maxpixel = minmaxes["greenmax"] if minmaxes["greenmax"] > maxpixel else maxpixel
-    #                 minpixel = minmaxes["redmin"] if minmaxes["redmin"] < minmaxes["bluemin"] else minmaxes["bluemin"]
-    #                 minpixel = minmaxes["greenmin"] if minmaxes["greenmin"] < minpixel else minpixel
-    #                 # blue = (refimg[:, :, 0] / 35) * 100
-    #
-    #
-    # #                 # red[red < 0] = 0
-    # #                 # green[green < 0] = 0
-    #                 # tempimg = cv2.merge((blue, green, red)).astype("uint16")
-    #                 #
-    #                 # cv2.imwrite(str(output_directory + photo.split('.')[1] + "_SUBTRACTION." + photo.split('.')[2]), tempimg)
-    #                 # blue = blue.astype("uint16")
-    #                 # red = red.astype("uint16")
-    #                 # green = green.astype("uint16")
+
                 elif (ind[0] == 3 and ind[1] != 3):
 
-
-                    # red = red * coeffs["Red"][0]
-                    # green = green * coeffs["Green"][0]
-                    # blue = blue * coeffs["Blue"][0]
                     maxpixel = minmaxes["redmax"] if minmaxes["redmax"] > minmaxes["bluemax"] else minmaxes["bluemax"]
                     maxpixel = minmaxes["greenmax"] if minmaxes["greenmax"] > maxpixel else maxpixel
                     minpixel = minmaxes["redmin"] if minmaxes["redmin"] < minmaxes["bluemin"] else minmaxes["bluemin"]
                     minpixel = minmaxes["greenmin"] if minmaxes["greenmin"] < minpixel else minpixel
-                    # red = (refimg[:, :, 2] / 30) * 100
-                    # blue = refimg[:, :, 0] - ((red * 35) / 100)
-                    # green = refimg[:, :, 1] - ((red * 35) / 100)
-    #                 # blue[blue < 0] = 0
-    #                 # green[green < 0] = 0
-                    # blue = blue.astype("uint16")
-                    # red = red.astype("uint16")
-                    # green = green.astype("uint16")
+
                 elif ind[0] == 7:
                     maxpixel = minmaxes["redmax"] if minmaxes["redmax"] > minmaxes["bluemax"] else minmaxes["bluemax"]
                     maxpixel = minmaxes["greenmax"] if minmaxes["greenmax"] > maxpixel else maxpixel
@@ -3250,23 +3119,15 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 else:  ###Survey2 NDVI
                     maxpixel = minmaxes["redmax"] if minmaxes["redmax"] > minmaxes["bluemax"] else minmaxes["bluemax"]
                     minpixel = minmaxes["redmin"] if minmaxes["redmin"] < minmaxes["bluemin"] else minmaxes["bluemin"]
-                    # if ind[0] == 4:
-                    #     red = refimg[:, :, 2] - (refimg[:, :, 0] * 0.80)  # Subtract the NIR bleed over from the red channel
 
             else:
                 if ind[0] == 5:  ###Survey1 NDVI
                     maxpixel = minmaxes["redmax"] if minmaxes["redmax"] > minmaxes["bluemax"] else minmaxes["bluemax"]
                     minpixel = minmaxes["redmin"] if minmaxes["redmin"] < minmaxes["bluemin"] else minmaxes["bluemin"]
-                    # blue = refimg[:, :, 0] - (refimg[:, :, 2] * 0.80)  # Subtract the NIR bleed over from the blue channel
-                    # red = (red * coeffs["Red"][1]) + coeffs["Red"][0]
-                    # green = (green * coeffs["Green"][1]) + coeffs["Green"][0]
-                    # blue = (blue * coeffs["Blue"][1]) + coeffs["Blue"][0]
+
                 elif (ind[0] == 3 and ind[1] != 3):
 
 
-                    # red = red * coeffs["Red"][0]
-                    # green = green * coeffs["Green"][0]
-                    # blue = blue * coeffs["Blue"][0]
                     maxpixel = minmaxes["redmax"] if minmaxes["redmax"] > minmaxes["bluemax"] else minmaxes["bluemax"]
                     maxpixel = minmaxes["greenmax"] if minmaxes["greenmax"] > maxpixel else maxpixel
                     minpixel = minmaxes["redmin"] if minmaxes["redmin"] < minmaxes["bluemin"] else minmaxes["bluemin"]
@@ -3275,9 +3136,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     maxpixel = minmaxes["redmax"] if minmaxes["redmax"] > minmaxes["bluemax"] else minmaxes["bluemax"]
                     minpixel = minmaxes["redmin"] if minmaxes["redmin"] < minmaxes["bluemin"] else minmaxes["bluemin"]
                     # red = refimg[:, :, 2] - (refimg[:, :, 0] * 0.80)  # Subtract the NIR bleed over from the red channel
-                    # red = (red * coeffs["Red"][1]) + coeffs["Red"][0]
-                    # green = (green * coeffs["Green"][1]) + coeffs["Green"][0]
-                    # blue = (blue * coeffs["Blue"][1]) + coeffs["Blue"][0]
+
 
 
             ### Scale calibrated values back down to a useable range (Adding 1 to avaoid 0 value pixels, as they will cause a
@@ -3288,18 +3147,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             if self.IndexBox.checkState() == 0:
                 if photo.split('.')[2].upper() == "JPG" or photo.split('.')[
                     2].upper() == "JPEG" or self.Tiff2JpgBox.checkState() > 0:
-                    # self.CalibrationLog.append("Entering JPG")
-                    # QtWidgets.QApplication.processEvents()
-                    # red = (((red - minpixel) / (maxpixel - minpixel)))
-                    # green = (((green - minpixel) / (maxpixel - minpixel)))
-                    # blue = (((blue - minpixel) / (maxpixel - minpixel)))
-                    # # tempimg = cv2.merge((blue, green, red)).astype("uint8")
-                    # # cv2.imwrite(output_directory + photo.split('.')[1] + "_Stretched." + photo.split('.')[2], tempimg)
-                    # self.CalibrationLog.append("Removing Gamma")
-                    # QtWidgets.QApplication.processEvents()
-                    # red = np.power(red, 0.455)
-                    # green = np.power(green, 0.455)
-                    # blue = np.power(blue, 0.455)
 
                     red *= 255
                     green *= 255
@@ -3325,36 +3172,15 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     red *= MAPIR_Defaults.UINT16MAX_INT
                     green *= MAPIR_Defaults.UINT16MAX_INT
                     blue *= MAPIR_Defaults.UINT16MAX_INT
-                    # red[blue > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                    # red[green > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                    #
-                    # green[red > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                    # green[blue > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                    #
-                    # blue[red > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                    # blue[green > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
 
                     green[green > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
                     red[red > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
                     blue[blue > MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
 
-    #                 # red[blue < 0] = 0
-    #                 # red[green < 0] = 0
-                    #
-    #                 # green[red < 0] = 0
-    #                 # green[blue < 0] = 0
-                    #
-    #                 # blue[red < 0] = 0
-    #                 # blue[green < 0] = 0
-    #
                     green[green < 0] = 0
                     red[red < 0] = 0
                     blue[blue < 0] = 0
-                # if photo.split('.')[2].upper() == "JPG":  # Remove the gamma correction that is automaticall applied to JPGs
-                #     index = self.calculateIndex(red, blue)
-                    # cv2.imwrite(output_directory + photo.split('.')[1] + "_CALIBRATED_INDEX." + photo.split('.')[2], index)
 
-                    ### Merge the channels back into a single image
                     red = red.astype("uint16")
                     green = green.astype("uint16")
                     blue = blue.astype("uint16")
@@ -3373,19 +3199,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             # if alpha == []:
                 refimg = cv2.merge((blue, green, red))
                 refimg = cv2.normalize(refimg.astype("float"), None, 0.0, 1.0, cv2.NORM_MINMAX)
-            # else:
-            #     alpha = alpha.astype("uint16")
-            #     refimg = cv2.merge((blue, green, red, alpha))
-            # if refimg.shape[2] > 3:
-            #     white_background_image = np.ones_like(refimg, dtype=np.uint8) * 255
-            #     a_factor = alpha[:, :, np.newaxis].astype(np.float32) / 255.0
-            #     a_factor = np.concatenate((a_factor, a_factor, a_factor), axis=2)
-            #     base = refimg.astype(np.float32) * a_factor
-            #     white = white_background_image.astype(np.float32) * (1 - a_factor)
-            #     refimg = base + white
-            #     ### If the image is a .tiff then change it to a 16 bit color image
-            # if "TIF" in photo.split('.')[2].upper() and not self.Tiff2JpgBox.checkState() > 0:
-            #     refimg = refimg.astype("uint16")
+
 
 
             if (((ind[0] == 4)) and ind[1] == 0) or ((ind[0] > 4) and (ind[0] != 7)):
@@ -3439,6 +3253,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
 
     def calculateIndex(self, visible, nir):
+        #calculates the index of visible light
         try:
             nir[nir == 0] = 1
             visible[visible == 0] = 1
@@ -3704,6 +3519,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     xgreen = [t1greenmean, t2greenmean, t3greenmean]
                     xblue = [t1bluemean, t2bluemean, t3bluemean]
 
+                #pick the correct reference values for the appropriate filter
                 if ind[1] == 1 and (ind[0] == 4) \
                         or (ind[0] == 3 and ind[1] == 3):
                     yred = self.refvalues[self.ref]["850"][0]
@@ -3761,26 +3577,6 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 self.multiplication_values["Red"] = cofr
                 self.multiplication_values["Green"] = cofg
                 self.multiplication_values["Blue"] = cofb
-                # pred = np.poly1d(cred)
-                #
-                #
-                # pgreen = np.poly1d(cgreen)
-                #
-                #
-                # pblue = np.poly1d(cblue)
-
-
-
-                # else:
-                #     pred = np.polyfit(xred, yred, 3)
-                #
-                #     pgreen = np.polyfit(xgreen, ygreen, 3)
-                #
-                #     pblue = np.polyfit(xblue, yblue, 3)
-
-                # print([xred, xgreen, xblue])
-
-                # print([pred, pgreen, pblue])
 
 
                 if list is not None and len(list) > 0:
@@ -3809,6 +3605,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         t3mean = np.mean(targ3values)
                         t4mean = np.mean(targ4values)
                     y = [0.87, 0.51, 0.23, 0.0]
+
+                    #check the first value in ind, find the corresponding filter
                     if ind[1] == 0:
                         y = self.refvalues[self.ref]["Mono405"]
                     elif ind[1] == 1:
@@ -4121,6 +3919,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             return
 
     def openDNG(self, inphoto, outfolder, customerdata=True):
+        """ """
         inphoto = str(inphoto)
         newfile = inphoto.split(".")[0] + ".tif"
         if not os.path.exists(outfolder + os.sep + newfile.rsplit(os.sep, 1)[1]):
