@@ -486,7 +486,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 #     self.display_image = gdal.Open(self.KernelBrowserFile.text())
                 #     self.display_image = np.array(self.display_image.GetRasterBand(1).ReadAsArray())
                 if self.display_image.dtype == np.dtype("uint16"):
-                    self.display_image = self.display_image / MAPIR_Defaults.UINT16MAX_FLOAT
+                    self.display_image = self.display_image / MAPIR_aults.UINT16MAX_FLOAT
                     self.display_image = self.display_image * 255.0
                     self.display_image = self.display_image.astype("uint8")
                 # self.imkeys = np.array(list(range(0, 65536)))
@@ -546,9 +546,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
-    def on_ViewerStretchBox_toggled(self):
+     on_ViewerStretchBox_toggled(self):
         self.stretchView()
-    def stretchView(self):
+     stretchView(self):
         try:
             if self.image_loaded:
                 if self.ViewerStretchBox.isChecked():
@@ -579,9 +579,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
-    def on_ViewerIndexBox_toggled(self):
+     on_ViewerIndexBox_toggled(self):
         self.applyRaster()
-    def applyRaster(self):
+     applyRaster(self):
         try:
             h, w = self.display_image.shape[:2]
             if self.LUTBox.isChecked():
@@ -605,7 +605,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
-    def updateViewer(self, keepAspectRatio = True):
+     updateViewer(self, keepAspectRatio = True):
         self.mapscene = QtWidgets.QGraphicsScene()
 
         self.mapscene.addPixmap(QtGui.QPixmap.fromImage(
@@ -892,7 +892,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             self.KernelLog.append("Error: (" + str(e) + ' Line: ' + str(
                 exc_tb.tb_lineno) + ") updating interface.")
+
     def on_KernelFolderButton_released(self):
+
         #when the kernel folder button is released get the existing directory
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             self.KernelTransferFolder.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
@@ -4133,6 +4135,12 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.PreProcessLog.append("Attention!: " + str(newfile) + " already exists.")
 
     def openMapir(self, inphoto, outphoto):
+        """ openMapir is a wrapper function for MAPIR Converter, it has two calls with the darkscale parameter
+        if darkscale = False bits are padded on the least signficant pits are padded
+            e.g. 1111 1111 1111 -> 1111 1111 1111 0000
+        if darks scale = True the most significant bits are padded
+            e.g. 1111 1111 1111 -> 0000 1111 1111 1111
+        """
         # self.PreProcessLog.append(str(inphoto) + " " + str(outphoto))
         try:
             if "mapir" in inphoto.split('.')[1]:
@@ -4288,6 +4296,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             return 'Kernel 14.4MP'
 
     def copyExif(self, inphoto, outphoto):
+
+        """ def copyExif reads in the metadata and adds a large amount of additional meta data to the tif files"""
         subprocess._cleanup()
         # if self.PreProcessCameraModel.currentIndex() < 3:
         try:
@@ -4437,6 +4447,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
                         altref = 0 if self.conv.META_PAYLOAD["GNSS_HEIGHT_SEA_LEVEL"][1] >= 0 else 1
                         if '' not in bandname:
+                            ###using exifout to write a bunch of metadata information to the kernel
                             exifout = subprocess.run(
                                 [modpath + os.sep + r'exiftool.exe',  r'-config', modpath + os.sep + r'mapir.config', '-m', r'-overwrite_original', r'-tagsFromFile',
                                  os.path.abspath(inphoto),
