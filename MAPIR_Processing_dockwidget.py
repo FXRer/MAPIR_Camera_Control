@@ -553,17 +553,16 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
 
-     on_ViewerStretchBox_toggled(self):
+    def on_ViewerStretchBox_toggled(self):
         self.stretchView()
-
-     stretchView(self):
-     """equalizing the historgram, stretching the image to its min and max, allows you to see very dark Images
-     by introudcing more contrast
-     """
+    def stretchView(self):
+        """equalizing the historgram, stretching the image to its min and max, allows you to see very dark Images
+        by introudcing more contrast
+        """
         try:
             if self.image_loaded:
                 if self.ViewerStretchBox.isChecked():
-                    h, w = self.display_image.shape[:2] #get the height and width
+                    h, w = self.display_image.shape[:2]
 
                     if len(self.display_image.shape) > 2:
                         self.display_image[:, :, 0] = cv2.equalizeHist(self.display_image[:, :, 0])
@@ -590,13 +589,13 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
-     on_ViewerIndexBox_toggled(self):
-        self.applyRaster()
-     applyRaster(self):
 
-     """
-     handles the ndvi caclulation on the view tab
-     """
+    def on_ViewerIndexBox_toggled(self):
+        self.applyRaster()
+    def applyRaster(self):
+        """
+        handles the ndvi caclulation on the view tab
+        """
         try:
             h, w = self.display_image.shape[:2]
             if self.LUTBox.isChecked():
@@ -620,7 +619,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
-     updateViewer(self, keepAspectRatio = True):
+    def updateViewer(self, keepAspectRatio = True):
+
+
+
+     def updateViewer(self, keepAspectRatio = True):
         #refreshes the image on viewer
         self.mapscene = QtWidgets.QGraphicsScene()
 
@@ -2270,7 +2273,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             instring.write(self.CalibrationQRFile_6.text())
 
     def on_CalibrationGenButton_released(self):
-        """ Throws error at user if they do not select a camera """
+        #Throws error at user if they do not select a camera
         try:
             if self.CalibrationCameraModel.currentIndex() == -1:
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
@@ -2284,7 +2287,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
     def on_CalibrationGenButton_2_released(self):
-        """ Throws error at user if they do not select a camera """
+        #Throws error at user if they do not select a camera
         try:
             if self.CalibrationCameraModel_2.currentIndex() == -1:
                 self.CalibrationLog.append("Attention! Please select a camera model.\n")
@@ -2300,7 +2303,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
 
     def on_CalibrationGenButton_3_released(self):
-        """ Throws error at user if they do not select a camera """
+        #Throws error at user if they do not select a camera
 
         try:
             if self.CalibrationCameraModel_3.currentIndex() == -1:
@@ -2316,7 +2319,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
 
     def on_CalibrationGenButton_4_released(self):
-    """ Throws error at user if they do not select a camera """
+        #Throws error at user if they do not select a camera
 
         try:
             if self.CalibrationCameraModel_4.currentIndex() == -1:
@@ -2331,7 +2334,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
     def on_CalibrationGenButton_5_released(self):
-    """ Throws error at user if they do not select a camera """
+        #Throws error at user if they do not select a camera
 
         try:
             if self.CalibrationCameraModel_5.currentIndex() == -1:
@@ -2346,7 +2349,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
     def on_CalibrationGenButton_6_released(self):
-    """ Throws error at user if they do not select a camera """
+        #Throws error at user if they do not select a camera 
 
         try:
             if self.CalibrationCameraModel_6.currentIndex() == -1:
