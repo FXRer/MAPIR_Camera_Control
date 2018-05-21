@@ -103,7 +103,7 @@ on mac use homebrew
 
 # if sys.platform == "win32":
 #       import exiftool
-#       exiftool.executable = modpath + os.sep + "exiftool.exe"
+#       exiftoolcutable = modpath + os.sep + "exiftool"
 
 
 class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
@@ -4253,7 +4253,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         # if self.PreProcessCameraModel.currentIndex() < 3:
         try:
             data = subprocess.run(
-                args=[modpath + os.sep + r'exiftool.exe', '-m', r'-UserComment', r'-ifd0:imagewidth', r'-ifd0:imageheight',
+                args=[modpath + os.sep + r'exiftool', '-m', r'-UserComment', r'-ifd0:imagewidth', r'-ifd0:imageheight',
                       os.path.abspath(inphoto)],
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                 stdin=subprocess.PIPE).stdout.decode("utf-8")
@@ -4276,7 +4276,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             # centralwavelength = inphoto.split(os.sep)[-1][1:4]
             if '' not in bandname:
                 exifout = subprocess.run(
-                    [modpath + os.sep + r'exiftool.exe', r'-config', modpath + os.sep + r'mapir.config', '-m',
+                    [modpath + os.sep + r'exiftool', r'-config', modpath + os.sep + r'mapir.config', '-m',
                      r'-overwrite_original', r'-tagsFromFile',
                      os.path.abspath(inphoto),
                      r'-all:all<all:all',
@@ -4307,7 +4307,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 if bandname[2].isdigit():
                     bandname[2] = r'F' + bandname[2]
                 exifout = subprocess.run(
-                    [modpath + os.sep + r'exiftool.exe', r'-config', modpath + os.sep + r'mapir.config', '-m',
+                    [modpath + os.sep + r'exiftool', r'-config', modpath + os.sep + r'mapir.config', '-m',
                      r'-overwrite_original', r'-tagsFromFile',
                      os.path.abspath(inphoto),
                      r'-all:all<all:all',
@@ -4330,7 +4330,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                      os.path.abspath(outphoto)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE).stderr.decode("utf-8")
         except:
             exifout = subprocess.run(
-                [modpath + os.sep + r'exiftool.exe', #r'-config', modpath + os.sep + r'mapir.config',
+                [modpath + os.sep + r'exiftool', #r'-config', modpath + os.sep + r'mapir.config',
                  r'-overwrite_original_in_place', r'-tagsFromFile',
                  os.path.abspath(inphoto),
                  r'-all:all<all:all',
@@ -4338,7 +4338,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print(exifout)
     def copySimple(self, inphoto, outphoto):
         exifout = subprocess.run(
-            [modpath + os.sep + r'exiftool.exe',  # r'-config', modpath + os.sep + r'mapir.config',
+            [modpath + os.sep + r'exiftool',  # r'-config', modpath + os.sep + r'mapir.config',
              r'-overwrite_original_in_place', r'-tagsFromFile',
              os.path.abspath(inphoto),
              r'-all:all<all:all',
@@ -4352,7 +4352,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             try:
                 subprocess._cleanup()
                 data = subprocess.run(
-                    args=[modpath + os.sep + r'exiftool.exe', '-m', r'-ifd0:imagewidth', r'-ifd0:imageheight', os.path.abspath(inphoto)],
+                    args=[modpath + os.sep + r'exiftool', '-m', r'-ifd0:imagewidth', r'-ifd0:imageheight', os.path.abspath(inphoto)],
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                     stdin=subprocess.PIPE).stdout.decode("utf-8")
                 data = [line.strip().split(':') for line in data.split('\r\n') if line.strip()]
@@ -4395,7 +4395,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         altref = 0 if self.conv.META_PAYLOAD["GNSS_HEIGHT_SEA_LEVEL"][1] >= 0 else 1
                         if '' not in bandname:
                             exifout = subprocess.run(
-                                [modpath + os.sep + r'exiftool.exe',  r'-config', modpath + os.sep + r'mapir.config', '-m', r'-overwrite_original', r'-tagsFromFile',
+                                [modpath + os.sep + r'exiftool',  r'-config', modpath + os.sep + r'mapir.config', '-m', r'-overwrite_original', r'-tagsFromFile',
                                  os.path.abspath(inphoto),
                                  r'-all:all<all:all',
                                  r'-ifd0:make=MAPIR',
@@ -4440,7 +4440,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         else:
 
                             exifout = subprocess.run(
-                                [modpath + os.sep + r'exiftool.exe', r'-config', modpath + os.sep + r'mapir.config',
+                                [modpath + os.sep + r'exiftool', r'-config', modpath + os.sep + r'mapir.config',
                                  '-m', r'-overwrite_original', r'-tagsFromFile',
                                  os.path.abspath(inphoto),
                                  r'-all:all<all:all',
@@ -4493,7 +4493,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 else:
                     # self.PreProcessLog.append("No IMU data detected.")
                     subprocess.call(
-                        [modpath + os.sep + r'exiftool.exe', '-m', r'-overwrite_original', r'-tagsFromFile',
+                        [modpath + os.sep + r'exiftool', '-m', r'-overwrite_original', r'-tagsFromFile',
                          os.path.abspath(inphoto),
                          # r'-all:all<all:all',
                          os.path.abspath(outphoto)])
@@ -4638,7 +4638,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     #         QtWidgets.QApplication.processEvents()
     #         self.KernelLog.append("Updating " + str(img))
     #         subprocess.call(
-    #             [modpath + os.sep + r'exiftool.exe', '-m', r'-overwrite_original', r'-ifd0:blacklevelrepeatdim=2 2',  img], startupinfo=si)
+    #             [modpath + os.sep + r'exiftool', '-m', r'-overwrite_original', r'-ifd0:blacklevelrepeatdim=2 2',  img], startupinfo=si)
     #
     #     self.KernelLog.append("Finished updating")
 
