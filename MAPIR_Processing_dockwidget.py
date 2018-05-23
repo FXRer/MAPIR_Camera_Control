@@ -322,7 +322,23 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
+<<<<<<< HEAD
+        # try:
+        #     self.KernelViewer = KernelBrowserViewer.KernelBrowserViewer(self)
+        # except Exception as e:
+        #     exc_type, exc_obj,exc_tb = sys.exc_info()
+        #     print(e + ' ) + exc_tb.tb_lineno
+        # self.timer.timeout.connect(self.tick)
 
+    # def tick(self):
+    # try:
+    #   self.KernelUpdate()
+# except Exception as e:
+#             exc_type, exc_obj,exc_tb = sys.exc_info()
+# print(e)
+=======
+
+>>>>>>> 05d6ce35dc7aa83ff1a126a4a70ec326194099c4
     def exitTransfer(self, drv='C'):
         """ writes the text file that must be sent to kernel as the signal to the kernel to exit transfer mode """
         #tmtf is a blank file that the camera is looking for, when it reads tmtf it stops transfer mode
