@@ -324,6 +324,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print("Line: " + str(exc_tb.tb_lineno))
 
     def exitTransfer(self, drv='C'):
+        """ writes the text file that must be sent to kernel as the signal to the kernel to exit transfer mode """
         #tmtf is a blank file that the camera is looking for, when it reads tmtf it stops transfer mode
         tmtf = r":/dcim/tmtf.txt" #location of tmtf file that allows you to  exit transfer mode
 
@@ -351,6 +352,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
     #Kernel refresh and kernel connect both call connect kernels
     def on_KernelRefreshButton_released(self):
+        """calls connect kernels when the refresh button is clicked  """
         # self.exitTransfer()
         self.ConnectKernels()
     def on_KernelConnect_released(self):
@@ -419,35 +421,32 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 QtWidgets.QApplication.processEvents()
 
     def UpdateLensID(self):
+        """ update lens ID sends a new lens ID to the kernel """
         buf = [0] * 512
         buf[0] = self.SET_REGISTER_WRITE_REPORT
         buf[1] = eRegister.RG_LENS_ID.value
         buf[2] = DROPDOW_2_LENS.get((self.KernelFilterSelect.currentText(), self.KernelLensSelect.currentText()), 255)
 
         self.writetokernel(buf) #write buffer to kernel camera
+
     def on_KernelLensSelect_currentIndexChanged(self, int = 0):
+        """  Kernel Lens Select updates the lens ID to the appropriate ID """
         try:
-            self.UpdateLensID()
+            self.UpdateLensID() #update the lens id if the index is changed
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             self.KernelLog.append("Error: " + e)
     def on_KernelFilterSelect_currentIndexChanged(self, int = 0):
+        """ Kernel filter select updates the filter ID within the kernel tab"""
         try:
-            # threeletter = self.KernelFilterSelect.currentText()
-            # buf = [0] * 512
-            # buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
-            # buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
-            # buf[2] = 3
-            # buf[3] = ord(threeletter[0])
-            # buf[4] = ord(threeletter[1])
-            # buf[5] = ord(threeletter[2])
-            # res = self.writetokernel(buf) #write buffer to kernel
+            
             self.UpdateLensID()
             self.KernelUpdate()
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.KernelLog.append("Error: " + e)
     def on_KernelCameraSelect_currentIndexChanged(self, int = 0):
+        """ select which kernel is connected when the current index changes """
         self.camera = self.paths[self.KernelCameraSelect.currentIndex()]
         self.KernelFilterSelect.blockSignals(True)
         self.KernelFilterSelect.setCurrentIndex(self.KernelFilterSelect.findText(self.KernelCameraSelect.currentText()))
@@ -458,14 +457,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             except Exception as e:
                 exc_type, exc_obj,exc_tb = sys.exc_info()
                 self.KernelLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
-    # def on_KernelArraySelect_currentIndexChanged(self, int = 0):
-    #     if self.KernelArraySelect.currentIndex() == 0:
-    #         self.array_indicator = False
-    #         self.KernelCameraSelect.setEnabled(True)
-    #     else:
-    #         self.array_indicator = True
-    #         self.KernelCameraSelect.setEnabled(False)
+
     def on_VignetteButton_released(self):
+        """ calls Vignette to apply a vignette """
         #action taken on vignette button being released
         if self.VigWindow == None:
             self.VigWindow = Vignette(self)
@@ -474,6 +468,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         self.VigWindow.show() #display
 
     def on_KernelBrowserButton_released(self):
+        """opens up a browser window to navigate through system files in the kernel browser button under the kernel tab  """
 
         #the following lines populate the browse bar with the corresponding path to the selected file
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
@@ -554,6 +549,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
 
     def on_ViewerStretchBox_toggled(self):
+        """calls stretch view in the viewer table once the stretch view box is toggled  """
         self.stretchView()
     def stretchView(self):
         """equalizing the historgram, stretching the image to its min and max, allows you to see very dark Images
@@ -591,7 +587,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print("Line: " + str(exc_tb.tb_lineno))
 
     def on_ViewerIndexBox_toggled(self):
+        """ calls apply raster when the view index box is toggled"""
         self.applyRaster()
+
     def applyRaster(self):
         """
         handles the ndvi caclulation on the view tab
@@ -619,12 +617,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             print(e)
             print("Line: " + str(exc_tb.tb_lineno))
+
     def updateViewer(self, keepAspectRatio = True):
-
-
-
-     def updateViewer(self, keepAspectRatio = True):
-        #refreshes the image on viewer
+         """refreshes the image on the viewer """
         self.mapscene = QtWidgets.QGraphicsScene()
 
         self.mapscene.addPixmap(QtGui.QPixmap.fromImage(
@@ -638,6 +633,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         QtWidgets.QApplication.processEvents()
 
     def on_LUTBox_toggled(self):
+        """calls applyLUT when the LUTBox button is clicked in the viewer tab  """
         #apply LUT when the box is toggled
         #if the LUT box is toggled then apply LUT
         self.applyLUT()
@@ -686,6 +682,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print("Line: " + str(exc_tb.tb_lineno))
 
     def on_ViewerSaveButton_released(self):
+        """ Viewer save button calls the save dialog when an image is being saved """
 
         if self.savewindow == None:
             self.savewindow = SaveDialog(self)
@@ -697,6 +694,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         QtWidgets.QApplication.processEvents()
 
     def on_LUTButton_released(self):
+        """ event handling for when the lut button is releasted  """
         if self.LUTwindow == None:
             self.LUTwindow = Applicator(self)
         self.LUTwindow.resize(385, 160)
@@ -705,12 +703,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         QtWidgets.QApplication.processEvents()
 
     def on_ViewerCalcButton_released(self):
+        """ calls the caluclator function in the viewer tab to run the NDVI calculator"""
         if self.LUTwindow == None:
             self.calcwindow = Calculator(self) #pass the calculator a new version of itself (a Q object) to the display
         self.calcwindow.resize(385, 250)
         self.calcwindow.show()
         QtWidgets.QApplication.processEvents()
     def on_ZoomIn_released(self):
+        """ zoom into the image """
         if self.image_loaded == True:
             try:
                 # self.KernelViewer.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorViewCenter)
@@ -721,6 +721,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 print(e)
                 print("Line: " + str(exc_tb.tb_lineno))
     def on_ZoomOut_released(self):
+        """ zoom out of the image """
         if self.image_loaded == True:
             try:
                 # self.KernelViewer.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorViewCenter)
@@ -731,6 +732,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 print(e)
                 print("Line: " + str(exc_tb.tb_lineno))
     def on_ZoomToFit_released(self):
+        """ zooms the image to fit the screen"""
         self.mapscene = QtWidgets.QGraphicsScene()
         self.mapscene.addPixmap(QtGui.QPixmap.fromImage(
             QtGui.QImage(self.frame)))
@@ -869,7 +871,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     #
     #      Add the auto transfer check.
 
-    #following code is to dictate the actions taken when kernel buttons 1-6 are released
+    #following code is to write the pathname into the browser bar under Kernel>Automation>Rename
     def on_KernelBandButton1_released(self):
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             #get the existing directory string
@@ -913,12 +915,15 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             instring.write(self.KernelBand6.text())
 
     def on_KernelRenameOutputButton_released(self):
+        """ writes the pathway into the browser bar"""
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             self.KernelRenameOutputFolder.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
             instring.seek(0)
             instring.write(self.KernelRenameOutputFolder.text())
     def on_KernelRenameButton_released(self):
+        """ Kernel Rename Button creates folders for every band and renames
+        all of the files so that files may be formatted to specific file naming conventions"""
         try:
             #create six folders that are all empty intially
             folder1 = []
@@ -990,6 +995,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             print("Line: " + str(exc_tb.tb_lineno))
 
     def getXML(self):
+        """ getXML reads values from the kernel in order  to generate a .kernelconfig,
+        this will later be sent to the analyze tab to create the .camerafig files for other software to read and coregister"""
         buf = [0] * 512
         buf[0] = self.SET_REGISTER_BLOCK_READ_REPORT
         buf[1] = eRegister.RG_MEDIA_FILE_NAME_A.value
@@ -1021,12 +1028,14 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         return (filt, sens, lens, arid, artype)
 
     def on_KernelMatrixButton_toggled(self):
+        """ sends the matrix back to the kernel """
         buf = [0] * 512
         buf[0] = self.SET_REGISTER_BLOCK_WRITE_REPORT
         buf[1] = eRegister.RG_COLOR_GAMMA_START.value
         buf[2] = 192
         try:
             if self.KernelMatrixButton.isChecked():
+                #mtx is a matrix that was setup  with the white balancing matrix values
                 mtx = (np.array([3.2406,-1.5372,-0.498,-0.9689,1.8756,0.0415,0.0557,-0.2040,1.0570]) * 16384.0).astype("uint32")
                 offset = (np.array([0.0, 0.0, 0.0])).astype("uint32")
                 gamma = (np.array([7.0,0.0,6.5,3.0,6.0,8.0,5.5,13.0,5.0,22.0,4.5,38.0,3.5,102.0,2.5,230.0,1.75,422.0,1.25,679.0,0.875,1062.0,0.625, 1575.0]) * 16.0).astype("uint32")
@@ -1043,13 +1052,16 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.KernelLog.append("Error: " + str(e) + ' Line: ' + str(exc_tb.tb_lineno))
-    #find all availiable drivers
+
     def getAvailableDrives(self):
+        #find all availiable drivers
         if 'Windows' not in platform.system():
             return []
         drive_bitmask = ctypes.cdll.kernel32.GetLogicalDrives()
         return list(itertools.compress(string.ascii_uppercase, map(lambda x: ord(x) - ord('0'), bin(drive_bitmask)[:1:-1])))
+
     def on_KernelTransferButton_toggled(self):
+        """ KernelTransferButton sends the signal to set the camera into transfer mode"""
         self.KernelLog.append(' ')
         currentcam = None
         try:
@@ -1210,6 +1222,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
 
     def on_KernelExposureMode_currentIndexChanged(self, int = 0):
+        """ writing the current exposure mode to the kernel"""
         # self.KernelExposureMode.blockSignals(True)
         if self.KernelExposureMode.currentIndex() == 1: #Manual
 
@@ -1299,6 +1312,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         self.A_Shutter_Window.exec_()
         # self.KernelUpdate()
     def on_KernelMESettingsButton_released(self):
+        """ """
         self.M_Shutter_Window = M_EXP_Control(self)
         self.M_Shutter_Window.resize(250, 125)
         self.M_Shutter_Window.exec_()
@@ -1306,6 +1320,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
 
     def on_KernelCaptureButton_released(self):
+        """ run captureImage when the capture button is pressed"""
         # if self.KernelCameraSelect.currentIndex() == 0:
         for cam in self.paths:
             self.camera = cam
@@ -2349,7 +2364,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
     def on_CalibrationGenButton_6_released(self):
-        #Throws error at user if they do not select a camera 
+        #Throws error at user if they do not select a camera
 
         try:
             if self.CalibrationCameraModel_6.currentIndex() == -1:
@@ -2365,6 +2380,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
 
     def on_CalibrateButton_released(self):
+        """Calibrate button released runs the calibration script for up to 6 cameras  """
 
         #Throws errors if a camera model is not selected
 
@@ -2624,6 +2640,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 self.multiplication_values["Green"] * self.pixel_min_max["greenmin"])
                             self.pixel_min_max["bluemin"] = int(
                                 self.multiplication_values["Blue"] * self.pixel_min_max["bluemin"])
+                        #loops through each of the files that is being calibrated
                         for i, calfile in enumerate(files_to_calibrate):
 
                             cameramodel = ind
@@ -2639,7 +2656,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                     exc_type, exc_obj,exc_tb = sys.exc_info()
                                     self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
                             else:
-                                # calibrating the cameras with corresponding constants
+                                # calibrating the photos depending on the cameramodel, the proper default settings, and the proper min/max values
                                 if (cameramodel[0] == 4) and (self.CalibrationFilter.currentIndex() == 0):  # Survey2 NDVI
                                     if "TIF" in calfile.split('.')[2].upper():
                                         self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY2_NDVI_TIF, self.pixel_min_max, outdir, ind)
@@ -2699,6 +2716,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                     self.CalibratePhotos(calfile, MAPIR_Defaults.BASE_COEFF_SURVEY3_W_NGB_TIF, self.pixel_min_max,
                                                          outdir, ind)
                                 else:
+                                    #this else catches the case in which no MAPIR Reflectance Target was psupplied
                                     self.CalibrationLog.append(
                                         "No default calibration data for selected camera model. Please please supply a MAPIR Reflectance Target to proceed.\n")
                                     break
@@ -2710,13 +2728,17 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                         files_to_calibrate5 = []
                         files_to_calibrate6 = []
 
+                        #change the current directory to the calibration folder
                         os.chdir(calfolder)
-                        files_to_calibrate.extend(glob.glob("." + os.sep + "*.[tT][iI][fF]"))
-                        files_to_calibrate.extend(glob.glob("." + os.sep + "*.[tT][iI][fF][fF]"))
-                        files_to_calibrate.extend(glob.glob("." + os.sep + "*.[jJ][pP][gG]"))
-                        files_to_calibrate.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))
+                        #the last string in these lines represents file Type, i.e .tif, tiff, jpg, or jpeg
+                        #this is formatted such that file types are not case sensitive in linux, making it dummy proof
+                        files_to_calibrate.extend(glob.glob("." + os.sep + "*.[tT][iI][fF]")) #spells tif in any permutation of cases
+                        files_to_calibrate.extend(glob.glob("." + os.sep + "*.[tT][iI][fF][fF]")) #spells tiff
+                        files_to_calibrate.extend(glob.glob("." + os.sep + "*.[jJ][pP][gG]")) #spells jpg
+                        files_to_calibrate.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))   #spells jpeg
                         print(str(files_to_calibrate))
 
+                        #change the current directory to 2nd camera folder if it exists
                         if os.path.exists(calfolder2):
 
                             os.chdir(calfolder2)
@@ -2725,6 +2747,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             files_to_calibrate2.extend(glob.glob("." + os.sep + "*.[jJ][pP][gG]"))
                             files_to_calibrate2.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))
                             print(str(files_to_calibrate2))
+
+                        #change the current directory to 3rd camera folder if it exists
                         if os.path.exists(calfolder3):
 
                             os.chdir(calfolder3)
@@ -2733,6 +2757,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             files_to_calibrate3.extend(glob.glob("." + os.sep + "*.[jJ][pP][gG]"))
                             files_to_calibrate3.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))
                             print(str(files_to_calibrate3))
+
+                        #change the current directory to 4th camera folder if it exists
                         if os.path.exists(calfolder4):
 
                             os.chdir(calfolder4)
@@ -2741,6 +2767,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             files_to_calibrate4.extend(glob.glob("." + os.sep + "*.[jJ][pP][gG]"))
                             files_to_calibrate4.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))
                             print(str(files_to_calibrate4))
+
+                        #change the current directory to 5th camera folder if it exists
                         if os.path.exists(calfolder5):
 
                             os.chdir(calfolder5)
@@ -2750,6 +2778,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                             files_to_calibrate5.extend(glob.glob("." + os.sep + "*.[jJ][pP][eE][gG]"))
                             print(str(files_to_calibrate5))
 
+                        #change the current directory to 6th camera folder if it exists
                         if os.path.exists(calfolder6):
 
                             os.chdir(calfolder6)
@@ -2845,11 +2874,13 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 int(np.setdiff1d(self.imkeys[self.imkeys > int(np.median(temp6))], temp6)[0]),
                                 self.monominmax["max"])
 
-                        if os.path.exists(calfolder):
+
+                        if os.path.exists(calfolder): #if the calfolder exists, execute the following code
 
                             if "tif" or "TIF" or "jpg" or "JPG" in files_to_calibrate[0]:
                                 foldercount = 1
                                 endloop = False
+                                #use a while loop to create as many files as necessary
                                 while endloop is False:
                                     outdir = calfolder + os.sep + "Calibrated_" + str(foldercount)
                                     if os.path.exists(outdir):
@@ -2857,7 +2888,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                     else:
                                         os.mkdir(outdir)
                                         endloop = True
-
+                                #now run through all of the files and calibrated them
                                 for i, calfile in enumerate(files_to_calibrate):
                                     # print("cb1")
                                     self.CalibrationLog.append("Calibrating image " + str(i + 1) + " of " + str(len(files_to_calibrate)) + " from folder 1")
@@ -2873,6 +2904,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                             self.CalibrateMono(calfile, MAPIR_Defaults.BASE_COEFF_KERNEL_F650, outdir, ind)
                                         elif self.CalibrationFilter.currentIndex() == 2:
                                             self.CalibrateMono(calfile, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir, ind)
+
+                        #do the same thing for camera 2 if it exists
                         if os.path.exists(calfolder2):
 
                             if "tif" or "TIF" or "jpg" or "JPG" in files_to_calibrate2[0]:
@@ -2901,6 +2934,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                             self.CalibrateMono(calfile2, MAPIR_Defaults.BASE_COEFF_KERNEL_F650, outdir2)
                                         elif self.CalibrationFilter.currentIndex() == 2:
                                             self.CalibrateMono(calfile2, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir2)
+
+                        #do the same thing for camera 3 if it exists
                         if os.path.exists(calfolder3):
                             if "tif" or "TIF" or "jpg" or "JPG" in files_to_calibrate3[0]:
                                 foldercount = 1
@@ -2928,6 +2963,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                             self.CalibrateMono(calfile3, MAPIR_Defaults.BASE_COEFF_KERNEL_F650, outdir3)
                                         elif self.CalibrationFilter.currentIndex() == 2:
                                             self.CalibrateMono(calfile3, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir3)
+
+                        #do the same thing for camera 4 if it exists
                         if os.path.exists(calfolder4):
                             if "tif" or "TIF" or "jpg" or "JPG" in files_to_calibrate4[0]:
                                 foldercount = 1
@@ -2955,6 +2992,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                             self.CalibrateMono(calfile4, MAPIR_Defaults.BASE_COEFF_KERNEL_F650, outdir4)
                                         elif self.CalibrationFilter.currentIndex() == 2:
                                             self.CalibrateMono(calfile4, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir4)
+
+                        #do the same thing for camera 5 if it exists
                         if os.path.exists(calfolder5):
                             if "tif" or "TIF" or "jpg" or "JPG" in files_to_calibrate5[0]:
                                 foldercount = 1
@@ -2982,6 +3021,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                             self.CalibrateMono(calfile5, MAPIR_Defaults.BASE_COEFF_KERNEL_F650, outdir5)
                                         elif self.CalibrationFilter.currentIndex() == 2:
                                             self.CalibrateMono(calfile5, MAPIR_Defaults.BASE_COEFF_KERNEL_F850, outdir5)
+
+                        #do the same thing for camera 6 if it exists
                         if os.path.exists(calfolder6):
                             if "tif" or "TIF" or "jpg" or "JPG" in files_to_calibrate6[0]:
                                 foldercount = 1
@@ -3023,7 +3064,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.CalibrationLog.append(str(repr(e)))
 
     def CalibrateMono(self, photo, coeffs, output_directory, ind):
-
+        """ stretches the histogram for a single band image (grayscale)"""
         refimg = cv2.imread(photo, -1)
         print(str(refimg))
         if len(refimg.shape) > 2:
@@ -3072,7 +3113,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             self.copyExif(photo, newimg)
 
     def CalibratePhotos(self, photo, coeffs, minmaxes, output_directory, ind):
-        """Calibrates the photos, finds the min and max settings then normalizes the images """
+        """Calibrates the photos in a multiband image (RBG)
+        It finds the min and max settings then normalizes the images """
         refimg = cv2.imread(photo, -1)
 
         if True:
@@ -3282,7 +3324,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
     ####Function for finding he QR target and calculating the calibration coeficients\
     def findQR(self, image, ind):
-        """ finds the MAPIR control ground target and generates normalized calibration value  """
+        """ binarizes the image, finds contours, and then finds the MAPIR control ground target and generates normalized calibration value  """
         try:
             self.ref = ""
 
@@ -3340,6 +3382,8 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 denoised = cv2.fastNlMeansDenoising(cl1, None, 14, 7, 21)
 
                 threshcounter = 17
+
+                #need to find contours within the binary image
                 while threshcounter <= 255:
                     ret, thresh = cv2.threshold(denoised, threshcounter, 255, 0)
                     if os.name == "nt":
@@ -3722,6 +3766,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         return np.dstack([b, g, r])
 
     def preProcessHelper(self, infolder, outfolder, customerdata=True):
+        """ preProcessHelper loops through the unprocessed images and puts them into a user friendly format """
 
         if 5 < self.PreProcessCameraModel.currentIndex() <= 10:
             os.chdir(infolder)
@@ -3741,9 +3786,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         elif 0 <= self.PreProcessCameraModel.currentIndex() <= 2:
             os.chdir(infolder)
             infiles = []
-            infiles.extend(glob.glob("." + os.sep + "*.[mM][aA][pP][iI][rR]"))
-            infiles.extend(glob.glob("." + os.sep + "*.[tT][iI][fF]"))
-            infiles.extend(glob.glob("." + os.sep + "*.[tT][iI][fF][fF]"))
+            infiles.extend(glob.glob("." + os.sep + "*.[mM][aA][pP][iI][rR]")) #.mapir
+            infiles.extend(glob.glob("." + os.sep + "*.[tT][iI][fF]")) #.tif
+            infiles.extend(glob.glob("." + os.sep + "*.[tT][iI][fF][fF]")) #.tiff
             counter = 0
             for input in infiles:
                 self.PreProcessLog.append(
@@ -3794,22 +3839,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                                 images = np.zeros((4000 * 3000),dtype=np.uint16)
                                 for i in range(0, 12):
                                     images += 2 ** (11 - i) * data[:,  i]
-                                # red = (MAPIR_Defaults.UINT16MAX_FLOAT/31.0 * np.bitwise_and(np.right_shift(data, 11), 0x1f)).astype("uint16")
-                                # green = (MAPIR_Defaults.UINT16MAX_FLOAT/63.0 * np.bitwise_and(np.right_shift(data, 5), 0x3f)).astype("uint16")
-                                # blue = (MAPIR_Defaults.UINT16MAX_FLOAT/31.0 * np.bitwise_and(data, 0x1f)).astype("uint16")
-                                #
-                                # img = cv2.merge((blue,green,red)).astype("uint16")
-                                #
-                                #
-                                #
                                 img = np.reshape(images, (3000, 4000))
                                 tim = self.debayer(img)
                                 color = copy.deepcopy(tim)
-                                # color[tim[:, :, 0] >= MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                                # color[tim[:, :, 1] >= MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                                # color[tim[:, :, 2] >= MAPIR_Defaults.UINT16MAX_INT] = MAPIR_Defaults.UINT16MAX_INT
-                                # cv2.imwrite(outfolder + "test.tif", img)
-                                # cv2.imwrite(outfolder + "testDB.tif", tim)
                             except Exception as e:
                                 print(e)
                                 oldfirmware = True
@@ -3910,7 +3942,11 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
 
     def traverseHierarchy(self, tier, cont, index, image, depth):
+        #Assumption made: There will never be an object in an image that they supply for a QR
+        #   target that has the same depth as one of the QR target squares
 
+        """ Traverse hierarchy iterates through contours, finding their children, and searching for the 3 nested sets of tri-nested contours
+        these nested contour sets represent the calibration target"""
         if tier[0][index][2] != -1:
             self.traverseHierarchy(tier, cont, tier[0][index][2], image, depth + 1)
             return
@@ -3924,7 +3960,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             return
 
     def openDNG(self, inphoto, outfolder, customerdata=True):
-        """ """
+        """ calls dcraw to openDNG images """
         inphoto = str(inphoto)
         newfile = inphoto.split(".")[0] + ".tif"
         if not os.path.exists(outfolder + os.sep + newfile.rsplit(os.sep, 1)[1]):
@@ -4093,15 +4129,17 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.PreProcessLog.append("Error in function openMapir(): " + str(e) + ' Line: ' + str(exc_tb.tb_lineno))
         QtWidgets.QApplication.processEvents()
+
     def findCameraModel(self, resolution):
+        #finds whether the Kernel model is the 3.2 MP or 14.4 MP model
         if resolution < 10000000:
             return 'Kernel 3.2MP'
         else:
             return 'Kernel 14.4MP'
 
     def copyExif(self, inphoto, outphoto):
-
-        """ def copyExif reads in the metadata and adds a large amount of additional meta data to the tif files"""
+        """ def copyExif reads in the metadata and adds a large amount of additional meta data to the tif files from the jpeg files,
+         specifically used for Survey camers and tif images when doing calibrate"""
         subprocess._cleanup()
         # if self.PreProcessCameraModel.currentIndex() < 3:
         try:
@@ -4128,6 +4166,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
 
             # centralwavelength = inphoto.split(os.sep)[-1][1:4]
             if '' not in bandname:
+                #copying the metadata and adding custom metadata
                 exifout = subprocess.run(
                     [modpath + os.sep + r'exiftool.exe', r'-config', modpath + os.sep + r'mapir.config', '-m',
                      r'-overwrite_original', r'-tagsFromFile',
@@ -4192,7 +4231,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                  os.path.abspath(outphoto)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE,
                 startupinfo=si).stderr.decode("utf-8")
             print(exifout)
+
     def copySimple(self, inphoto, outphoto):
+        """ copies meta data without adding the MAPIR metadata"""
         exifout = subprocess.run(
             [modpath + os.sep + r'exiftool.exe',  # r'-config', modpath + os.sep + r'mapir.config',
              r'-overwrite_original_in_place', r'-tagsFromFile',
@@ -4201,7 +4242,9 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
              os.path.abspath(outphoto)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE,
             startupinfo=si).stderr.decode("utf-8")
         print(exifout)
+
     def copyMAPIR(self, inphoto, outphoto):
+        """ copyMAPIR is adding all our metadata from the MAPIR format using the MAPIR converter, specifically relevant for kernels """
         if sys.platform == "win32":
             # with exiftool.ExifTool() as et:
             #     et.execute(r' -overwrite_original -tagsFromFile ' + os.path.abspath(inphoto) + ' ' + os.path.abspath(outphoto))
@@ -4382,6 +4425,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             instring.write(self.AnalyzeInput.text())
 
     def on_AnalyzeOutButton_released(self):
+        """ Analyzes the output """
         with open(modpath + os.sep + "instring.txt", "r+") as instring:
             self.AnalyzeOutput.setText(QtWidgets.QFileDialog.getExistingDirectory(directory=instring.read()))
             instring.truncate(0)
