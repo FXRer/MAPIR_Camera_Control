@@ -340,7 +340,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     #   self.KernelUpdate()
 # except Exception as e:
 #             exc_type, exc_obj,exc_tb = sys.exc_info()
-# print(e
+# print(e)
     def exitTransfer(self, drv='C'):
         tmtf = r":/dcim/tmtf.txt"
 
